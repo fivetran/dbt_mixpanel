@@ -1,0 +1,78 @@
+version: 2
+
+sources: 
+  - name: mixpanel
+    database: "{{ var('mixpanel_database', target.database)}}" # add var config to dbt_project.yml
+    schema: "{{ var('mixpanel_schema', 'target.schema')}}" # replace target with 'mixpanel' before releasing
+
+    loader: fivetran
+    loaded_at_field: _fivetran_synced
+      
+    freshness:
+      warn_after: {count: 72, period: hour}
+      error_after: {count: 96, period: hour}
+
+    tables:
+      - name: src_mixpanel_dupe_events # replace with 'event' before releasing
+        description: Table of all events tracked by Mixpanel
+        columns:
+          - name: _fivetran_id
+          - name: event_id
+          - name: time
+          - name: distinct_id
+          - name: properties
+          - name: insert_id 
+          
+          # standard properties shared by all devices -- todo: when documenting, note which are only native to a certain device
+          - name: mp_processing_time_ms
+          - name: _fivetran_synced
+          - name: screen_width
+          - name: wifi
+          - name: app_release
+          - name: app_version
+          - name: os
+          - name: mp_device_model
+          - name: city
+          - name: os_version
+          - name: mp_country_code
+          - name: lib_version
+          - name: manufacturer
+          - name: radio
+          - name: carrier
+          - name: screen_height
+          - name: app_build_number
+          - name: model
+          - name: region
+          - name: app_version_string
+          - name: mp_lib
+          - name: initial_referring_domain
+          - name: device_id
+          - name: referrer
+          - name: current_url
+          - name: browser
+          - name: browser_version
+          - name: initial_referrer
+          - name: search_engine
+          - name: referring_domain
+          - name: bluetooth_version
+          - name: has_nfc
+          - name: brand
+          - name: has_telephone
+          - name: screen_dpi
+          - name: google_play_services
+          - name: had_persisted_distinct_id
+          - name: bluetooth_enabled
+          - name: ios_ifa
+          - name: device
+          - name: mp_keyword
+          - name: distinct_id_before_identity
+            description: > 
+              When an event comes in with a distinct_id that has been remapped to something 
+              else, this property contains the original value to aid debugging and error solution.
+
+
+          - name: ae_session_length
+            description: >
+              The length of the user's app session (mobile_only).
+
+                  
