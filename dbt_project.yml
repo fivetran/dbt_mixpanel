@@ -1,0 +1,14 @@
+config-version: 2
+
+name: 'mixpanel'
+version: '0.0.1'
+
+require-dbt-version: '>=0.17.0'
+
+models:
+    mixpanel:
+        materialized: table 
+
+
+# vars:
+profile: snowflake_union
