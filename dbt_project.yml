@@ -12,7 +12,7 @@ models:
 
 vars: # todo: move these to the readme due to [order of variable declaration precedence](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/using-variables/#variable-precedence) 
     mixpanel: 
-        event_table: "{{ source('fivetran_log', 'src_mixpanel_dupe_events') }}"  # switch table to 'event' before releasing
+        event_table: "{{ source('mixpanel', 'src_mixpanel_dupe_events') }}"  # switch table to 'event' before releasing
         # date_range_days: 180 
         custom_columns: []
         has_android_events: true

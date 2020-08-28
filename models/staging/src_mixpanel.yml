@@ -3,7 +3,7 @@ version: 2
 sources: 
   - name: mixpanel
     database: "{{ var('mixpanel_database', target.database)}}" # add var config to dbt_project.yml
-    schema: "{{ var('mixpanel_schema', 'target.schema')}}" # replace target with 'mixpanel' before releasing
+    schema: "{{ var('mixpanel_schema', target.schema)}}" # replace target with 'mixpanel' before releasing
 
     loader: fivetran
     loaded_at_field: _fivetran_synced
