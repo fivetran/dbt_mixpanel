@@ -14,7 +14,7 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
     mixpanel: 
         event_table: "{{ source('mixpanel', 'src_mixpanel_dupe_events') }}"  # switch table to 'event' before releasing
         # date_range_days: 180 
-        custom_columns: []
+        custom_event_columns: [ 'ios_ifa' ]
         has_android_events: true
         has_ios_events: true
         has_web_events: true

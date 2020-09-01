@@ -15,64 +15,168 @@ sources:
     tables:
       - name: src_mixpanel_dupe_events # replace with 'event' before releasing
         description: Table of all events tracked by Mixpanel
+
         columns:
+        # default properties regardless of platforms used
           - name: _fivetran_id
+            description: Fivetran-generated unique ID of the event record.
+            tests:
+              - unique
+              - not_null
+
           - name: event_id
+            description: Fivetran-generated attribute that was formerly the primary key.
+
           - name: time
+            description: >
+              Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
+
           - name: distinct_id
+            description: Foreign key referencing the event's associated user's `people.distinct_id`.
+
           - name: properties
+            description: JSON capturing properties specific to this type of event.
+
           - name: insert_id 
+            description: > 
+              Random 16 character string of alphanumeric characters that is unique to an event. 
+              Used to de-duplicate data.
+            tests:
+              - not_null
           
-          # standard properties shared by all devices -- todo: when documenting, note which are only native to a certain device
           - name: mp_processing_time_ms
-          - name: _fivetran_synced
-          - name: screen_width
-          - name: wifi
-          - name: app_release
-          - name: app_version
-          - name: os
-          - name: mp_device_model
-          - name: city
-          - name: os_version
-          - name: mp_country_code
-          - name: lib_version
-          - name: manufacturer
-          - name: radio
-          - name: carrier
+            description: >
+              Time in milliseconds in Unix Processing Time in which the event was ingested by Mixpanel.
+          
+          - name: screen_width 
+            description: Width of the device screen in pixels (web or android) or points (ios).
+
           - name: screen_height
+            description: The height of the device screen in pixels (web or android) or points (ios).
+
+          - name: city
+            description: > 
+              The city of the event sender, as parsed from the IP property or the Latitude and Longitude properties.
+            
+          - name: mp_country_code
+            description: >
+              The country code of the event sender, as parsed from the IP property or the Latitude and Longitude 
+              properties.
+
+          # mobile only
           - name: app_build_number
+            description: General build of this app.
+
+          - name: wifi
+            description: >
+              Boolean that is true if the event user’s device has an active, available Wifi connection, 
+              and false if not.
+              
+          - name: os
+            description: Operating system of the event sender.
+          
+          - name: os_version
+            description: Current version of iOS or Android on the device.
+
+          - name: lib_version
+            description: Mixpanel library used to send this data.
+
+          - name: manufacturer
+            description: Device manufacturer.
+
+          - name: radio
+            description: > 
+              The current cellular network communication standard type (3G, 4G, LTE, etc.) of the device 
+              that produced the event.
+
+          - name: carrier
+            description: Wireless carrier of the device owner.
+
           - name: model
+            description: Device model ID, in format "iPad 3,4".
+
           - name: region
+            description: > 
+              The region (state or province) of the event sender, as parsed from the IP property or the Latitude and 
+              Longitude properties.
+
           - name: app_version_string
+            description: Current app version.
+
           - name: mp_lib
+            description:  Mixpanel Library that sent the event.
+
           - name: initial_referring_domain
+            description: The referring domain at first arrival.
+            
           - name: device_id
+            description: >
+              A unique string that identifies a user before an authentication or identification flow. 
+              By default, Mixpanel creates a device_id for every unique browser/device.
+
           - name: referrer
-          - name: current_url
-          - name: browser
-          - name: browser_version
-          - name: initial_referrer
-          - name: search_engine
+            description: Referring URL, including your own domain.
+
           - name: referring_domain
-          - name: bluetooth_version
-          - name: has_nfc
-          - name: brand
-          - name: has_telephone
-          - name: screen_dpi
-          - name: google_play_services
-          - name: had_persisted_distinct_id
-          - name: bluetooth_enabled
-          - name: ios_ifa
-          - name: device
+            description: Referring domain, including your own domain.
+
+          - name: current_url
+            description: The full URL of the webpage on which the event was triggered.
+
+          - name: browser
+            description:  Browser name (not versioned).
+
+          - name: browser_version
+            description: Browser version number.
+
+          - name: initial_referrer
+            description: The referring URL at first arrival.
+
+          - name: search_engine
+            description: Search engine a customer used when they arrived at your domain.
+
           - name: mp_keyword
+            description: >
+              Search keywords detected on the referrer from a search engine to your domain. 
+              This property is only collected when search keywords are included in a URL. 
+
           - name: distinct_id_before_identity
             description: > 
               When an event comes in with a distinct_id that has been remapped to something 
               else, this property contains the original value to aid debugging and error solution.
 
-
           - name: ae_session_length
             description: >
               The length of the user's app session (mobile_only).
+
+            # android-only default properties
+          - name: bluetooth_version
+            description: Set to "none", "ble", or "classic".
+
+          - name: bluetooth_enabled
+            description: Boolean that is true if Bluetooth is enabled, false if not.
+
+          - name: has_nfc
+            description: Boolean that is true if Near Field Communication is being used, false if not.
+
+          - name: brand
+            description: Device brand.
+
+          - name: has_telephone
+            description: Boolean that is true if this device has telephone functionality, false if not.
+
+          - name: screen_dpi
+            description: Pixel density (dots per inch) of the device screen.
+
+          - name: google_play_services
+            description: >
+              Verifies that Google Play services is installed and enabled on this device, 
+              and that the version installed on this device is no older than the one required by this client.
+
+          # - name: ios_ifa
+          #   description: No longer used. 
+
+          - name: device
+            description: The name of the event sender's device, if they're on mobile web.
 
                   

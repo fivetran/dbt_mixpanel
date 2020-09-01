@@ -8,9 +8,8 @@ with event_table as (
 fields as (
 
     select
-        -- shared default events across platforms - 14
+        -- shared default events across platforms - 13
         insert_id,
-        event_id,
         time as occurred_at,
         distinct_id as people_id,
         properties as custom_properties,
@@ -48,7 +47,7 @@ fields as (
         -- app_release, -- deprecated 
         -- app_version, -- deprecated in favor of string
         app_version_string as app_version,
-        -- mp_device_model, -- deprecated 
+        -- mp_device_model, -- legacy, = model 
         os_version,
         lib_version as mixpanel_library_version,
         manufacturer as device_manufacturer,
@@ -61,7 +60,7 @@ fields as (
 
         -- ios-only default events - 2
         radio as network_type,
-        ios_ifa 
+        -- ios_ifa -- todo: remove
         {%- endif -%}
         {%- if var(has_android_events, true) -%}
         ,
@@ -71,21 +70,26 @@ fields as (
         has_nfc as has_near_field_communication,
         brand as device_brand,
         has_telephone as has_telephone,
-        screen_dpi as screen_pixel_density, -- todo: note in docs that this is in dots per inch
+        screen_dpi as screen_pixel_density,
         google_play_services as google_play_service_status,
         bluetooth_enabled as has_bluetooth_enabled
         {%- endif %}
 
+        {% for column in var(custom_event_columns, []) -%}
+        ,
+        {{ column }}
+        {%- endfor %}
+        {{ log( var(custom_event_columns), info=true) }}
         
     from event_table
 ),
 
 deduped as (
-    
+
     select * 
     from fields
 
-    {%- set groupby_n = 14 + var(has_web_events, true) * 10 + var(has_ios_events, true) * 2 + 
+    {%- set groupby_n = 13 + var(has_web_events, true) * 10 + var(has_ios_events, true) * 2 + 
         var(has_android_events, true) * 7 + (var(has_android_events, true) or var(has_ios_events, true)) * 8 %}
 
     {{ dbt_utils.group_by(groupby_n) }}
