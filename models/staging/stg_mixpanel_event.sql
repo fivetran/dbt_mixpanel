@@ -24,7 +24,7 @@ fields as (
         -- had_persisted_distinct_id, -- this was a bug from mixpanel apparently 
         distinct_id_before_identity as people_id_before_identified
 
-        {%- if var(has_web_events, true) -%}
+        {%- if var('has_web_events', true) -%}
         ,
 
         -- web-only default events - 10
@@ -39,7 +39,7 @@ fields as (
         browser_version,
         device as device_name
         {%- endif -%}
-        {%- if var(has_android_events, true) or var(has_ios_events, true) -%}
+        {%- if var('has_android_events', true) or var('has_ios_events', true) -%}
         ,
 
         -- mobile-only default events - 8
@@ -55,14 +55,14 @@ fields as (
         app_build_number,
         model as device_model
         {%- endif -%}
-        {%- if var(has_ios_events, true) -%}
+        {%- if var('has_ios_events', true) -%}
         ,
 
         -- ios-only default events - 2
         radio as network_type,
         -- ios_ifa -- todo: remove
         {%- endif -%}
-        {%- if var(has_android_events, true) -%}
+        {%- if var('has_android_events', true) -%}
         ,
 
         -- android-only default events - 7
@@ -73,13 +73,14 @@ fields as (
         screen_dpi as screen_pixel_density,
         google_play_services as google_play_service_status,
         bluetooth_enabled as has_bluetooth_enabled
-        {%- endif %}
+        {%- endif -%}
 
-        {% for column in var(custom_event_columns, []) -%}
+        {% for column in var('custom_event_columns', []) -%}
         ,
+        
+        -- custom properties as specified in your dbt_project.yml
         {{ column }}
         {%- endfor %}
-        {{ log( var(custom_event_columns), info=true) }}
         
     from event_table
 ),
@@ -89,8 +90,8 @@ deduped as (
     select * 
     from fields
 
-    {%- set groupby_n = 13 + var(has_web_events, true) * 10 + var(has_ios_events, true) * 2 + 
-        var(has_android_events, true) * 7 + (var(has_android_events, true) or var(has_ios_events, true)) * 8 %}
+    {%- set groupby_n = 13 + var('has_web_events', true) * 10 + var('has_ios_events', true) * 2 + 
+        var('has_android_events', true) * 7 + (var('has_android_events', true) or var('has_ios_events', true)) * 8 %}
 
     {{ dbt_utils.group_by(groupby_n) }}
 )
