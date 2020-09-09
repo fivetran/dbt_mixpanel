@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: stg_mixpanel_event
+    description: Table of all events tracked by Mixpanel
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - insert_id
+            - occurred_at

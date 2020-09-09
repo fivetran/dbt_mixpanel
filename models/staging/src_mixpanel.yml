@@ -27,6 +27,9 @@ sources:
           - name: event_id
             description: Fivetran-generated attribute that was formerly the primary key.
 
+          - name: name
+            description: Name of the type of event that was logged.
+
           - name: time
             description: >
               Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
@@ -172,9 +175,6 @@ sources:
             description: >
               Verifies that Google Play services is installed and enabled on this device, 
               and that the version installed on this device is no older than the one required by this client.
-
-          # - name: ios_ifa
-          #   description: No longer used. 
 
           - name: device
             description: The name of the event sender's device, if they're on mobile web.
