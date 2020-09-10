@@ -1,19 +1,75 @@
-with stg_event as (
+with events as (
 
-    select * 
-    from {{ ref('stg_mixpanel_event') }}
+    select 
+        event_type,
+        occurred_at,
+        insert_id,
+        people_id
+    from {{ ref('mixpanel_event') }}
+
+    where {{ var('daily_event_criteria', true) }}
+),
+
+user_metrics as (
+
+    select
+        people_id,
+        event_type,
+        min(occurred_at) as first_event_at
+
+    from events
+    group by 1,2
+),
+
+event_metrics as (
+
+    select
+        {{ dbt_utils.date_trunc('day', 'events.occurred_at') }} as date_day,
+        events.event_type,
+
+        count(distinct events.insert_id) as number_of_events,
+        count(distinct events.people_id) as number_of_users, 
+
+        count( distinct case when {{ dbt_utils.date_trunc('day', 'events.occurred_at') }} = {{ dbt_utils.date_trunc('day', 'user_metrics.first_event_at') }} 
+            then events.people_id end) as number_of_new_users,
+
+        count(distinct case when past_month.people_id = events.people_id and 
+            {{ dbt_utils.date_trunc('day', 'past_month.occurred_at') }} < {{ dbt_utils.date_trunc('day', 'events.occurred_at') }}
+            then events.people_id end) as number_of_repeat_users, -- todo: take difference  of total users - new - repeat to get returning
+
+        count(distinct past_month.people_id) as trailing_users_28d,
+        count(distinct case when {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 7 then past_month.people_id end) as trailing_users_7d
+        
+    from events 
+    join events past_month 
+        on events.event_type = past_month.event_type
+        and {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 28
+
+    join user_metrics 
+        on user_metrics.people_id = events.people_id
+        and user_metrics.event_type = events.event_type
+
+    group by 1,2    
+),
+
+-- todo: Should i add a spine? the datasets can be so big and i imagine analysts will primarily be looking at stuff on the monthly level
+-- i will probably use a spine at the month level
+final as (
+
+    select
+        date_day,
+        event_type,
+        number_of_events,
+        number_of_users,
+        number_of_new_users,
+        number_of_repeat_users,
+        (number_of_users - number_of_new_users - number_of_repeat_users) as number_of_return_users,
+        trailing_users_28d,
+        trailing_users_7d
+
+    from event_metrics
+    order by date_day desc, event_type
+
 )
 
--- todo: add spine
--- add criteria dictionargy
-
-
--- timeline as (
-
---     select  
---         event_type,
---         occurred_at,
-
--- )
-
-select * from stg_event
+select * from final

@@ -3,7 +3,7 @@ config-version: 2
 name: 'mixpanel'
 version: '0.0.1'
 
-require-dbt-version: '>=0.17.0'
+require-dbt-version: '>=0.18.0'
 
 models:
     mixpanel:
@@ -21,6 +21,8 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
 
         event_custom_columns: [ 'ios_ifa' ]
         event_properties: ['user_id', 'video_id', 'videoId']
+
+        # daily_event_criteria: 'coalesce(country_code, "") = US'
         
         
 profile: dev_bigquery_dbt_testing

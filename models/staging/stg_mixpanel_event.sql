@@ -5,6 +5,8 @@ with event_table as (
 
 ),
 
+-- selects default properties collected by mixpanel for each appropriate platform
+-- and any additional custom columns specified in your dbt_project.yml
 fields as (
 
     select
@@ -81,6 +83,7 @@ fields as (
     where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }}
 ),
 
+-- de-duplicate - the PK will be insert_id + occurred_at
 deduped as (
 
     select * 
