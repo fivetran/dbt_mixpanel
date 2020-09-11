@@ -103,7 +103,7 @@ sources:
             description: The full URL of the webpage on which the event was triggered.
 
           - name: browser
-            description:  Browser name (not versioned).
+            description: Browser name (not versioned).
 
           - name: browser_version
             description: Browser version number.
@@ -121,7 +121,7 @@ sources:
 
           - name: device
             description: The name of the event sender's device, if they're on mobile web.
-            
+
           # mobile only
           - name: app_build_number
             description: General build of this app.

@@ -14,28 +14,36 @@ models:
         description: > 
           Random 16 character string of alphanumeric characters that is unique to an event. 
           Used to de-duplicate data. 
+
       - name: occurred_at
         description: >
           Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
+          
       - name: event_type
         description: Name of the type of event that was logged.
+      
       - name: people_id
         description: Foreign key referencing the event's associated user's `people.distinct_id`.
+      
       - name: event_properties
         description: >
           JSON capturing properties specific to this type of event. Properties listed in the `event_properties`
           variable will be turned into columns in the `mixpanel_event` model.
+      
       - name: city
         description: >
           The city of the event sender, as parsed from the IP property or the Latitude and Longitude properties.
+      
       - name: country_code
         description: >
           The country code of the event sender, as parsed from the IP property or the Latitude and Longitude 
           properties.
+      
       - name: region
         description: >
           The region (state or province) of the event sender, as parsed from the IP property or the Latitude and 
           Longitude properties.
+      
       - name: mixpanel_library
         description: Mixpanel Library that sent the event.
 
@@ -49,59 +57,107 @@ models:
 
       - name: screen_height
         description: The height of the device screen in pixels (web or android) or points (ios).
+      
       - name: os
         description: Operating system of the event sender.
+      
       - name: people_id_before_identified
-        description: 
+        description: >
+          When an event comes in with a distinct_id that has been remapped to something 
+          else, this property contains the original value to aid debugging and error solution.
+
+      # web only properties
       - name: initial_referring_domain
-        description: 
+        description: The referring domain at first arrival.
+      
       - name: referring_domain
-        description: 
+        description: Referring domain, including your own domain.
+      
       - name: initial_referrer
-        description: 
+        description: The referring URL at first arrival.
+      
       - name: referrer
-        description: 
+        description: Referring URL, including your own domain.
+      
       - name: referrer_keywords
-        description: 
+        description: >
+          Search keywords detected on the referrer from a search engine to your domain. 
+          This property is only collected when search keywords are included in a URL. 
+      
       - name: search_engine
-        description: 
+        description: Search engine a customer used when they arrived at your domain.
+      
       - name: current_url
-        description: 
+        description: The full URL of the webpage on which the event was triggered.
+      
       - name: browser
-        description: 
+        description: Browser name (not versioned).
+      
       - name: browser_version
-        description: 
+        description: Browser version number.
+      
       - name: device_name
-        description: 
+        description: The name of the event sender's device, if they're on mobile web.
+
+      # mobile only properties
       - name: has_wifi_connected
-        description: 
+        description: >
+          Boolean that is true if the event user’s device has an active, available Wifi connection, 
+          and false if not.
+      
       - name: app_version
         description: Current app version.
+      
       - name: app_build_number
-        description: 
+        description: General build of this app.
+      
       - name: os_version
-        description: 
+        description: Current version of iOS or Android on the device.
+      
       - name: mixpanel_library_version
-        description: 
+        description: Mixpanel library used to send this data.
+      
       - name: device_manufacturer
-        description: 
-      - name: carrier as wireless_carrier
-        description: 
+        description: Device manufacturer.
+      
+      - name: wireless_carrier
+        description: Wireless carrier of the device owner.
+      
       - name: device_model
-        description: 
+        description: Device model ID, in format "iPad 3,4".
+      
+      - name: app_session_length
+        description: >
+          The length of the user's mobile app session. This is captured as a property of 
+          the default App Session mobile event tracked by mixpanel (triggers after > 10 seconds 
+          in the app).
+
+      # ios only 
       - name: network_type
-        description: 
+        description: >
+          The current cellular network communication standard type (3G, 4G, LTE, etc.) of the device 
+          that produced the event.
+
+      # android only
       - name: bluetooth_version
-        description: 
+        description: Set to "none", "ble", or "classic".
+      
       - name: has_near_field_communication
-        description: 
+        description: Boolean that is true if Near Field Communication is being used, false if not.
+      
       - name: device_brand
-        description: 
+        description: Device brand.
+      
       - name: has_telephone
-        description: 
+        description: Boolean that is true if this device has telephone functionality, false if not.
+      
       - name: screen_pixel_density
-        description: 
+        description: Pixel density (dots per inch) of the device screen.
+      
       - name: google_play_service_status
-        description: 
+        description: >
+          Verifies that Google Play services is installed and enabled on this device, 
+          and that the version installed on this device is no older than the one required by this client.
+      
       - name: has_bluetooth_enabled
-        description: 
+        description: Boolean that is true if Bluetooth is enabled, false if not.

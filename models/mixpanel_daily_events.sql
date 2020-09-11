@@ -53,7 +53,7 @@ event_metrics as (
 ),
 
 -- todo: Should i add a spine? the datasets can be so big and i imagine analysts will primarily be looking at stuff on the monthly level
--- i will probably use a spine at the month level
+-- + using a spine at the month level
 final as (
 
     select

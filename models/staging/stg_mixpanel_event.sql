@@ -44,7 +44,7 @@ fields as (
         {%- if var('has_android_events', true) or var('has_ios_events', true) -%}
         ,
 
-        -- mobile-only default events - 8
+        -- mobile-only default events - 9
         wifi as has_wifi_connected,
         app_version_string as app_version,
         app_build_number,
@@ -52,7 +52,8 @@ fields as (
         lib_version as mixpanel_library_version,
         manufacturer as device_manufacturer,
         carrier as wireless_carrier,
-        model as device_model
+        model as device_model,
+        ae_session_length as app_session_length
         {%- endif -%}
         {%- if var('has_ios_events', true) -%}
         ,
@@ -90,7 +91,7 @@ deduped as (
     from fields
 
     {%- set groupby_n = 14 + var('has_web_events', true) * 10 + var('has_ios_events', true) * 1 + 
-        var('has_android_events', true) * 7 + (var('has_android_events', true) or var('has_ios_events', true)) * 8 + 
+        var('has_android_events', true) * 7 + (var('has_android_events', true) or var('has_ios_events', true)) * 9 + 
         var('event_custom_columns', [])|length %}
 
     {{ dbt_utils.group_by(groupby_n) }}

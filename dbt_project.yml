@@ -17,12 +17,13 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
         has_android_events: true
         has_ios_events: true
         has_web_events: true
+
         date_range_start: '2020-01-01' 
 
         event_custom_columns: [ 'ios_ifa' ]
         event_properties: ['user_id', 'video_id', 'videoId']
 
-        # daily_event_criteria: 'coalesce(country_code, "") = US'
+        daily_event_criteria: 'coalesce(country_code, "") = US'
         
         
 profile: dev_bigquery_dbt_testing
