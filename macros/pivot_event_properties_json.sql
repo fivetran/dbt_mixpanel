@@ -11,6 +11,6 @@ parse_json(event_properties):{{ property }} as {{ property }}
 json_extract_path_text(event_properties, {{ "'" ~ property ~ "'" }} ) as {{ property }}
 {%- endif -%}
 
-{%- if not loop.last -%},{% endif %}
+{%- if not loop.last -%},{%- endif %}
 {% endfor -%}
 {% endmacro %}

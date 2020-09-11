@@ -1,3 +1,5 @@
+-- probably want to config this as incremental 
+
 with events as (
 
     select 

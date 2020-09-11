@@ -1,3 +1,5 @@
+-- probably want to config this as ephemeral.. or consolidate with mixpanel_event
+
 with event_table as (
 
     select * 
@@ -81,10 +83,11 @@ fields as (
         {%- endfor %}
         
     from event_table
-    where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }}
+    where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} -- todo: should we add a general 
 ),
 
 -- de-duplicate - the PK will be insert_id + occurred_at
+-- may want to move this to mixpanel_event? 
 deduped as (
 
     select * 
