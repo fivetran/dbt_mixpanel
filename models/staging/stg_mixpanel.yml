@@ -8,3 +8,100 @@ models:
           combination_of_columns: 
             - insert_id
             - occurred_at
+
+    columns: 
+      - name: insert_id
+        description: > 
+          Random 16 character string of alphanumeric characters that is unique to an event. 
+          Used to de-duplicate data. 
+      - name: occurred_at
+        description: >
+          Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
+      - name: event_type
+        description: Name of the type of event that was logged.
+      - name: people_id
+        description: Foreign key referencing the event's associated user's `people.distinct_id`.
+      - name: event_properties
+        description: >
+          JSON capturing properties specific to this type of event. Properties listed in the `event_properties`
+          variable will be turned into columns in the `mixpanel_event` model.
+      - name: city
+        description: >
+          The city of the event sender, as parsed from the IP property or the Latitude and Longitude properties.
+      - name: country_code
+        description: >
+          The country code of the event sender, as parsed from the IP property or the Latitude and Longitude 
+          properties.
+      - name: region
+        description: >
+          The region (state or province) of the event sender, as parsed from the IP property or the Latitude and 
+          Longitude properties.
+      - name: mixpanel_library
+        description: Mixpanel Library that sent the event.
+
+      - name: device_id
+        description: >
+          A unique string that identifies a user before an authentication or identification flow. 
+          By default, Mixpanel creates a device_id for every unique browser/device.
+
+      - name: screen_width
+        description: Width of the device screen in pixels (web or android) or points (ios).
+
+      - name: screen_height
+        description: The height of the device screen in pixels (web or android) or points (ios).
+      - name: os
+        description: Operating system of the event sender.
+      - name: people_id_before_identified
+        description: 
+      - name: initial_referring_domain
+        description: 
+      - name: referring_domain
+        description: 
+      - name: initial_referrer
+        description: 
+      - name: referrer
+        description: 
+      - name: referrer_keywords
+        description: 
+      - name: search_engine
+        description: 
+      - name: current_url
+        description: 
+      - name: browser
+        description: 
+      - name: browser_version
+        description: 
+      - name: device_name
+        description: 
+      - name: has_wifi_connected
+        description: 
+      - name: app_version
+        description: Current app version.
+      - name: app_build_number
+        description: 
+      - name: os_version
+        description: 
+      - name: mixpanel_library_version
+        description: 
+      - name: device_manufacturer
+        description: 
+      - name: carrier as wireless_carrier
+        description: 
+      - name: device_model
+        description: 
+      - name: network_type
+        description: 
+      - name: bluetooth_version
+        description: 
+      - name: has_near_field_communication
+        description: 
+      - name: device_brand
+        description: 
+      - name: has_telephone
+        description: 
+      - name: screen_pixel_density
+        description: 
+      - name: google_play_service_status
+        description: 
+      - name: has_bluetooth_enabled
+        description: 

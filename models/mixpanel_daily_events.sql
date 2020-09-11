@@ -35,7 +35,7 @@ event_metrics as (
 
         count(distinct case when past_month.people_id = events.people_id and 
             {{ dbt_utils.date_trunc('day', 'past_month.occurred_at') }} < {{ dbt_utils.date_trunc('day', 'events.occurred_at') }}
-            then events.people_id end) as number_of_repeat_users, -- todo: take difference  of total users - new - repeat to get returning
+            then events.people_id end) as number_of_repeat_users, 
 
         count(distinct past_month.people_id) as trailing_users_28d,
         count(distinct case when {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 7 then past_month.people_id end) as trailing_users_7d
@@ -63,6 +63,8 @@ final as (
         number_of_users,
         number_of_new_users,
         number_of_repeat_users,
+        
+        -- doing it this way to avoid another self-join with big event data
         (number_of_users - number_of_new_users - number_of_repeat_users) as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d
