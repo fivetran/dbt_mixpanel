@@ -161,7 +161,7 @@ sources:
               The current cellular network communication standard type (3G, 4G, LTE, etc.) of the device 
               that produced the event.
 
-            # android-only default properties
+          # android-only default properties
           - name: bluetooth_version
             description: Set to "none", "ble", or "classic".
 
@@ -184,5 +184,4 @@ sources:
             description: >
               Verifies that Google Play services is installed and enabled on this device, 
               and that the version installed on this device is no older than the one required by this client.
-
                   

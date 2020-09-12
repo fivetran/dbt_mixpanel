@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: mixpanel_event
+  - name: mixpanel_daily_events
+
+macros:
+  - name: pivot_event_properties_json
+  - name: analyze_funnel

@@ -1,4 +1,4 @@
-{% macro pivot_event_properties(list_of_properties) %}
+{% macro pivot_event_properties_json(list_of_properties) %}
 {% for property in list_of_properties -%}
 
 {%- if target.type == 'bigquery' -%}
