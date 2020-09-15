@@ -8,9 +8,10 @@ with events as (
     where 
     {% for event_type in event_funnel %}
         event_type = {{ "'" ~ event_type ~ "'" }} 
-    {%- if not loop.last -%} OR {%- endif %}
+    {%- if not loop.last %} OR {%- endif %}
+    {% endfor %}
 
-    AND ( conversion_criteria )
+    AND ( {{ conversion_criteria }} )
 
 ),
 
@@ -38,11 +39,10 @@ grouped_events as (
         when {{ "'" ~ event_type ~ "'"}} then {{ loop.index + (group_by_column != None) }}
         {% endfor %}
         end 
-        {% endfor %}
 )
--- todo on monday: use lag window function
+-- todo: use lag window function from https://fivetran.com/blog/funnel-analysis
 select
-0
+*
 from 
 grouped_events
 
