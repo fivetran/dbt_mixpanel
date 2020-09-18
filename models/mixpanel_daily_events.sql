@@ -54,8 +54,6 @@ event_metrics as (
     group by 1,2    
 ),
 
--- todo: Should i add a spine? the datasets can be so big and i imagine analysts will primarily be looking at stuff on the monthly level
--- + using a spine at the month level
 final as (
 
     select

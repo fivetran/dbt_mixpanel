@@ -1,9 +1,19 @@
 -- probably want to config this as ephemeral.. or consolidate with mixpanel_event
 
-with event_table as (
+with events as (
 
     select * 
     from {{ var('event_table' )}}
+
+    where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
+
+),
+
+dedupe as (
+
+    select *,
+    row_number() over(partition by insert_id, distinct_id, name order by mp_processing_time_ms asc) as nth_event_record
+    from events
 
 ),
 
@@ -82,22 +92,27 @@ fields as (
         {{ column }}
         {%- endfor %}
         
-    from event_table
-    where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} -- todo: should we add a general 
-),
+    from dedupe
+    where nth_event_record = 1
+)
 
 -- de-duplicate - the PK will be insert_id + occurred_at
 -- may want to move this to mixpanel_event? 
-deduped as (
+{# deduped as ( #}
 
-    select * 
+    {# select * 
     from fields
 
     {%- set groupby_n = 14 + var('has_web_events', true) * 10 + var('has_ios_events', true) * 1 + 
         var('has_android_events', true) * 7 + (var('has_android_events', true) or var('has_ios_events', true)) * 9 + 
         var('event_custom_columns', [])|length %}
 
-    {{ dbt_utils.group_by(groupby_n) }}
-)
+    {{ dbt_utils.group_by(groupby_n) }} #}
 
-select * from deduped
+    {# select *,
+    row_number() over(partition by insert_id, people_id, event_type order by )
+    from fields
+
+
+) #}
+select * from fields
