@@ -5,19 +5,27 @@ with events as (
     select * 
     from {{ var('event_table' )}}
 
+    -- limit date range
     where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
 
 ),
 
 dedupe as (
 
-    select *,
-    row_number() over(partition by insert_id, distinct_id, name order by mp_processing_time_ms asc) as nth_event_record
-    from events
+    select * from (
+
+    select 
+        *,
+        -- aligned with mixpanel's deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
+        row_number() over(partition by insert_id, distinct_id, name order by mp_processing_time_ms asc) as nth_event_record
+        
+        from events
+    ) 
+    where nth_event_record = 1
 
 ),
 
--- selects default properties collected by mixpanel for each appropriate platform
+-- selects default properties collected by mixpanel for each appropriate platform -- TODO: use fill_staging_columns macro for this
 -- and any additional custom columns specified in your dbt_project.yml
 fields as (
 
@@ -36,6 +44,8 @@ fields as (
         screen_width,
         screen_height,
         os,
+
+        -- todo: incorporate macro for all columns once pushed to its pushed to dbt_fivetran_utils
         distinct_id_before_identity as people_id_before_identified
 
         {%- if var('has_web_events', true) -%}
@@ -93,26 +103,6 @@ fields as (
         {%- endfor %}
         
     from dedupe
-    where nth_event_record = 1
 )
 
--- de-duplicate - the PK will be insert_id + occurred_at
--- may want to move this to mixpanel_event? 
-{# deduped as ( #}
-
-    {# select * 
-    from fields
-
-    {%- set groupby_n = 14 + var('has_web_events', true) * 10 + var('has_ios_events', true) * 1 + 
-        var('has_android_events', true) * 7 + (var('has_android_events', true) or var('has_ios_events', true)) * 9 + 
-        var('event_custom_columns', [])|length %}
-
-    {{ dbt_utils.group_by(groupby_n) }} #}
-
-    {# select *,
-    row_number() over(partition by insert_id, people_id, event_type order by )
-    from fields
-
-
-) #}
 select * from fields
