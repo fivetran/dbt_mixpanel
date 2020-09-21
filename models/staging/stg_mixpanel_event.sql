@@ -31,6 +31,7 @@ fields as (
 
     select
         -- shared default events across platforms - 14
+        insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id,
         insert_id,
         time as occurred_at,
         name as event_type,
