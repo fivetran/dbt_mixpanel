@@ -10,6 +10,14 @@ models:
             - occurred_at
 
     columns: 
+      - name: unique_event_id
+        description: > 
+          Unique ID of the event. Events are de-duped according to Mixpanel's [requirements](https://developer.mixpanel.com/reference/http#event-deduplication).
+          This ID is the `insert_id` concatenated with the **date** of the event.
+        tests:
+          - unique
+          - not_null 
+
       - name: insert_id
         description: > 
           Random 16 character string of alphanumeric characters that is unique to an event. 
