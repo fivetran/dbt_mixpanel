@@ -129,7 +129,7 @@ models:
       - name: app_session_length
         description: >
           The length of the user's mobile app session. This is captured as a property of 
-          the default App Session mobile event tracked by mixpanel (triggers after > 10 seconds 
+          the default 'App Session' mobile event tracked by mixpanel (triggers after > 10 seconds 
           in the app).
 
       # ios only 
