@@ -5,8 +5,9 @@ with events as (
     select 
         event_type,
         occurred_at,
-        insert_id,
-        people_id
+        people_id,
+        unique_event_id
+
     from {{ ref('mixpanel_event') }}
 
     where {{ var('daily_event_criteria', true) }}
@@ -29,7 +30,7 @@ event_metrics as (
         {{ dbt_utils.date_trunc('day', 'events.occurred_at') }} as date_day,
         events.event_type,
 
-        count(distinct events.insert_id) as number_of_events,
+        count(distinct events.unique_event_id) as number_of_events,
         count(distinct events.people_id) as number_of_users, 
 
         count( distinct case when {{ dbt_utils.date_trunc('day', 'events.occurred_at') }} = {{ dbt_utils.date_trunc('day', 'user_metrics.first_event_at') }} 

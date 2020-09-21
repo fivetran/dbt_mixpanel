@@ -22,7 +22,7 @@ grouped_events as (
     select
         {{ group_by_column ~ "," if group_by_column != None }}
         event_type,
-        count(insert_id) as number_of_events,
+        count(unique_event_id) as number_of_events,
         count(distinct people_id) as number_of_users
         
     from events
