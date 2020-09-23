@@ -3,6 +3,9 @@ version: 2
 models:
   - name: mixpanel_event
   - name: mixpanel_daily_events
+  - name: mixpanel_monthly_events
+
+  # todo: sessionization model(s)
 
 macros:
   - name: pivot_event_properties_json
