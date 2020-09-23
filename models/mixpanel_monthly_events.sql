@@ -39,6 +39,7 @@ monthly_metrics as (
     select 
         date_month,
         event_type,
+        total_monthly_active_users,
         count(distinct people_id) as number_of_users,
         count( distinct case when first_month = date_month then people_id end) as number_of_new_users,
 
@@ -50,12 +51,12 @@ monthly_metrics as (
             {{ dbt_utils.datediff('previous_month_with_event', 'date_month', 'month') }} > 1
             then people_id end) as number_of_return_users,
 
-        sum(number_of_events),
-        total_monthly_active_users
+        sum(number_of_events) as number_of_events
+        
 
 
     from user_monthly_events
-    group by 1,2
+    group by 1,2,3
 ),
 
 -- add churn!
