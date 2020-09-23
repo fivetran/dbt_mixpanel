@@ -18,7 +18,7 @@ user_monthly_events as (
         *, 
         -- add window functions
         min(date_month) over(partition by people_id, event_type) as first_month,
-        lag(people_id, 1) over(partition by people_id, event_type order by date_month asc) previous_month_with_event,
+        lag(date_month, 1) over(partition by people_id, event_type order by date_month asc) previous_month_with_event,
         count(distinct people_id) over( partition by date_month ) as total_monthly_active_users
 
     from (
@@ -65,11 +65,7 @@ final as (
         *,
         -- subtract the returned users from the previous month's total users to get the # churned
         -- note: churned users refer to users who did something last month and not this month
-        lag(number_of_users, 1) over(partition by date_month, event_type order by date_month asc) - number_of_repeat_users as number_of_churn_users,
-
-        lag(number_of_new_users, 1) over(partition by date_month, event_type order by date_month asc) - number_of_repeat_users as number_of_churned_new_users,
-        lag(number_of_repeat_users, 1) over(partition by date_month, event_type order by date_month asc) - number_of_repeat_users as number_of_churned_repeat_users,
-        lag(number_of_return_users, 1) over(partition by date_month, event_type order by date_month asc) - number_of_repeat_users as number_of_churned_return_users
+        lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users as number_of_churn_users
 
     from monthly_metrics
 )
