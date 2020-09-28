@@ -25,7 +25,7 @@ The `analyze_funnel(event_funnel, group_by_column, conversion_criteria)` macro c
 - The relative user and event dropoff between subsequent steps. Note: the relative order of the steps is determined by their event volume.
 
 And it takes the following as arguments:
-- `event_funnel`: List of event types (case insensitive). This does not have to be in the correct order of the funnel, as the funnel order will be determined by event volume.
+- `event_funnel`: List of event types (case insensitive). This does not have to be in the correct order of the funnel, as the funnel order will be determined by event volume. Example: `'
 - `group_by_column`: (Optional) A column in `mixpanel_event` that you want to segment the funnel by. Default is `None`.
 - `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when pulling data from `mixpanel_event`. To make the criteria funnel-wide, you would write something like `conversion_criteria='country_code = "US"'`, which will limit all events to the US. To apply criteria to just one event, you would write something like `conversion_criteria='country_code = "US"' OR event_type != 'play_song'`, which will limit only song plays to the US.
 
@@ -47,15 +47,45 @@ vars:
     mixpanel_schema: your_schema_name 
 ```
 
-### Variables
+### Custom Columns
+Out of the box, this package will select the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, it's likely that you have custom properties or columns that would be helpful to have in the the `mixpanel_event` model.
+
+If there are **properties** in your `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
+
+```yml
+# dbt_project.yml
+
+...
+config-version: 2
+
+vars:
+  mixpanel:
+    event_properties_to_pivot: ['the', 'list', 'of', 'property', 'fields']
+```
+
+And if you have **columns** present in your source `mixpanel.event` table that are not covered by Mixpanel default columns, add the following variable to your `dbt_project.yml` file:
+
+```yml
+# dbt_project.yml
+
+...
+config-version: 2
+
+vars:
+  mixpanel:
+    event_custom_columns: ['the', 'list', 'of', 'column', 'names']
+```
+
+### Event Date Range
+
+### Timeline Filters
 This package incorporates the following variables:
-- date_range_start
+- `date_range_start`
 - event_custom_columns
-- event_properties_to_pivot
+- `event_properties_to_pivot`: A list of fields in the `mixpanel.event.properties` JSON object that you want to pivot out. These will become columns in the `mixpanel_event` model. Example: `['user_id', 'song_id']`
 - daily_event_criteria
 - monthly_event_criteria
 - conversion_criteria
-
 
 ## Contributions
 Additional contributions to this package are very welcome! Please create issues
