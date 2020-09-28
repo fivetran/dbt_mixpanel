@@ -10,7 +10,7 @@ with events as (
 
     from {{ ref('mixpanel_event') }}
 
-    where {{ var('daily_event_criteria', true) }}
+    where {{ var('daily_event_criteria', 'true') }}
 ),
 
 user_metrics as (
@@ -44,7 +44,7 @@ event_metrics as (
         count(distinct case when {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 7 then past_month.people_id end) as trailing_users_7d
         
     from events 
-    -- todo: can we use a window function instead of a self join?
+    -- todo: can we use a window function instead of a self join? see monthly events
     join events past_month 
         on events.event_type = past_month.event_type
         and {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 28

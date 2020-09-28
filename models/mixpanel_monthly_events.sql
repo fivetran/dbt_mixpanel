@@ -9,7 +9,7 @@ with events as (
         people_id
     from {{ ref('mixpanel_event') }}
 
-    where {{ var('monthly_event_criteria', true) }} -- todo: should the monthly and daily tables use the same criteria?
+    where {{ var('monthly_event_criteria', 'true') }} -- todo: should the monthly and daily tables use the same criteria?
 ),
 
 user_monthly_events as (

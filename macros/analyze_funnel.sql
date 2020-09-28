@@ -8,7 +8,7 @@ with events as (
 
     where 
     {% for event_type in event_funnel %}
-        event_type = {{ "'" ~ event_type ~ "'" }} 
+        lower(event_type) = lower( {{ "'" ~ event_type ~ "'" }} )
     {%- if not loop.last %} OR {%- endif %}
     {% endfor %}
 

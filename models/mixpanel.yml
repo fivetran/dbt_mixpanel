@@ -2,11 +2,254 @@ version: 2
 
 models:
   - name: mixpanel_event
+    description: >
+      Table of de-duplicated Mixpanel events. Calls on the `pivot_event_properties_json` macro to 
+      turn any properties specified by the `event_properties` variable into columns.
+    
+    columns: 
+      - name: unique_event_id
+        description: > 
+          Unique ID of the event. Events are de-duped according to Mixpanel's [requirements](https://developer.mixpanel.com/reference/http#event-deduplication).
+          This ID is the `insert_id` concatenated with the **date** of the event.
+        tests:
+          - unique
+          - not_null 
+
+      - name: insert_id
+        description: > 
+          Random 16 character string of alphanumeric characters that is unique to an event. 
+          Used to de-duplicate data. 
+
+      - name: occurred_at
+        description: >
+          Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
+          
+      - name: event_type
+        description: Name of the type of event that was logged.
+      
+      - name: people_id
+        description: Foreign key referencing the event's associated user's `people.distinct_id`.
+      
+      - name: event_properties
+        description: >
+          JSON capturing properties specific to this type of event. Properties listed in the `event_properties`
+          variable will be turned into columns in the `mixpanel_event` model.
+      
+      - name: city
+        description: >
+          The city of the event sender, as parsed from the IP property or the Latitude and Longitude properties.
+      
+      - name: country_code
+        description: >
+          The country code of the event sender, as parsed from the IP property or the Latitude and Longitude 
+          properties.
+      
+      - name: region
+        description: >
+          The region (state or province) of the event sender, as parsed from the IP property or the Latitude and 
+          Longitude properties.
+      
+      - name: mixpanel_library
+        description: Mixpanel Library that sent the event.
+
+      - name: device_id
+        description: >
+          A unique string that identifies a user before an authentication or identification flow. 
+          By default, Mixpanel creates a device_id for every unique browser/device.
+
+      - name: screen_width
+        description: Width of the device screen in pixels (web or android) or points (ios).
+
+      - name: screen_height
+        description: The height of the device screen in pixels (web or android) or points (ios).
+      
+      - name: os
+        description: Operating system of the event sender.
+      
+      - name: people_id_before_identified
+        description: >
+          When an event comes in with a distinct_id that has been remapped to something 
+          else, this property contains the original value to aid debugging and error solution.
+
+      # web only properties
+      - name: initial_referring_domain
+        description: The referring domain at first arrival.
+      
+      - name: referring_domain
+        description: Referring domain, including your own domain.
+      
+      - name: initial_referrer
+        description: The referring URL at first arrival.
+      
+      - name: referrer
+        description: Referring URL, including your own domain.
+      
+      - name: referrer_keywords
+        description: >
+          Search keywords detected on the referrer from a search engine to your domain. 
+          This property is only collected when search keywords are included in a URL. 
+      
+      - name: search_engine
+        description: Search engine a customer used when they arrived at your domain.
+      
+      - name: current_url
+        description: The full URL of the webpage on which the event was triggered.
+      
+      - name: browser
+        description: Browser name (not versioned).
+      
+      - name: browser_version
+        description: Browser version number.
+      
+      - name: device_name
+        description: The name of the event sender's device, if they're on mobile web.
+
+      # mobile only properties
+      - name: has_wifi_connected
+        description: >
+          Boolean that is true if the event user’s device has an active, available Wifi connection, 
+          and false if not.
+      
+      - name: app_version
+        description: Current app version.
+      
+      - name: app_build_number
+        description: General build of this app.
+      
+      - name: os_version
+        description: Current version of iOS or Android on the device.
+      
+      - name: mixpanel_library_version
+        description: Mixpanel library used to send this data.
+      
+      - name: device_manufacturer
+        description: Device manufacturer.
+      
+      - name: wireless_carrier
+        description: Wireless carrier of the device owner.
+      
+      - name: device_model
+        description: Device model ID, in format "iPad 3,4".
+      
+      - name: app_session_length
+        description: >
+          The length of the user's mobile app session. This is captured as a property of 
+          the default 'App Session' mobile event tracked by mixpanel (triggers after > 10 seconds 
+          in the app).
+
+      # ios only 
+      - name: network_type
+        description: >
+          The current cellular network communication standard type (3G, 4G, LTE, etc.) of the device 
+          that produced the event.
+
+      # android only
+      - name: bluetooth_version
+        description: Set to "none", "ble", or "classic".
+      
+      - name: has_near_field_communication
+        description: Boolean that is true if Near Field Communication is being used, false if not.
+      
+      - name: device_brand
+        description: Device brand.
+      
+      - name: has_telephone
+        description: Boolean that is true if this device has telephone functionality, false if not.
+      
+      - name: screen_pixel_density
+        description: Pixel density (dots per inch) of the device screen.
+      
+      - name: google_play_service_status
+        description: >
+          Verifies that Google Play services is installed and enabled on this device, 
+          and that the version installed on this device is no older than the one required by this client.
+      
+      - name: has_bluetooth_enabled
+        description: Boolean that is true if Bluetooth is enabled, false if not.
+  
   - name: mixpanel_daily_events
+    description: > 
+      Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - date_day
+            - event_type  
+    
+    columns:
+      - name: date_day
+        description: Calendar day of the logged events (using the timezone set in your Mixpanel project).
+
+      - name: event_type
+        description: Name of the type of event tracked by Mixpanel.
+
+      - name: number_of_events
+        description: The number of events logged for this event type on a given day.
+
+      - name: number_of_users
+        description: The number of unique users who triggered this kind of a event.
+
+      - name: number_of_new_users
+        description: The number of unique users who are performing this kind of event for the first time.
+
+      - name: number_of_repeat_users
+        description: The number of unique users who also performed this event in the previous 28 days.
+
+      - name: number_of_return_users
+        description: The number of unique users who have performed this event before, but not recently (past 28 days).
+
+      - name: trailing_users_28d
+        description: The number of unique users who have completed this kind of event in the past 28 days.
+
+      - name: trailing_users_7d
+        description: The number of unique users who have completed this kind of event in the past 7 days.
+
+    
   - name: mixpanel_monthly_events
+    description: >
+      Table of each **event type's** monthly history of activity, as reflected in user retention and event metrics.
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - date_month
+            - event_type 
+    
+    columns:
+      - name: date_month
+        description: Month-year of the logged events (using the timezone set in your Mixpanel project).
+
+      - name: event_type
+        description: Name of the type of event tracked by Mixpanel.
+
+      - name: total_monthly_active_users
+        description: The total number of users who performed **any kind of event** this month (regardless of event type).
+
+      - name: number_of_events
+        description: The number of events logged for this event type in a given month.
+
+      - name: number_of_users
+        description: The number of unique users who triggered this kind of a event in a month.
+
+      - name: number_of_new_users
+        description: The number of unique users who performed this kind of event for the first time this month.
+
+      - name: number_of_repeat_users
+        description: The number of unique users who also performed this event in the previous calendar month.
+
+      - name: number_of_return_users
+        description: The number of unique users who have performed this event before, but not recently (last calendar month).
+
+      - name: number_of_churn_users
+        description: The number of unique users who performed this kind of event last month, but not this month. 
 
   # todo: sessionization model(s)
 
 macros:
   - name: pivot_event_properties_json
+    description: >
+      Macro that parses out any event-specific properties declared in the `event_properties_to_pivot` variable,
+      and pivots these JSON fields into columns.
+
   - name: analyze_funnel
