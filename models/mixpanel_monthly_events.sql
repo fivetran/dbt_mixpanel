@@ -7,6 +7,7 @@ with events as (
         occurred_at,
         unique_event_id,
         people_id
+        
     from {{ ref('mixpanel_event') }}
 
     where {{ var('timeline_criteria', 'true') }} 
