@@ -34,7 +34,7 @@ fields as (
         insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id,
         insert_id,
         time as occurred_at,
-        name as event_type,
+        lower(name) as event_type,
         distinct_id as people_id,
         properties as event_properties,
         city,

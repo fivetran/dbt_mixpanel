@@ -54,8 +54,8 @@ build_funnel as (
         grouped_events.event_type,
         grouped_events.number_of_events,
         grouped_events.number_of_users,
-        grouped_events.number_of_events * 1.0 / top_of_funnel.init_number_of_events as overall_event_pct_dropoff, -- todo: this technically isn't "dropoff" (either subtract from 1 or call it something else)
-        grouped_events.number_of_users * 1.0 / top_of_funnel.init_number_of_users as overall_user_pct_dropoff,
+        grouped_events.number_of_events * 1.0 / top_of_funnel.init_number_of_events as overall_event_pct_conversion, -- todo: this technically isn't "dropoff" (either subtract from 1 or call it something else)
+        grouped_events.number_of_users * 1.0 / top_of_funnel.init_number_of_users as overall_user_pct_conversion,
 
         lag(grouped_events.number_of_events, 1) over (
             -- only compare within groups
@@ -106,12 +106,12 @@ funnel as (
         case 
             when previous_step_number_of_events = 0 then 0 
             when previous_step_number_of_events is null then 1 -- top of funnel
-            else number_of_events * 1.0 / previous_step_number_of_events end as relative_event_pct_dropoff,
+            else number_of_events * 1.0 / previous_step_number_of_events end as relative_event_pct_conversion,
         
         case 
             when previous_step_number_of_users = 0 then 0 
             when previous_step_number_of_users is null then 1
-            else number_of_users * 1.0 / previous_step_number_of_users end as relative_user_pct_dropoff
+            else number_of_users * 1.0 / previous_step_number_of_users end as relative_user_pct_conversion
 
     from build_funnel
 

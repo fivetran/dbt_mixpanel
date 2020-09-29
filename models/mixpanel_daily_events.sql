@@ -10,7 +10,7 @@ with events as (
 
     from {{ ref('mixpanel_event') }}
 
-    where {{ var('daily_event_criteria', 'true') }}
+    where {{ var('timeline_criteria', 'true') }}
 ),
 
 user_metrics as (

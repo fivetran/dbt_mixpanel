@@ -7,13 +7,14 @@ require-dbt-version: '>=0.18.0'
 
 models:
     mixpanel:
-        materialized: table 
+        materialized: table # todo: change to incremental  
 
 
 vars: # todo: move these to the readme due to [order of variable declaration precedence](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/using-variables/#variable-precedence) 
     mixpanel: 
         event_table: "{{ source('mixpanel', 'src_mixpanel_dupe_events') }}"  # switch table to 'event' before releasing
 
+        # todo: remove these after adding fill staging column macro
         has_android_events: true
         has_ios_events: true
         has_web_events: true
@@ -23,7 +24,7 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
         event_custom_columns: [ 'ios_ifa' ]
         event_properties_to_pivot: ['user_id', 'video_id', 'videoId']
 
-        daily_event_criteria: 'coalesce(country_code, "") = "US"'
+        timeline_criteria: 'coalesce(country_code, "") = "US"'
         
         
 profile: dev_bigquery_dbt_testing
