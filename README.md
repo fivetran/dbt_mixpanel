@@ -1,6 +1,6 @@
 # Mixpanel 
 
-This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses data in the format described by [this ERD](https://docs.google.com/presentation/d/1vNZeqXs3BKkfEkWCElliUw5JGYx2q3Z8EvVSzoui3wk/edit#slide=id.p).
+This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses data in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
 
 This package enables you to better understand user activity and retention through your event data. It:
 - De-duplicatates events and creates a dependable `unique_event_id` 
@@ -15,7 +15,7 @@ This package enables you to better understand user activity and retention throug
 | mixpanel_event             | Each record represents a de-duplicated Mixpanel event. Includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
 | mixpanel_daily_events             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, and also trailing 7-day and 28-day unique users. |
 | mixpanel_monthly_events          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, and also the total active monthly users (regardless of event type). |
-| mixpanel_sessions          | Todo: Each record represents a unique user session, as defined by `session_timeout_minutes`. |
+| mixpanel_sessions          | Each record represents a unique user session, including metrics reflecting the actions taken during the session. |
 
 ## Macros
 ### analyze_funnel
@@ -103,10 +103,10 @@ vars:
   mixpanel:
 
     # Example 1: Applied to all events 
-    timeline_event_criteria: 'country_code = "US"'
+    timeline_criteria: 'country_code = "US"'
 
     # Example 2: Only 'Play_song' events are limited to the US
-    timeline_event_criteria: 'event_type != "play_song" OR country_code = "US"'
+    timeline_criteria: 'event_type != "play_song" OR country_code = "US"'
 
 ```
 
