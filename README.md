@@ -53,7 +53,7 @@ vars:
 ```
 
 ### Custom Columns
-By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, it's likely that you have custom properties or columns that would be helpful to have in the the `mixpanel_event` model.
+By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that would be helpful to include in the `mixpanel_event` model.
 
 If there are properties in the `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
 
