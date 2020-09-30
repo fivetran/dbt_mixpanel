@@ -6,11 +6,11 @@ with events as (
     select *
     from {{ ref('mixpanel_event') }}
 
-    where 
+    where (
     {% for event_type in event_funnel %}
         lower(event_type) = lower( {{ "'" ~ event_type ~ "'" }} )
     {%- if not loop.last %} OR {%- endif %}
-    {% endfor %}
+    {% endfor %} )
 
     AND ( {{ conversion_criteria }} )
 
@@ -32,21 +32,7 @@ grouped_events as (
 
 ),
 
--- selects metrics for the event at the top of the funnel (as reflected in its order)
--- necessary for overall funnel % dropoff
-top_of_funnel as (
-
-    select
-        {{ group_by_column ~ "," if group_by_column != None }}
-        number_of_events as init_number_of_events,
-        number_of_users as init_number_of_users
-
-    from grouped_events
-    where event_type = {{ "'" ~ event_funnel[0] ~ "'"}}
-),
-
--- computes the overall % dropoff (compared to the top of the funnel)
--- selects the previous event's metrics to compute the relative funnel (next CTE)
+-- selects the max and previous event's metrics to compute the overall and relative funnels
 build_funnel as (
 
     select
@@ -54,44 +40,22 @@ build_funnel as (
         grouped_events.event_type,
         grouped_events.number_of_events,
         grouped_events.number_of_users,
-        grouped_events.number_of_events * 1.0 / top_of_funnel.init_number_of_events as overall_event_pct_conversion, -- todo: this technically isn't "dropoff" (either subtract from 1 or call it something else)
-        grouped_events.number_of_users * 1.0 / top_of_funnel.init_number_of_users as overall_user_pct_conversion,
+        max(number_of_events) over({{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }}) as top_of_funnel_number_of_events, 
+        max(number_of_users) over({{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }}) as top_of_funnel_number_of_users,
 
         lag(grouped_events.number_of_events, 1) over (
             -- only compare within groups
-            {{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }} 
-            -- match the given order
-            order by 
-                case grouped_events.event_type
-                {%- for event_type in event_funnel %}
-                when {{ "'" ~ event_type ~ "'"}} then {{ loop.index }}
-                {% endfor %}
-                end ) as previous_step_number_of_events,
+            {{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }} order by number_of_events desc) as previous_step_number_of_events,
 
         lag(grouped_events.number_of_users, 1) over (
-            -- only compare within groups
-            {{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }} 
-            order by 
-            -- match the given order
-                case grouped_events.event_type
-                {%- for event_type in event_funnel %}
-                when {{ "'" ~ event_type ~ "'"}} then {{ loop.index }}
-                {% endfor %}
-                end ) as previous_step_number_of_users
+            -- note: ordering by number_of_users here, which *may* produce two differing funnel orders.
+            {{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }} order by number_of_users desc) as previous_step_number_of_users
 
     from grouped_events
 
-    join top_of_funnel on 
-    -- todo: this is kinda wack -- alternative is to do a weird kind of max() window function
-    {% if group_by_column != None -%}
-    {{ 'grouped_events.' ~ group_by_column }} = {{ 'top_of_funnel.' ~ group_by_column}}
-
-    {% else %} true {% endif -%}
-
-
 ),
 
--- returns the overall (event / top of funnel event) and relative (event / previous step) dropoff for each event
+-- returns the overall (event / top of funnel event) and relative (event / previous step) conversion % for each event, based on events or users
 funnel as (
 
     select
@@ -100,8 +64,8 @@ funnel as (
         number_of_events,
         number_of_users,
 
-        overall_event_pct_dropoff,
-        overall_user_pct_dropoff,
+        number_of_events * 1.0 / top_of_funnel_number_of_events as overall_event_pct_conversion,
+        number_of_users * 1.0 / top_of_funnel_number_of_users as overall_user_pct_conversion,
 
         case 
             when previous_step_number_of_events = 0 then 0 
@@ -116,11 +80,7 @@ funnel as (
     from build_funnel
 
     order by {{ group_by_column ~ "," if group_by_column != None }}
-        case event_type
-        {%- for event_type in event_funnel %}
-        when {{ "'" ~ event_type ~ "'"}} then {{ loop.index }}
-        {% endfor %}
-        end 
+        number_of_events desc
 
 )
 

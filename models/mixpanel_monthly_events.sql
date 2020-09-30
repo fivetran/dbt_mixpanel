@@ -7,7 +7,7 @@ with events as (
         occurred_at,
         unique_event_id,
         people_id
-        
+
     from {{ ref('mixpanel_event') }}
 
     where {{ var('timeline_criteria', 'true') }} 
@@ -45,7 +45,7 @@ monthly_metrics as (
         count( distinct case when first_month = date_month then people_id end) as number_of_new_users,
 
         count(distinct case when previous_month_with_event is not null and 
-            {{ dbt_utils.dateadd(datepart = 'month', interval = 1, from_date_or_timestamp = 'previous_month_with_event') }} = date_month 
+            {{ dbt_utils.datediff('previous_month_with_event', 'date_month', 'month') }} = 1
             then people_id end) as number_of_repeat_users,
 
         count(distinct case when previous_month_with_event is not null and
