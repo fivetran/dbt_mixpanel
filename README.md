@@ -6,7 +6,7 @@ This package enables you to better understand user activity and retention throug
 - De-duplicatates events
 - Pivots out custom event properties from JSONs into an enriched events table
 - Creates a daily timeline of each type of event, complete with trailing and daily metrics of user activity and retention
-- Creates a monthly timeline of each type of event, complete with metrics surrounding user activity, retention, and churn
+- Creates a monthly timeline of each type of event, complete with metrics about user activity, retention, and churn
 
 ## Models
 
