@@ -1,4 +1,4 @@
--- probably want to config this as ephemeral.. or consolidate with mixpanel_event
+{{ config(materialized='ephemeral') }}
 
 with events as (
 
