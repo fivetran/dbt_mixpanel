@@ -36,20 +36,20 @@ grouped_events as (
 build_funnel as (
 
     select
-        {{ 'grouped_events.' ~ group_by_column ~ "," if group_by_column != None }}
-        grouped_events.event_type,
-        grouped_events.number_of_events,
-        grouped_events.number_of_users,
-        max(number_of_events) over({{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }}) as top_of_funnel_number_of_events, 
-        max(number_of_users) over({{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }}) as top_of_funnel_number_of_users,
+        {{ group_by_column ~ "," if group_by_column != None }}
+        event_type,
+        number_of_events,
+        number_of_users,
+        max(number_of_events) over({{ 'partition by ' ~ group_by_column if group_by_column != None }}) as top_of_funnel_number_of_events, 
+        max(number_of_users) over({{ 'partition by ' ~ group_by_column if group_by_column != None }}) as top_of_funnel_number_of_users,
 
-        lag(grouped_events.number_of_events, 1) over (
+        lag(number_of_events, 1) over (
             -- only compare within groups
-            {{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }} order by number_of_events desc) as previous_step_number_of_events,
+            {{ 'partition by ' ~ group_by_column if group_by_column != None }} order by number_of_events desc) as previous_step_number_of_events,
 
-        lag(grouped_events.number_of_users, 1) over (
+        lag(number_of_users, 1) over (
             -- note: ordering by number_of_users here, which *may* produce two differing funnel orders.
-            {{ 'partition by grouped_events.' ~ group_by_column if group_by_column != None }} order by number_of_users desc) as previous_step_number_of_users
+            {{ 'partition by ' ~ group_by_column if group_by_column != None }} order by number_of_users desc) as previous_step_number_of_users
 
     from grouped_events
 
