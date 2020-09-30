@@ -17,7 +17,7 @@ dedupe as (
     select 
         *,
         -- aligned with mixpanel's deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
-        row_number() over(partition by insert_id, distinct_id, name order by mp_processing_time_ms asc) as nth_event_record
+        row_number() over(partition by insert_id, distinct_id, name, {{ dbt_utils.date_trunc('day', 'time') }} order by mp_processing_time_ms asc) as nth_event_record
         
         from events
     ) 
