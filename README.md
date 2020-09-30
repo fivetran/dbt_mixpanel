@@ -3,8 +3,8 @@
 This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses data in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
 
 This package enables you to better understand user activity and retention through your event data. It:
-- De-duplicatates events and creates a dependable `unique_event_id` 
-- Pivots out custom event properties from JSON blobs into columns
+- De-duplicatates events
+- Pivots out custom event properties from JSONs into an enriched events table
 - Creates a daily timeline of each type of event, complete with trailing and daily metrics of user activity and retention.
 - Creates a monthly timeline of each type of event, complete with metrics surrounding user activity, retention, and churn.
 
@@ -19,15 +19,17 @@ This package enables you to better understand user activity and retention throug
 
 ## Macros
 ### analyze_funnel
-The `analyze_funnel(event_funnel, group_by_column, conversion_criteria)` macro can be used to produce a funnel between a given list of event types. It returns the following:
+The `analyze_funnel(event_funnel, group_by_column, conversion_criteria)` macro can be used to produce a funnel between a given list of event types. 
+
+It returns the following:
 - The number of events and users at each step.
 - The overall user and event conversion % between the top of the funnel and each step.
-- The relative user and event conversion % between subsequent steps. Note: the relative order of the steps is determined by their event volume.
+- The relative user and event conversion % between subsequent steps. Note: the relative order of the steps is determined by their event volume, not the order in which they are inputted.
 
-And it takes the following as arguments:
-- `event_funnel`: List of event types (case insensitive). This does not have to be in the correct order of the funnel, as the funnel order will be determined by event volume. Example: `'
-- `group_by_column`: (Optional) A column in `mixpanel_event` that you want to segment the funnel by. Default is `None`.
-- `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when pulling data from `mixpanel_event`. To make the criteria funnel-wide, you would write something like `conversion_criteria='country_code = "US"'`, which will limit all events to the US. To apply criteria to just one event, you would write something like `conversion_criteria='country_code = "US"' OR event_type != 'play_song'`, which will limit only song plays to the US.
+The macro takes the following as arguments:
+- `event_funnel`: List of event types (not case sensitive). Example input: `'['play_song', 'stop_song', 'exit']`
+- `group_by_column`: (Optional) A column that you want to segment the funnel by (this macro pulls data from the `mixpanel_event` model). The default value is `None`.
+- `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel_event`. Example: to limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
 ## Installation Instructions
 Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions, or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
@@ -50,7 +52,7 @@ vars:
 ### Custom Columns
 Out of the box, this package will select the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, it's likely that you have custom properties or columns that would be helpful to have in the the `mixpanel_event` model.
 
-If there are **properties** in your `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
+If there are properties in the `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
 
 ```yml
 # dbt_project.yml
@@ -63,7 +65,7 @@ vars:
     event_properties_to_pivot: ['the', 'list', 'of', 'property', 'fields']
 ```
 
-And if you have **columns** present in your source `mixpanel.event` table that are not covered by Mixpanel default columns, add the following variable to your `dbt_project.yml` file:
+And if there are *columns* present in your source `mixpanel.event` table that are not covered by Mixpanel default columns, add the following variable to your `dbt_project.yml` file to include them:
 
 ```yml
 # dbt_project.yml
@@ -77,7 +79,9 @@ vars:
 ```
 
 ### Event Date Range
-Due to the typical volume of event data, you may want to limit this package's models to work with a more recent date range of your Mixpanel data. By default, the package will look at all events since 2010-01-01. To change the start date, add the following variable to your `dbt_project.yml` file:
+Due to the typical volume of event data, you may want to limit this package's models to work with a more recent date range of your Mixpanel data. 
+
+By default, the package will look at all events since 2010-01-01. To change this start date, add the following variable to your `dbt_project.yml` file:
 
 ```yml
 # dbt_project.yml
@@ -87,11 +91,13 @@ config-version: 2
 
 vars:
   mixpanel:
-    date_range_start: 'yyyy-mm-dd' # ex: '2020-01-01'
+    date_range_start: 'yyyy-mm-dd' 
 ```
 
 ### Timeline Event Filters
-Each of the timeline models (`mixpanel_daily_events` and `mixpanel_monthly_events`) aggregates activity metrics for each type of tracked event. However, you might want to place filters on all or individual events, or even completely filter out certain events. To apply criteria to these events, add the following variable, formatted as a `WHERE` clause, to your `dbt_project.yml` file:
+Each of the timeline models (`mixpanel_daily_events` and `mixpanel_monthly_events`) aggregates activity metrics for each type of tracked event. However, you might want to place filters on all or individual events, or even completely filter out certain events. 
+
+To apply criteria to events in these timeline models, add the below variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel_event`.
 
 ```yml
 # dbt_project.yml
@@ -102,10 +108,10 @@ config-version: 2
 vars:
   mixpanel:
 
-    # Example 1: Applied to all events 
+    # Example 1: Limit all events to the US
     timeline_criteria: 'country_code = "US"'
 
-    # Example 2: Only 'Play_song' events are limited to the US
+    # Example 2: Only limit 'play_song' events to the US
     timeline_criteria: 'event_type != "play_song" OR country_code = "US"'
 
 ```
