@@ -14,17 +14,12 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
     mixpanel: 
         event_table: "{{ source('mixpanel', 'src_mixpanel_dupe_events') }}"  # switch table to 'event' before releasing
 
-        # todo: remove these after adding fill staging column macro
-        has_android_events: true
-        has_ios_events: true
-        has_web_events: true
-
         date_range_start: '2020-01-01' 
 
         event_custom_columns: [ 'ios_ifa' ]
         event_properties_to_pivot: ['user_id', 'video_id', 'videoId']
 
-        timeline_criteria: 'coalesce(country_code, "") = "US"'
+        timeline_criteria: "coalesce(country_code, '') = 'US'"
         
         
-profile: dev_bigquery_dbt_testing
+profile: integration_test
