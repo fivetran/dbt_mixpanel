@@ -23,14 +23,16 @@ dedupe as (
 
 ),
 
--- selects default properties collected by mixpanel for each appropriate platform -- TODO: use fill_staging_columns macro for this
+-- selects default properties collected by mixpanel for each appropriate platform
 -- and any additional custom columns specified in your dbt_project.yml
 fields as (
 
     select
-        -- shared default events across platforms - 14
+        -- new PK
         insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id,
 
+        -- pulls default properties and renames (see macros/staging_columns)
+        -- columns missing from your source table will be completely NULL   
         {{
             fivetran_utils.fill_staging_columns(
                 source_columns=adapter.get_columns_in_relation(ref('stg_mixpanel_event_tmp')),

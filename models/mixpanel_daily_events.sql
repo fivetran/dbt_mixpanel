@@ -10,6 +10,7 @@ with events as (
 
     from {{ ref('mixpanel_event') }}
 
+    -- exclude events and/or apply filters to all/individual events
     where {{ var('timeline_criteria', 'true') }}
 ),
 
@@ -66,7 +67,7 @@ final as (
         number_of_new_users,
         number_of_repeat_users,
         
-        -- doing it this way to avoid another self-join with big event data
+        -- users who are not new and not repeat must be resurrected from earlier
         (number_of_users - number_of_new_users - number_of_repeat_users) as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d

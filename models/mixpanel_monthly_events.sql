@@ -1,4 +1,4 @@
--- probably want to config this as incremental 
+-- maybe want to config this as incremental?
 
 with events as (
 
