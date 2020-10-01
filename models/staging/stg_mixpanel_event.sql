@@ -17,6 +17,7 @@ dedupe as (
     select 
         *,
         -- aligned with mixpanel's deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
+        -- really de-duping on calendar day + insert_id, but including distinct_id + name reduces the rate of false positives ^
         row_number() over(partition by insert_id, distinct_id, name, {{ dbt_utils.date_trunc('day', 'time') }} order by mp_processing_time_ms asc) as nth_event_record
         
         from events
@@ -91,7 +92,7 @@ fields as (
         bluetooth_version,
         has_nfc as has_near_field_communication,
         brand as device_brand,
-        has_telephone as has_telephone,
+        has_telephone,
         screen_dpi as screen_pixel_density,
         google_play_services as google_play_service_status,
         bluetooth_enabled as has_bluetooth_enabled

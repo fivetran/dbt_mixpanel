@@ -1,3 +1,10 @@
+{# {{
+    config(
+        materialized='incremental',
+        unique_key='unique_event_id'
+    )
+}} #}
+
 with stg_event as (
 
     select * 
