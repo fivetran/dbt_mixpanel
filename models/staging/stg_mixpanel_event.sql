@@ -14,7 +14,7 @@ fields as (
     select
         -- new PK
         insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id,
-        {{ dbt_utils.date_trunc('day', 'time') }} as calendar_day,
+        {{ dbt_utils.date_trunc('day', 'time') }} as date_day,
 
         -- pulls default properties and renames (see macros/staging_columns)
         -- columns missing from your source table will be completely NULL   

@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='unique_event_id',
         partition_by={
-            "field": "calendar_day",
+            "field": "date_day",
             "data_type": "timestamp"
         }
     )
@@ -18,7 +18,7 @@ with stg_event as (
     {% if is_incremental() %}
 
     -- events are only eligible for de-duping if they occurred on the same calendar day 
-    where calendar_day >= (select max(calendar_day) from {{ this }} )
+    where date_day >= (select max(date_day) from {{ this }} )
     {% endif %}
 ),
 
