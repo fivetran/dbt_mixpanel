@@ -1,35 +1,20 @@
-{# {{ config(materialized='ephemeral') }} #}
+{{ config(materialized='ephemeral') }}
 
 with events as (
 
     select * 
     from {{ ref('stg_mixpanel_event_tmp') }}
 
+    -- limit date range
+    where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
 ),
 
-dedupe as (
-
-    select * from (
-
-    select 
-        *,
-        -- aligned with mixpanel's deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
-        -- really de-duping on calendar day + insert_id, but including distinct_id + name reduces the rate of false positives ^
-        row_number() over(partition by insert_id, distinct_id, name, {{ dbt_utils.date_trunc('day', 'time') }} order by mp_processing_time_ms asc) as nth_event_record
-        
-        from events
-    ) 
-    where nth_event_record = 1
-
-),
-
--- selects default properties collected by mixpanel for each appropriate platform
--- and any additional custom columns specified in your dbt_project.yml
 fields as (
 
     select
         -- new PK
         insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id,
+        {{ dbt_utils.date_trunc('day', 'time') }} as calendar_day,
 
         -- pulls default properties and renames (see macros/staging_columns)
         -- columns missing from your source table will be completely NULL   
@@ -46,7 +31,9 @@ fields as (
         {{ column }}
         {%- endfor %}
         
-    from dedupe
+    from events
+
+    
 )
 
 select * from fields
