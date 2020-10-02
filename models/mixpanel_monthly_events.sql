@@ -1,4 +1,14 @@
 -- maybe want to config this as incremental?
+{{
+    config(
+        materialized='incremental',
+        unique_key='unique_event_id',
+        partition_by={
+            "field": "date_month",
+            "data_type": "timestamp"
+        }
+    )
+}}
 
 with events as (
 
@@ -11,6 +21,12 @@ with events as (
     from {{ ref('mixpanel_event') }}
 
     where {{ var('timeline_criteria', 'true') }} 
+
+    {% if is_incremental() %}
+
+    and occurred_at >= (select {{ dbt_utils.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} from {{ this }} )
+
+    {% endif %}
 ),
 
 user_monthly_events as (
@@ -70,6 +86,12 @@ final as (
         lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users as number_of_churn_users
 
     from monthly_metrics
+
+    {% if is_incremental() %}
+
+    where date_month >= (select max(date_month) from {{ this }})
+
+    {% endif %}
 )
 
 select * from final
