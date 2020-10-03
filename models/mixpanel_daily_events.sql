@@ -1,4 +1,13 @@
--- probably want to config this as incremental 
+{{
+    config(
+        materialized='incremental',
+        unique_key='unique_key',
+        partition_by={
+            "field": "date_day",
+            "data_type": "timestamp"
+        }
+    )
+}}
 
 with events as (
 
@@ -6,12 +15,19 @@ with events as (
         event_type,
         occurred_at,
         people_id,
-        unique_event_id
+        unique_event_id,
+        date_day
 
     from {{ ref('mixpanel_event') }}
 
     -- exclude events and/or apply filters to all/individual events
     where {{ var('timeline_criteria', 'true') }}
+
+    {% if is_incremental() %}
+
+    and occurred_at >= (select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} from {{ this }} )
+
+    {% endif %}
 ),
 
 user_metrics as (
@@ -28,7 +44,7 @@ user_metrics as (
 event_metrics as (
 
     select
-        {{ dbt_utils.date_trunc('day', 'events.occurred_at') }} as date_day,
+        events.date_day,
         events.event_type,
 
         count(distinct events.unique_event_id) as number_of_events,
@@ -70,9 +86,17 @@ final as (
         -- users who are not new and not repeat must be resurrected from earlier
         (number_of_users - number_of_new_users - number_of_repeat_users) as number_of_return_users,
         trailing_users_28d,
-        trailing_users_7d
+        trailing_users_7d,
+        date_day || '-' || event_type as unique_key -- for incremental model :)
 
     from event_metrics
+
+    {% if is_incremental() %}
+
+    where date_day >= (select max(date_day) from {{ this }})
+
+    {% endif %}
+
     order by date_day desc, event_type
 
 )

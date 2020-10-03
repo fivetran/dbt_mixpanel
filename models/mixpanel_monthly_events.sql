@@ -1,8 +1,7 @@
--- maybe want to config this as incremental?
 {{
     config(
         materialized='incremental',
-        unique_key='unique_event_id',
+        unique_key='unique_key',
         partition_by={
             "field": "date_month",
             "data_type": "timestamp"
@@ -83,7 +82,9 @@ final as (
         *,
         -- subtract the returned users from the previous month's total users to get the # churned
         -- note: churned users refer to users who did something last month and not this month
-        lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users as number_of_churn_users
+        lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users as number_of_churn_users,
+
+        date_month || '-' || event_type as unique_key -- for incremental model :)
 
     from monthly_metrics
 
