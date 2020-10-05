@@ -88,6 +88,9 @@ sources:
             description: > 
               When an event comes in with a distinct_id that has been remapped to something 
               else, this property contains the original value to aid debugging and error solution.
+            
+          - name: _fivetran_synced
+            description: UTC timestamp of when the row was last successfully synced.
 
           # web only
           - name: initial_referring_domain

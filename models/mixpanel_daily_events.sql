@@ -25,7 +25,7 @@ with events as (
 
     {% if is_incremental() %}
 
-    and occurred_at >= (select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} from {{ this }} )
+    and occurred_at >= (select cast ( {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} as {{ dbt_utils.type_timestamp() }} ) from {{ this }} )
 
     {% endif %}
 ),
