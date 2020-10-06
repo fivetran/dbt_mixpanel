@@ -40,8 +40,10 @@ dedupe as (
 ),
 
 pivot_properties as (
-    select *,
-    {{ pivot_event_properties_json(var('event_properties_to_pivot', [])) }}
+
+    select 
+        *,
+        {{ pivot_event_properties_json(var('event_properties_to_pivot', [])) }}
     
     from dedupe
 

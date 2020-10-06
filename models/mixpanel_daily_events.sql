@@ -54,7 +54,7 @@ event_metrics as (
             then events.people_id end) as number_of_new_users,
 
         count(distinct case when past_month.people_id = events.people_id and 
-            {{ dbt_utils.date_trunc('day', 'past_month.occurred_at') }} < {{ dbt_utils.date_trunc('day', 'events.occurred_at') }}
+            {{ dbt_utils.date_trunc('day', 'past_month.occurred_at') }} < {{ dbt_utils.date_trunc('day', 'events.occurred_at') }} -- exclude same day
             then events.people_id end) as number_of_repeat_users, 
 
         count(distinct past_month.people_id) as trailing_users_28d,
@@ -64,7 +64,7 @@ event_metrics as (
     -- todo: can we use a window function instead of a self join? see monthly events
     join events past_month 
         on events.event_type = past_month.event_type
-        and {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 28
+        and {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 27
 
     join user_metrics 
         on user_metrics.people_id = events.people_id
