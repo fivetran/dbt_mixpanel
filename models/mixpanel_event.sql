@@ -18,7 +18,7 @@ with stg_event as (
     {% if is_incremental() %}
 
     -- events are only eligible for de-duping if they occurred on the same calendar day 
-    where occurred_at >= (select max(date_day) from {{ this }} )
+    where occurred_at >= (select cast( max(date_day) as {{ dbt_utils.type_timestamp() }} ) from {{ this }} )
     {% endif %}
 ),
 
