@@ -62,6 +62,10 @@ event_metrics as (
         
     from events 
     -- todo: can we use a window function instead of a self join? see monthly events
+    -- subtract the number of users who have done this in the -7,-1 days. get this by doing a max window function at the user-date-event type level 
+    -- in a window frame -7,-1 rows before the current day (partition by people_id, event_type order by date_day 6 rows preceding and 1 row precending)
+    -- then check if that is in the past week/month
+    -- then count(people_id) over(partition by event_type order by date_day asc 6 rows preceding and 1 row preceding) - sum(has_done_this_already)
     join events past_month 
         on events.event_type = past_month.event_type
         and {{ dbt_utils.datediff('past_month.occurred_at', 'events.occurred_at', 'day') }} <= 27

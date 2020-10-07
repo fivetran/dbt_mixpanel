@@ -20,6 +20,9 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
         event_properties_to_pivot: ['user_id', 'video_id', 'videoId']
 
         timeline_criteria: "coalesce(country_code, '') = 'US'"
+
+        dbt_utils_dispatch_list:
+            - mixpanel 
         
         
 profile: integration_test
