@@ -4,12 +4,12 @@
         unique_key='session_key',
         partition_by={
             "field": "started_on_day",
-            "data_type": "timestamp"
+            "data_type": "date"
         }
     )
 }}
 
--- need to grab all events for relevant users as 
+-- need to grab all events for relevant users
 with events as (
 
     select 
@@ -19,7 +19,7 @@ with events as (
         people_id,
         date_day,
         device_id
-        -- todo: any pass through columns
+        -- todo: any pass through columns?
 
     from {{ ref('mixpanel_event') }}
 

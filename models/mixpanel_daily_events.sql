@@ -37,6 +37,8 @@ date_spine as (
     from {{ ref('stg_user_event_date_spine') }}
 
     {% if is_incremental() %}
+
+    -- look backward for the last 28 days
     where date_day >= coalesce((select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} ), '2000-01-01')
 
     {% endif %}
@@ -77,8 +79,8 @@ trailing_events as (
     
     select
         *,
-        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 27 preceding and current row) > 0 as had_event_in_last_28_days,
-        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 6 preceding and current row) > 0 as had_event_in_last_7_days
+        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 27 preceding and current row) > 0 as has_event_in_last_28_days,
+        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 6 preceding and current row) > 0 as has_event_in_last_7_days
 
     from spine_joined
     
@@ -92,10 +94,10 @@ agg_event_days as (
         sum(number_of_events) as number_of_events,
         sum(case when number_of_events > 0 then 1 else 0 end) as number_of_users,
         sum(is_first_event_day) as number_of_new_users, 
-        sum(case when had_event_in_last_28_days = false and number_of_events > 0 then 1 else 0 end) as number_of_repeat_users,
+        sum(case when has_event_in_last_28_days = false and number_of_events > 0 then 1 else 0 end) as number_of_repeat_users,
         
-        sum(case when had_event_in_last_28_days = True then 1 else 0 end) as trailing_users_28d,
-        sum(case when had_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d
+        sum(case when has_event_in_last_28_days = True then 1 else 0 end) as trailing_users_28d,
+        sum(case when has_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d
 
     from trailing_events
     group by 1,2
@@ -118,6 +120,12 @@ final as (
         event_type || '-' || date_day as unique_key
 
     from agg_event_days
+
+    {% if is_incremental() %}
+
+    where date_day >= coalesce( (select max(date_day)  from {{ this }} ), '2000-01-01')
+
+    {% endif %}
 
 )
 
