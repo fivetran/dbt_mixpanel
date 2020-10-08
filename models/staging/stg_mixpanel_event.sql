@@ -5,8 +5,6 @@ with events as (
     select * 
     from {{ ref('stg_mixpanel_event_tmp') }}
 
-    -- limit date range
-    where time > {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
 ),
 
 fields as (
