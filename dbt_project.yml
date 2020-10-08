@@ -14,7 +14,7 @@ vars: # todo: move these to the readme due to [order of variable declaration pre
     mixpanel: 
         event_table: "{{ source('mixpanel', 'src_mixpanel_dupe_events') }}"  # switch table to 'event' before releasing
 
-        date_range_start: '2020-09-01' 
+        # date_range_start: '2020-09-01' 
 
         event_custom_columns: [ 'ios_ifa' ]
         event_properties_to_pivot: ['user_id', 'video_id', 'videoId']
