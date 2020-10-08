@@ -16,7 +16,7 @@ first_events as (
     select 
         people_id,
         event_type,
-        cast(min(date_day) as date) as first_event_day
+        min(date_day) as first_event_day
     
     from alltime_events
 

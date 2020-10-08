@@ -28,7 +28,7 @@ spine as (
     )
 
     {% if is_incremental %} 
-    where date_day > ( select max(date_day) from {{ this }} )
+    where date_day > ( select max(date_day) from {{ this }} ) -- every user-event_type will have the same last day
     {% endif %}
     
 ),
@@ -42,7 +42,7 @@ user_event_spine as (
         user_first_events.people_id || '-' || spine.date_day as unique_key
 
     from
-    spine join user_first_events  -- can't do left join with >= 
+    spine join user_first_events
         on spine.date_day >= user_first_events.first_event_day
 
     group by 1,2,3

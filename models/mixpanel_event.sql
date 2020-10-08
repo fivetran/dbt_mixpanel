@@ -4,7 +4,7 @@
         unique_key='unique_event_id',
         partition_by={
             "field": "date_day",
-            "data_type": "timestamp"
+            "data_type": "date"
         }
     )
 }}
@@ -19,12 +19,12 @@ with stg_event as (
     {% if is_incremental() %}
 
     -- events are only eligible for de-duping if they occurred on the same calendar day 
-    where occurred_at >= (select cast( max(date_day) as {{ dbt_utils.type_timestamp() }} ) from {{ this }} )
+    occurred_at >= (select cast( max(date_day) as {{ dbt_utils.type_timestamp() }} ) from {{ this }} )
 
     {% else %}
     
     -- limit date range on the first run / refresh
-    where occurred_at >= {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
+    occurred_at >= {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
     
     {% endif %}
 ),

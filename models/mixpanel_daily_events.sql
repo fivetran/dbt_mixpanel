@@ -23,12 +23,22 @@ with events as (
     -- exclude events and/or apply filters to all/individual events
     where {{ var('timeline_criteria', 'true') }}
 
-), calendar_spine as (
+), 
+
+calendar_spine as (
     
     select *
-    from {{ ref('user_event_calendar_spine') }}
+    from {{ ref('stg_user_event_date_spine') }}
+
+    -- todo: incremental logic
+    {% if is_incremental() %}
+    and date_day >= (select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} )
+
+    {% endif %}
     
-), user_aggregated as (
+), 
+
+user_aggregated as (
     
     select
         cast(occurred_at as date) as date_day
@@ -38,7 +48,9 @@ with events as (
     from events
     group by 1,2,3
     
-), calendar_joined as (
+), 
+
+calendar_joined as (
     
     select
         calendar_spine.date_day,
@@ -49,7 +61,9 @@ with events as (
     left join user_aggregated
         using (date_day, people_id, event_type)
 
-), window_functions as (
+), 
+
+window_functions as (
     
     select
         *,
@@ -57,7 +71,9 @@ with events as (
         sum(count_events) over (partition by people_id, event_type order by date_day asc rows between 6 preceding and current row) > 0 as event_in_last_7_days
     from calendar_joined
     
-), day_aggregated as (
+), 
+
+day_aggregated as (
     
     select
         date_day,

@@ -4,7 +4,7 @@
         unique_key='unique_key',
         partition_by={
             "field": "date_month",
-            "data_type": "timestamp"
+            "data_type": "date"
         }
     )
 }}
@@ -42,7 +42,7 @@ user_monthly_events as (
         select
             people_id,
             event_type,
-            {{ dbt_utils.date_trunc('month', 'events.occurred_at') }} as date_month,
+            cast({{ dbt_utils.date_trunc('month', 'events.occurred_at') }} as date) as date_month,
             count(unique_event_id) as number_of_events
 
         from events
