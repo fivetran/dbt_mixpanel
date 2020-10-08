@@ -24,20 +24,20 @@ with events as (
     where {{ var('timeline_criteria', 'true') }}
 
     {% if is_incremental() %}
-    and date_day >= coalesce( (select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} ), '2000-01-01')
+    and date_day >= coalesce((select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} ), '2000-01-01')
 
     {% endif %}
 
-), 
+),
+
 
 date_spine as (
     
     select *
     from {{ ref('stg_user_event_date_spine') }}
 
-    -- todo: incremental logic
     {% if is_incremental() %}
-    where date_day >= coalesce( (select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} ), '2000-01-01')
+    where date_day >= coalesce((select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} ), '2000-01-01')
 
     {% endif %}
     
@@ -46,7 +46,7 @@ date_spine as (
 agg_user_events as (
     
     select
-        date_day
+        date_day,
         people_id,
         event_type,
         count(unique_event_id) as number_of_events
@@ -67,7 +67,9 @@ spine_joined as (
     from date_spine
 
     left join agg_user_events
-        using (date_day, people_id, event_type)
+        on agg_user_events.date_day = date_spine.date_day
+        and agg_user_events.people_id = date_spine.people_id
+        and agg_user_events.event_type = date_spine.event_type
 
 ), 
 
@@ -87,14 +89,13 @@ agg_event_days as (
     select
         date_day,
         event_type,
-        sum(count_events) as number_of_events,
-        count(distinct people_id) as number_of_users,
+        sum(number_of_events) as number_of_events,
+        sum(case when number_of_events > 0 then 1 else 0 end) as number_of_users,
         sum(is_first_event_day) as number_of_new_users, 
         sum(case when had_event_in_last_28_days = false and number_of_events > 0 then 1 else 0 end) as number_of_repeat_users,
-       -- sum(case when count_events > 0 then 1 end) as number_of_users,
         
-        sum(case when event_in_last_28_days = True then 1 else 0 end) as trailing_users_28d,
-        sum(case when event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d
+        sum(case when had_event_in_last_28_days = True then 1 else 0 end) as trailing_users_28d,
+        sum(case when had_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d
 
     from trailing_events
     group by 1,2
@@ -116,7 +117,10 @@ final as (
         trailing_users_7d,
         event_type || '-' || date_day as unique_key
 
+    from agg_event_days
+
 )
 
 select *
 from final
+order by date_day desc, event_type
