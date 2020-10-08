@@ -39,13 +39,14 @@ user_event_spine as (
         spine.date_day,
         user_first_events.people_id,
         user_first_events.event_type,
+        case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,
         user_first_events.people_id || '-' || spine.date_day as unique_key
 
     from
     spine join user_first_events
         on spine.date_day >= user_first_events.first_event_day
 
-    group by 1,2,3,4
+    group by 1,2,3,4,5
     
 )
 
