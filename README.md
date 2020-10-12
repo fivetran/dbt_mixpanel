@@ -7,6 +7,7 @@ This package enables you to better understand user activity and retention throug
 - Pivots out custom event properties from JSONs into an enriched events table
 - Creates a daily timeline of each type of event, complete with trailing and daily metrics of user activity and retention
 - Creates a monthly timeline of each type of event, complete with metrics about user activity, retention, and churn
+- Aggregates events into unique user sessions, complete with metrics about event frequency and relevant fields from the session's first event
 
 ## Models
 
@@ -17,7 +18,7 @@ This package contains transformation models. The primary outputs of this package
 | mixpanel_event             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
 | mixpanel_daily_events             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
 | mixpanel_monthly_events          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
-| mixpanel_sessions          | Each record represents a unique user session, including metrics reflecting the actions taken during the session. |
+| mixpanel_sessions          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
 
 ## Macros
 ### analyze_funnel
@@ -82,7 +83,7 @@ vars:
 ```
 
 ### Event Date Range
-Becuase of the typical volume of event data, you may want to limit this package's models to work with a recent date range of your Mixpanel data. 
+Becuase of the typical volume of event data, you may want to limit this package's models to work with a recent date range of your Mixpanel data (though note that all final models are materialized as incremental tables).
 
 By default, the package looks at all events since January 1, 2010. To change this start date, add the following variable to your `dbt_project.yml` file:
 
@@ -116,11 +117,77 @@ vars:
 
     # Example 2: Only limit 'play_song' events to the US
     timeline_criteria: 'event_type != "play_song" OR country_code = "US"'
-
 ```
 
-todo: session_passthrough_columns
-session_criteria
+### Session Configurations
+#### Session Inactivity Timeout
+This package sessionizes events based on the periods of inactivity between a user's events on a device. By default, the package will denote a new session once the period between events surpasses 30 minutes. 
+
+To change this timeout value, add the following variable to your `dbt_project.yml` file:
+
+```yml
+# dbt_project.yml
+
+...
+config-version: 2
+
+vars:
+  mixpanel:
+    sessionization_inactivity: number_of_minutes # ex: 100
+```
+
+#### Session Trailing Window
+Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
+
+Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
+
+```yml
+# dbt_project.yml
+
+...
+config-version: 2
+
+vars:
+  mixpanel:
+    sessionization_trailing_window: number_of_hours # ex: 12
+```
+
+#### Session Event Criteria
+Similar to the timeline models, `mixpanel_sessions` pulls from `mixpanel_event`. You may want to disclude events or place filters on them in order to qualify for sessionization. 
+
+To apply any filters to the events in the sessions model, add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel_event`.
+
+```yml
+# dbt_project.yml
+
+...
+config-version: 2
+
+vars:
+  mixpanel:
+
+    # Limit sessions to include only these kinds of events
+    session_event_criteria: 'event_type in ("play_song", "stop_song", "create_playlist")'
+```
+
+#### Session Pass-Through Columns
+By default, the `mixpanel_sessions` model will contain the following columns from `mixpanel_event`:
+- `people_id`: The ID of the user
+- `device_id`: The ID of the device they used in this session
+- `event_frequencies`: A JSON of the frequency of each `event_type` in the session
+
+To pass through any additional columns from the events table to `mixpanel_sessions`, add the following variable to your `dbt_project.yml` file:
+
+```yml
+# dbt_project.yml
+
+...
+config-version: 2
+
+vars:
+  mixpanel:
+    session_passthrough_columns: ['the', 'list', 'of', 'column', 'names'] 
+```
 
 ## Contributions
 Additional contributions to this package are very welcome! Please create issues
