@@ -119,6 +119,9 @@ vars:
 
 ```
 
+todo: session_passthrough_columns
+session_criteria
+
 ## Contributions
 Additional contributions to this package are very welcome! Please create issues
 or open PRs against `master`. Check out 
