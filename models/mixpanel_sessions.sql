@@ -34,16 +34,16 @@ with events as (
     and device_id in (
 
         select distinct device_id
-        from {{ref('mixpanel_event')}}
+        from {{ ref('mixpanel_event') }}
 
-        where occurred_at >= (
+        where occurred_at >= coalesce((
           select
             {{ dbt_utils.dateadd(
                 'hour',
                 -var('sessionization_trailing_window', 3),
                 'max(started_at)'
             ) }}
-          from {{ this }} )
+          from {{ this }} ), '2000-01-01')
     )
 
     {% endif %}
@@ -91,7 +91,7 @@ session_ids as (
         min(date_day) over (partition by device_id, session_number) as session_started_on_day,
         {{ dbt_utils.surrogate_key(['device_id', 'session_number']) }} as session_id,
         count(unique_event_id) over(partition by device_id, session_number, event_type) as number_of_event_type,
-        
+
 
     from session_numbers
 
@@ -124,7 +124,7 @@ agg_event_types as (
         session_started_at,
         session_started_on_day,
         device_id,
-        {{ dbt_fivetran_utils.string_agg('event_type || ": " || number_of_events', ) }} as event_frequencies,
+        {{ fivetran_utils.string_agg('event_type || ": " || number_of_events', ) }} as event_frequencies,
         sum(number_of_events) as total_number_of_events,
 
 )

@@ -24,7 +24,9 @@ with events as (
     {% if is_incremental() %}
 
     -- look backward one month for churn/retention
-    and occurred_at >= (select cast ( {{ dbt_utils.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt_utils.type_timestamp() }} ) from {{ this }} )
+    and occurred_at >= coalesce( (select cast ( 
+                        {{ dbt_utils.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt_utils.type_timestamp() }} ) 
+                        from {{ this }} ) ,'2000-01-01')
 
     {% endif %}
 ),
@@ -91,7 +93,7 @@ final as (
 
     {% if is_incremental() %}
 
-    where date_month >= (select max(date_month) from {{ this }})
+    where date_month >= coalesce((select max(date_month) from {{ this }}), '2000-01-01')
 
     {% endif %}
 )

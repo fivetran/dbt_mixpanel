@@ -97,7 +97,6 @@ agg_event_days as (
         sum(case when number_of_events > 0 then 1 else 0 end) as number_of_users,
         sum(is_first_event_day) as number_of_new_users, 
         sum(case when is_repeat_user = true then 1 else 0 end) as number_of_repeat_users,
-    --  sum(case when has_event_in_last_28_days = false and number_of_events > 0 then 1 else 0 end) as number_of_repeat_users,
         
         sum(case when has_event_in_last_28_days = True then 1 else 0 end) as trailing_users_28d,
         sum(case when has_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d

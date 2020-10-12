@@ -13,7 +13,7 @@ sources:
       error_after: {count: 96, period: hour}
 
     tables:
-      - name: src_mixpanel_dupe_events # TODO: replace with 'event' before releasing
+      - name: sample_mixpanel_events # TODO: replace with 'event' before releasing
         description: Table of all events tracked by Mixpanel
 
         columns:
