@@ -28,7 +28,7 @@ with events as (
     from {{ ref('mixpanel_event') }}
 
     -- remove any events, etc
-    where {{ var('session_criteria', 'true') }} 
+    where {{ var('session_event_criteria', 'true') }} 
 
     {% if is_incremental() %}
     -- grab ALL events for each user to appropriately use window functions to sessionize
@@ -44,7 +44,7 @@ with events as (
             {{ dbt_utils.dateadd(
                 'hour',
                 -var('sessionization_trailing_window', 3),
-                'max(started_at)'
+                'max(session_started_at)'
             ) }}
           from {{ this }} ), '2000-01-01')
     )
