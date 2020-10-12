@@ -19,7 +19,12 @@ with events as (
         people_id,
         date_day,
         device_id
-        -- todo: any pass through columns?
+
+        -- todo: test with passthrough columns for first event
+        {% if var('session_passthrough_columns', []) != [] %}
+        ,
+        {{ var('session_passthrough_columns', [] ) | join(', ') }}
+        {% endif %}
 
     from {{ ref('mixpanel_event') }}
 
@@ -40,14 +45,6 @@ with events as (
             ) }}
           from {{ this }} )
     )
-    -- create sessionization_trailing_window (default 6 hrs?)
-    {# and occurred_at >= (
-        select cast ( {{ dbt_utils.dateadd(datepart='hour', 
-                                    interval=-var('sessionization_trailing_window', 6), 
-                                    from_date_or_timestamp="max(started_at)") }} 
-
-                    as {{ dbt_utils.type_timestamp() }} ) from {{ this }} 
-        ) #}
 
     {% endif %}
 ),
@@ -90,9 +87,49 @@ session_ids as (
 
     select
         *,
-        {{ dbt_utils.surrogate_key(['device_id', 'session_number']) }} as session_id
+        min(occurred_at) over (partition by device_id, session_number) as session_started_at,
+        min(date_day) over (partition by device_id, session_number) as session_started_on_day,
+        {{ dbt_utils.surrogate_key(['device_id', 'session_number']) }} as session_id,
+        count(unique_event_id) over(partition by device_id, session_number, event_type) as number_of_event_type,
+        
 
     from session_numbers
+
+),
+
+agg_events as (
+
+    select
+        session_id,
+        event_type,
+        people_id,
+        session_started_at,
+        session_started_on_day,
+        device_id,
+        count(unique_event_id) as number_of_events
+        -- todo: add passthrough columns after testing 
+
+
+    from 
+    session_ids
+
+    group by 1,2,3,4,5,6
+),
+
+agg_event_types as (
+
+    select 
+        session_id,
+        people_id,
+        session_started_at,
+        session_started_on_day,
+        device_id,
+        {{ dbt_fivetran_utils.string_agg('event_type || ": " || number_of_events', ) }} as event_frequencies,
+        sum(number_of_events) as total_number_of_events,
+
 )
+
+-- first event fields, last event id
+-- string_agg of frequency of event types, 
 
 select * from session_ids
