@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key='session_key',
+        unique_key='session_id',
         partition_by={
             "field": "session_started_on_day",
             "data_type": "date"
@@ -20,7 +20,6 @@ with events as (
         date_day,
         device_id
 
-        -- todo: test with passthrough columns for first event
         {% if var('session_passthrough_columns', []) != [] %}
         ,
         {{ var('session_passthrough_columns', [] ) | join(', ') }}
@@ -28,14 +27,18 @@ with events as (
 
     from {{ ref('mixpanel_event') }}
 
+    -- remove any events, etc
     where {{ var('session_criteria', 'true') }} 
 
     {% if is_incremental() %}
+    -- grab ALL events for each user to appropriately use window functions to sessionize
     and device_id in (
 
         select distinct device_id
         from {{ ref('mixpanel_event') }}
 
+        -- events can come in late and we want to still be able to incorporate them
+        -- in the sessionization without requiring a full refresh
         where occurred_at >= coalesce((
           select
             {{ dbt_utils.dateadd(
@@ -66,7 +69,7 @@ new_sessions as (
         case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} then 1
         else 0 end as is_new_session
 
-    from lagged_events
+    from previous_event
 ),
 
 session_numbers as (
@@ -92,8 +95,8 @@ session_ids as (
 
         {{ dbt_utils.surrogate_key(['device_id', 'session_number']) }} as session_id,
 
-        count(unique_event_id) over(partition by device_id, session_number, event_type rows between unbounded preceding and unbounded following) as number_of_this_event_type,
-        sum(number_of_events) over(partition by device_id, session_number rows unbounded preceding and unbounded following) as total_number_of_events
+        count(unique_event_id) over (partition by device_id, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
+        count(unique_event_id) over (partition by device_id, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
 
 
     from session_numbers
@@ -104,7 +107,8 @@ agg_event_types as (
 
     select 
         session_id,
-        {{ '{' ~ fivetran_utils.string_agg('event_type || ": " || number_of_events', '",\n"') ~ '}' }} as event_frequencies
+        -- turn into json
+        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "',\n'") }} || '}' as event_frequencies
     
     from (
 
