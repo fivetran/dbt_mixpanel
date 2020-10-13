@@ -110,7 +110,7 @@ agg_event_types as (
     select 
         session_id,
         -- turn into json
-        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "',\n'") }} || '}' as event_frequencies
+        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' as event_frequencies
     
     from (
 

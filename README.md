@@ -1,6 +1,6 @@
 # Mixpanel 
 
-This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses data in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
+This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
 
 This package enables you to better understand user activity and retention through your event data. To do this, the package:
 - De-duplicatates events

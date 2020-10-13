@@ -138,8 +138,8 @@ final as (
 
     {% endif %}
 
+    order by date_day desc, event_type
 )
 
 select *
 from final
-order by date_day desc, event_type

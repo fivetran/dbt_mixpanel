@@ -39,7 +39,7 @@ spine as (
 user_event_spine as (
 
     select
-        spine.date_day,
+        cast(spine.date_day as date) as date_day,
         user_first_events.people_id,
         user_first_events.event_type,
 
