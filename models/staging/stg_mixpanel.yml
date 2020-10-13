@@ -176,7 +176,28 @@ models:
         description: Boolean that is true if Bluetooth is enabled, false if not.
 
   - name: stg_mixpanel_user_event_date_spine
-    description: Incrementally materialized table in which  
+    description: >
+      Incrementally materialized table relating each user-event_type combination to a calendar day (starting
+      at the first day they performed the type of event). This is necessary for certain window functions in 
+      `mixpanel_daily_events`.
+    
+    columns:
+      - name: date_day
+        description: Calendar day.
+      
+      - name: people_id
+        description: Foreign key referencing the event's associated user's `people.distinct_id`.
+
+      - name: event_type
+        description: Name of the type of event that was logged.
+
+      - name: is_first_event_day
+        description: >
+          Boolean value converted to integers. Equals 1 if the user performed this type of event for the first time on this 
+          day.
+
+      - name: unique_key
+        description: Unique key used for the incremental model configuration. Hashed on `people_id`, `event_type`, and `date_day`.
 
   - name: stg_mixpanel_user_first_event
     description: Table in which each row represents the first day a user performed a type of event.
@@ -194,4 +215,4 @@ models:
   - name: stg_mixpanel_event_tmp
     description: >
       View that simply selects * from the source table. It is only used for the fivetran_utils.fill_staging_columns() macro,
-      which requires a model to `ref`. 
+      which requires a model to `ref()`. 
