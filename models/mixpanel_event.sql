@@ -34,10 +34,12 @@ dedupe as (
     select * from (
 
     select 
+        {{ dbt_utils.surrogate_key(['insert_id', 'people_id', 'event_type', 'date_day']) }} as unique_event_id,
         *,
+        
         -- aligned with mixpanel' s deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
-        -- really de-duping on calendar day + insert_id (concatenated = unique_event_id), but also partitioning on people_id + event_type to reduce the rate of false positives 
-        row_number() over(partition by unique_event_id, people_id, event_type order by mp_processing_time_ms asc) as nth_event_record
+        -- de-duping on calendar day + insert_id but also on people_id + event_type to reduce the rate of false positives 
+        row_number() over(partition by insert_id, people_id, event_type, date_day order by mp_processing_time_ms asc) as nth_event_record
         
         from stg_event
     ) 

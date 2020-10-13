@@ -11,7 +11,7 @@ fields as (
 
     select
         -- new PK
-        insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id,
+        {# insert_id || '-' || {{ dbt_utils.date_trunc('day', 'time') }} as unique_event_id, #}
         cast( {{ dbt_utils.date_trunc('day', 'time') }} as date) as date_day,
 
         -- pulls default properties and renames (see macros/staging_columns)
