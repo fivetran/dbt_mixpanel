@@ -31,6 +31,7 @@ with events as (
     where {{ var('session_event_criteria', 'true') }} 
 
     {% if is_incremental() %}
+
     -- grab ALL events for each user to appropriately use window functions to sessionize
     and device_id in (
 
@@ -66,6 +67,7 @@ new_sessions as (
     
     select 
         *,
+        -- had the previous session timed out?
         case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} then 1
         else 0 end as is_new_session
 
@@ -76,7 +78,7 @@ session_numbers as (
 
     select *,
 
-    -- will cumulatively create session ids
+    -- will cumulatively create session numbers
     sum(is_new_session) over (
             partition by device_id
             order by occurred_at asc
@@ -142,11 +144,8 @@ session_join as (
     from session_ids
     join agg_event_types using(session_id) -- join regardless of event type
 
-    where session_ids.is_new_session = 1 -- only grab fields of first event
+    where session_ids.is_new_session = 1 -- only return fields of first event
 
 )
-
--- first event fields, last event id
--- string_agg of frequency of event types, 
 
 select * from session_join

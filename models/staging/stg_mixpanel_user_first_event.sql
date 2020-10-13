@@ -4,7 +4,8 @@
     )
 }}
 
--- looking at events before we cut them off with a date range
+-- using stg_mixpanel_event to look at ALL-TIME events
+-- mixpanel_event is cut off by the `date_range_start` variable
 with alltime_events as (
 
     select *

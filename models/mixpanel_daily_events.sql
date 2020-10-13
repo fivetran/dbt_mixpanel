@@ -24,6 +24,8 @@ with events as (
     where {{ var('timeline_criteria', 'true') }}
 
     {% if is_incremental() %}
+
+    -- we look at the most recent 28 days for this model's window functions to compute properly
     and date_day >= coalesce((select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  from {{ this }} ), '2000-01-01')
 
     {% endif %}
@@ -52,11 +54,13 @@ agg_user_events as (
         people_id,
         event_type,
         count(unique_event_id) as number_of_events
+
     from events
     group by 1,2,3
     
 ), 
 
+-- join the spine with event metrics
 spine_joined as (
     
     select
@@ -81,6 +85,8 @@ trailing_events as (
         *,
         sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 27 preceding and current row) > 0 as has_event_in_last_28_days,
         sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 6 preceding and current row) > 0 as has_event_in_last_7_days,
+
+        -- defining a repeat user as someone who performed an action on a given day after previously having done so in the last 28 days
         sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 27 preceding and 1 preceding) > 0 
             and number_of_events > 0 as is_repeat_user
 
@@ -116,6 +122,8 @@ final as (
         number_of_users,
         number_of_new_users,
         number_of_repeat_users,
+
+        -- "return user" is someone who has done an action on a given day after not doing so for the past 28 days
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
@@ -125,6 +133,7 @@ final as (
 
     {% if is_incremental() %}
 
+    -- only return the most recent day of data
     where date_day >= coalesce( (select max(date_day)  from {{ this }} ), '2000-01-01')
 
     {% endif %}

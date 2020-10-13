@@ -62,10 +62,12 @@ monthly_metrics as (
         count(distinct people_id) as number_of_users,
         count( distinct case when first_month = date_month then people_id end) as number_of_new_users,
 
+        -- defining repeat user as someone who also performed this action the previous month
         count(distinct case when previous_month_with_event is not null and 
             {{ dbt_utils.datediff('previous_month_with_event', 'date_month', 'month') }} = 1
             then people_id end) as number_of_repeat_users,
 
+        -- defining return user as someone who has performed this action farther in the past
         count(distinct case when previous_month_with_event is not null and
             {{ dbt_utils.datediff('previous_month_with_event', 'date_month', 'month') }} > 1
             then people_id end) as number_of_return_users,
@@ -83,6 +85,7 @@ final as (
 
     select
         *,
+
         -- subtract the returned users from the previous month's total users to get the # churned
         -- note: churned users refer to users who did something last month and not this month
         lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users as number_of_churn_users,
@@ -93,6 +96,7 @@ final as (
 
     {% if is_incremental() %}
 
+    -- only return the most recent month
     where date_month >= coalesce((select max(date_month) from {{ this }}), '2000-01-01')
 
     {% endif %}
