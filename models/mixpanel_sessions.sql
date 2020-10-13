@@ -40,14 +40,14 @@ with events as (
 
         -- events can come in late and we want to still be able to incorporate them
         -- in the sessionization without requiring a full refresh
-        where occurred_at >= coalesce((
+        where occurred_at >= cast (coalesce((
           select
             {{ dbt_utils.dateadd(
                 'hour',
                 -var('sessionization_trailing_window', 3),
                 'max(session_started_at)'
             ) }}
-          from {{ this }} ), '2000-01-01')
+          from {{ this }} ), '2000-01-01') as {{ dbt_utils.type_timestamp() }} )
     )
 
     {% endif %}
