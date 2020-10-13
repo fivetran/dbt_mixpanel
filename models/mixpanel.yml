@@ -4,8 +4,9 @@ models:
   - name: mixpanel_event
     description: >
       Table of de-duplicated Mixpanel events. Calls on the `pivot_event_properties_json` macro to 
-      turn any properties specified by the `event_properties` variable into columns. Default 
-      materialization is incremental.
+      turn any properties specified by the `event_properties` variable into columns. 
+      
+      Default materialization is incremental.
     
     columns: 
       - name: unique_event_id
@@ -181,6 +182,7 @@ models:
   - name: mixpanel_daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
+
       Default materialization is incremental.
     
     columns:
@@ -220,6 +222,7 @@ models:
   - name: mixpanel_monthly_events
     description: >
       Table of each **event type's** monthly history of activity, as reflected in user retention and event metrics.
+
       Default materialization is incremental.
     
     columns:
@@ -257,12 +260,60 @@ models:
           - not_null
 
   - name: mixpanel_sessions
-    description: Table 
+    description: > 
+      Table aggregating events into unique user sessions, according to the `sessionization_inactivity` timeout length.
+      Contains any additional columns specified by the `session_passthrough_columns` variable. Note that sessions are 
+      specific to the device, as opposed to the user.
+      
+      Default materialization is incremental.
+    
+    columns:
+      - name: session_id
+        description: Unique ID of the user session. 
+        tests:
+          - unique
+          - not_null
+
+      - name: people_id
+        description: Foreign key referencing the event's associated user's `people.distinct_id`.
+
+      - name: session_started_at
+        description: Timestamp of when the session began (in the timezone of the Mixpanel project).
+
+      - name: session_started_on_day
+        description: Calendar date of when the session began.
+
+      - name: device_id
+        description: >
+          A unique string that identifies a user before an authentication or identification flow. 
+          By default, Mixpanel creates a device_id for every unique browser/device.
+
+      - name: total_number_of_events
+        description: The total number of events triggered during this user session.
+
+      - name: event_frequencies
+        description: JSON of the frequency of each `event_type` during this user session.
 
 macros:
+  - name: analyze_funnel
+    description: >
+      Macro that produces both event and user funnels given a list of events.
+
+    arguments:
+      - name: event_funnel
+        description: >
+          List of events whose funnel will be created. Format: ['event_name_1', 'event_name_2',...]
+
+      - name: group_by_column 
+        description: Optional column in `mixpanel_event` to segment the funnel by. Default is None
+
+      - name: conversion_criteria
+        description: An optional `WHERE` clause that will be applied when selecting from `mixpanel_event`.
+  
   - name: pivot_event_properties_json
     description: >
       Macro that parses out any event-specific properties declared in the `event_properties_to_pivot` variable,
       and pivots these JSON fields into columns.
 
-  - name: analyze_funnel
+  - name: staging_columns
+    description: Macro used to rename and properly cast columns in `stg_mixpanel_event`.
