@@ -4,7 +4,8 @@ models:
   - name: mixpanel_event
     description: >
       Table of de-duplicated Mixpanel events. Calls on the `pivot_event_properties_json` macro to 
-      turn any properties specified by the `event_properties` variable into columns.
+      turn any properties specified by the `event_properties` variable into columns. Default 
+      materialization is incremental.
     
     columns: 
       - name: unique_event_id
@@ -180,12 +181,7 @@ models:
   - name: mixpanel_daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
-
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
-            - date_day
-            - event_type  
+      Default materialization is incremental.
     
     columns:
       - name: date_day
@@ -215,16 +211,16 @@ models:
       - name: trailing_users_7d
         description: The number of unique users who have completed this kind of event in the past 7 days.
 
+      - name: unique_key
+        description: Unique key used for the incremental model configuration. Concats `event_type` and `date_day`
+        tests:
+          - unique
+          - not_null
     
   - name: mixpanel_monthly_events
     description: >
       Table of each **event type's** monthly history of activity, as reflected in user retention and event metrics.
-
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
-            - date_month
-            - event_type 
+      Default materialization is incremental.
     
     columns:
       - name: date_month
@@ -254,7 +250,14 @@ models:
       - name: number_of_churn_users
         description: The number of unique users who performed this kind of event last month, but not this month. 
 
-  # todo: sessionization model(s)
+      - name: unique_key
+        description: Unique key used for the incremental model configuration. Concats `event_type` and `date_month`
+        tests:
+          - unique
+          - not_null
+
+  - name: mixpanel_sessions
+    description: Table 
 
 macros:
   - name: pivot_event_properties_json
