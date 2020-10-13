@@ -34,7 +34,7 @@ with events as (
 date_spine as (
     
     select *
-    from {{ ref('stg_user_event_date_spine') }}
+    from {{ ref('stg_mixpanel_user_event_date_spine') }}
 
     {% if is_incremental() %}
 

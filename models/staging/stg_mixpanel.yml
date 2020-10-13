@@ -174,3 +174,24 @@ models:
       
       - name: has_bluetooth_enabled
         description: Boolean that is true if Bluetooth is enabled, false if not.
+
+  - name: stg_mixpanel_user_event_date_spine
+    description: Incrementally materialized table in which  
+
+  - name: stg_mixpanel_user_first_event
+    description: Table in which each row represents the first day a user performed a type of event.
+
+    columns:
+      - name: people_id
+        description: Foreign key referencing the event's associated user's `people.distinct_id`.
+
+      - name: event_type
+        description: Name of the type of event that was logged.
+
+      - name: first_event_day
+        description: Calendar date of the first time
+
+  - name: stg_mixpanel_event_tmp
+    description: >
+      View that simply selects * from the source table. It is only used for the fivetran_utils.fill_staging_columns() macro,
+      which requires a model to `ref`. 

@@ -2,12 +2,13 @@
 
 This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses data in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
 
-This package enables you to better understand user activity and retention through your event data. This dbt package
+This package enables you to better understand user activity and retention through your event data. To do this, the package:
 - De-duplicatates events
 - Pivots out custom event properties from JSONs into an enriched events table
 - Creates a daily timeline of each type of event, complete with trailing and daily metrics of user activity and retention
 - Creates a monthly timeline of each type of event, complete with metrics about user activity, retention, and churn
 - Aggregates events into unique user sessions, complete with metrics about event frequency and relevant fields from the session's first event
+- Provides a macro to easily create an event funnel
 
 ## Models
 
@@ -121,7 +122,7 @@ vars:
 
 ### Session Configurations
 #### Session Inactivity Timeout
-This package sessionizes events based on the periods of inactivity between a user's events on a device. By default, the package will denote a new session once the period between events surpasses 30 minutes. 
+This package sessionizes events based on the periods of inactivity between a user's events on a device. By default, the package will denote a new session once the period between events surpasses **30 minutes**. 
 
 To change this timeout value, add the following variable to your `dbt_project.yml` file:
 
@@ -136,10 +137,13 @@ vars:
     sessionization_inactivity: number_of_minutes # ex: 100
 ```
 
-#### Session Trailing Window
-Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
+#### Session Pass-Through Columns
+By default, the `mixpanel_sessions` model will contain the following columns from `mixpanel_event`:
+- `people_id`: The ID of the user
+- `device_id`: The ID of the device they used in this session
+- `event_frequencies`: A JSON of the frequency of each `event_type` in the session
 
-Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
+To pass through any additional columns from the events table to `mixpanel_sessions`, add the following variable to your `dbt_project.yml` file. The value of each field will be pulled from the first event of the session.
 
 ```yml
 # dbt_project.yml
@@ -149,7 +153,7 @@ config-version: 2
 
 vars:
   mixpanel:
-    sessionization_trailing_window: number_of_hours # ex: 12
+    session_passthrough_columns: ['the', 'list', 'of', 'column', 'names'] 
 ```
 
 #### Session Event Criteria
@@ -170,13 +174,10 @@ vars:
     session_event_criteria: 'event_type in ("play_song", "stop_song", "create_playlist")'
 ```
 
-#### Session Pass-Through Columns
-By default, the `mixpanel_sessions` model will contain the following columns from `mixpanel_event`:
-- `people_id`: The ID of the user
-- `device_id`: The ID of the device they used in this session
-- `event_frequencies`: A JSON of the frequency of each `event_type` in the session
+#### Session Trailing Window
+Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
 
-To pass through any additional columns from the events table to `mixpanel_sessions`, add the following variable to your `dbt_project.yml` file:
+Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
 
 ```yml
 # dbt_project.yml
@@ -186,7 +187,7 @@ config-version: 2
 
 vars:
   mixpanel:
-    session_passthrough_columns: ['the', 'list', 'of', 'column', 'names'] 
+    sessionization_trailing_window: number_of_hours # ex: 12
 ```
 
 ## Contributions
