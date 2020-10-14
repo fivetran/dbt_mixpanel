@@ -202,7 +202,7 @@ models:
         description: The number of unique users who triggered this kind of a event on a given day.
 
       - name: number_of_new_users
-        description: The number of unique users who are performing this kind of event for the first time.
+        description: The number of unique users who are performing this kind of event for the very first time (not affected by `date_range_start`).
 
       - name: number_of_repeat_users
         description: The number of unique users who also performed this event in the previous 28 days.
@@ -245,7 +245,7 @@ models:
         description: The number of unique users who triggered this kind of a event in a month.
 
       - name: number_of_new_users
-        description: The number of unique users who performed this kind of event for the first time this month.
+        description: The number of unique users who performed this kind of event for the first time this month (not affected by `date_range_start`).
 
       - name: number_of_repeat_users
         description: The number of unique users who also performed this event in the previous calendar month.

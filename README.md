@@ -99,6 +99,8 @@ vars:
     date_range_start: 'yyyy-mm-dd' 
 ```
 
+**Note:**: This date range will not affect the `number_of_new_users` column in the `mixpanel_daily_events` or `mixpanel_monthly_events` models. This metric will be *true* new users.
+
 ### Timeline Event Filters
 There are two timeline models in this package, `mixpanel_daily_events` and `mixpanel_monthly_events`. Each timeline model aggregates activity metrics for each type of tracked event. However, you may want to place filters on all or individual events, or even completely filter out certain events. 
 
