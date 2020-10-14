@@ -20,12 +20,10 @@ with events as (
 
     from {{ ref('mixpanel_event') }}
 
-    where {{ var('timeline_criteria', 'true') }} 
-
     {% if is_incremental() %}
 
     -- look backward one month for churn/retention
-    and occurred_at >= coalesce( (select cast ( 
+    where occurred_at >= coalesce( (select cast ( 
                         {{ dbt_utils.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt_utils.type_timestamp() }} ) 
                         from {{ this }} ) ,'2010-01-01')
 

@@ -15,7 +15,6 @@ vars: # todo: remove these  due to [order of variable declaration precedence](ht
         event_custom_columns: [ 'ios_ifa' ]
         event_properties_to_pivot: ['user_id', 'video_id', 'videoId']
 
-        timeline_criteria: "coalesce(country_code, '') = 'US'"
 
         session_passthrough_columns: ['city', 'referrer', 'search_engine']
         

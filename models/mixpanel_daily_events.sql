@@ -20,13 +20,10 @@ with events as (
 
     from {{ ref('mixpanel_event') }}
 
-    -- exclude events and/or apply filters to all/individual events
-    where {{ var('timeline_criteria', 'true') }}
-
     {% if is_incremental() %}
 
     -- we look at the most recent 28 days for this model's window functions to compute properly
-    and date_day >= coalesce( ( select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
+    where date_day >= coalesce( ( select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
                                 from {{ this }} ), '2010-01-01')
 
     {% endif %}

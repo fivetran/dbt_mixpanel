@@ -101,10 +101,10 @@ vars:
 
 **Note:**: This date range will not affect the `number_of_new_users` column in the `mixpanel_daily_events` or `mixpanel_monthly_events` models. This metric will be *true* new users.
 
-### Timeline Event Filters
-There are two timeline models in this package, `mixpanel_daily_events` and `mixpanel_monthly_events`. Each timeline model aggregates activity metrics for each type of tracked event. However, you may want to place filters on all or individual events, or even completely filter out certain events. 
+### Global Event Filters
+In addition to limiting the date range, you may want to employ other filters to remove noise from your event data. 
 
-To filter events in these timeline models, add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel_event`.
+To apply a global filter to events (and all models in this package), add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from the source table, `mixpanel.event`. 
 
 ```yml
 # dbt_project.yml
@@ -114,12 +114,8 @@ config-version: 2
 
 vars:
   mixpanel:
-
-    # Example 1: Limit all events to the US
-    timeline_criteria: 'country_code = "US"'
-
-    # Example 2: Only limit 'play_song' events to the US
-    timeline_criteria: 'event_type != "play_song" OR country_code = "US"'
+    # Ex: removing internal users
+    global_event_filter: 'distinct_id != "1234abcd"'
 ```
 
 ### Session Configurations

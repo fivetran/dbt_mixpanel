@@ -30,7 +30,8 @@ fields as (
         
     from events
 
-    
+    where {{ var('global_event_filter', 'true') }}
+
 )
 
 select * from fields
