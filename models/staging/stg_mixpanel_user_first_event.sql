@@ -10,6 +10,7 @@ with alltime_events as (
 
     select *
     from {{ ref('stg_mixpanel_event') }}
+
 ),
 
 first_events as (

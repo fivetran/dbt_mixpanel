@@ -13,7 +13,7 @@ sources:
       error_after: {count: 96, period: hour}
 
     tables:
-      - name: sample_mixpanel_events # TODO: replace with 'event' before releasing
+      - name: stratified_sample_mixpanel_events # TODO: replace with 'event' before releasing
         description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
         columns:
