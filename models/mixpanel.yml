@@ -196,7 +196,7 @@ models:
         description: The number of events logged for this event type on a given day.
 
       - name: number_of_users
-        description: The number of unique users who triggered this kind of a event.
+        description: The number of unique users who triggered this kind of a event on a given day.
 
       - name: number_of_new_users
         description: The number of unique users who are performing this kind of event for the first time.
@@ -205,7 +205,7 @@ models:
         description: The number of unique users who also performed this event in the previous 28 days.
 
       - name: number_of_return_users
-        description: The number of unique users who have performed this event before, but not recently (past 28 days).
+        description: The number of unique users who have performed this event before, but not recently (not in the previous 28 days).
 
       - name: trailing_users_28d
         description: The number of unique users who have completed this kind of event in the past 28 days.
@@ -248,7 +248,7 @@ models:
         description: The number of unique users who also performed this event in the previous calendar month.
 
       - name: number_of_return_users
-        description: The number of unique users who have performed this event before, but not recently (last calendar month).
+        description: The number of unique users who have performed this event before, but not recently (in the last calendar month).
 
       - name: number_of_churn_users
         description: The number of unique users who performed this kind of event last month, but not this month. 
@@ -305,7 +305,7 @@ macros:
           List of events whose funnel will be created. Format: ['event_name_1', 'event_name_2',...]
 
       - name: group_by_column 
-        description: Optional column in `mixpanel_event` to segment the funnel by. Default is None
+        description: Optional column in `mixpanel_event` to segment the funnel by. Default is `None`.
 
       - name: conversion_criteria
         description: An optional `WHERE` clause that will be applied when selecting from `mixpanel_event`.
@@ -316,4 +316,4 @@ macros:
       and pivots these JSON fields into columns.
 
   - name: get_event_columns
-    description: Macro used to rename and properly cast columns in `stg_mixpanel_event`. In `staging_columns.sql`
+    description: Macro used to rename and properly cast columns in `stg_mixpanel_event`. Found in `staging_columns.sql`.

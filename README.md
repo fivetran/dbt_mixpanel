@@ -12,7 +12,7 @@ This package enables you to better understand user activity and retention throug
 
 ## Models
 
-This package contains transformation models. The primary outputs of this package are described below. Intermediate models are used to create these output models.
+This package contains transformation models. The primary outputs of this package are described below. Intermediate models are used to create these output models and can be found in the models/staging folder.
 
 | **model**                | **description**                                                                                                                                |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -29,7 +29,7 @@ It returns the following:
 - The number of events and users at each step
 - The overall user and event conversion % between the top of the funnel and each step
 - The relative user and event conversion % between subsequent steps 
-  > Note: The relative order of the steps is determined by their event volume, not the order in which they are input.
+> Note: The relative order of the steps is determined by their event volume, not the order in which they are input.
 
 The macro takes the following as arguments:
 - `event_funnel`: List of event types (not case sensitive). Example: `'['play_song', 'stop_song', 'exit']`
@@ -84,7 +84,7 @@ vars:
 ```
 
 ### Event Date Range
-Becuase of the typical volume of event data, you may want to limit this package's models to work with a recent date range of your Mixpanel data (though note that all final models are materialized as incremental tables).
+Because of the typical volume of event data, you may want to limit this package's models to work with a recent date range of your Mixpanel data (however, note that all final models are materialized as [incremental](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/materializations#incremental) tables).
 
 By default, the package looks at all events since January 1, 2010. To change this start date, add the following variable to your `dbt_project.yml` file:
 
@@ -134,7 +134,7 @@ config-version: 2
 
 vars:
   mixpanel:
-    sessionization_inactivity: number_of_minutes # ex: 100
+    sessionization_inactivity: number_of_minutes # ex: 60
 ```
 
 #### Session Pass-Through Columns

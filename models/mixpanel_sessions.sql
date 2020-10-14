@@ -47,7 +47,7 @@ with events as (
                 -var('sessionization_trailing_window', 3),
                 'max(session_started_at)'
             ) }}
-          from {{ this }} ), '2000-01-01') as {{ dbt_utils.type_timestamp() }} )
+          from {{ this }} ), '2010-01-01') as {{ dbt_utils.type_timestamp() }} )
     )
 
     {% endif %}

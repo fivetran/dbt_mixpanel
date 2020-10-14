@@ -14,7 +14,7 @@ sources:
 
     tables:
       - name: sample_mixpanel_events # TODO: replace with 'event' before releasing
-        description: Table of all events tracked by Mixpanel
+        description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
         columns:
         # default properties regardless of platforms used

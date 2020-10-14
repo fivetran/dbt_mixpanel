@@ -27,7 +27,7 @@ with events as (
     -- look backward one month for churn/retention
     and occurred_at >= coalesce( (select cast ( 
                         {{ dbt_utils.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt_utils.type_timestamp() }} ) 
-                        from {{ this }} ) ,'2000-01-01')
+                        from {{ this }} ) ,'2010-01-01')
 
     {% endif %}
 ),
@@ -47,13 +47,14 @@ user_monthly_events as (
 
     select 
         *, 
-        -- add window functions
+        -- first time a user did this kind of event
         min(date_month) over(partition by people_id, event_type) as first_month,
+
+        -- last month that the user performed this kind of event during
         lag(date_month, 1) over(partition by people_id, event_type order by date_month asc) previous_month_with_event
-        {# count(distinct people_id) over( partition by date_month ) as total_monthly_active_users #}
 
     from (
-        -- use aggregate functions
+        -- aggregate number of events to the month
         select
             people_id,
             event_type,
@@ -71,6 +72,7 @@ monthly_metrics as (
         user_monthly_events.date_month,
         user_monthly_events.event_type,
         month_totals.total_monthly_active_users,
+
         count(distinct user_monthly_events.people_id) as number_of_users,
         count( distinct case when user_monthly_events.first_month = user_monthly_events.date_month then user_monthly_events.people_id end) as number_of_new_users,
 
@@ -110,7 +112,7 @@ final as (
     {% if is_incremental() %}
 
     -- only return the most recent month
-    where date_month >= coalesce((select max(date_month) from {{ this }}), '2000-01-01')
+    where date_month >= coalesce((select max(date_month) from {{ this }}), '2010-01-01')
 
     {% endif %}
 )

@@ -30,7 +30,7 @@ spine as (
 
     {% if is_incremental() %} 
     
-    where date_day > coalesce(( select max(date_day) from {{ this }} ), '2000-01-01') -- every user-event_type will have the same last day
+    where date_day > coalesce(( select max(date_day) from {{ this }} ), '2010-01-01') -- every user-event_type will have the same last day
     
     {% endif %}
     

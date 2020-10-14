@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_mixpanel_event
-    description: Table of all events tracked by Mixpanel
+    description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
     columns: 
       - name: insert_id
