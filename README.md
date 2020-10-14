@@ -99,7 +99,7 @@ vars:
     date_range_start: 'yyyy-mm-dd' 
 ```
 
-**Note:**: This date range will not affect the `number_of_new_users` column in the `mixpanel_daily_events` or `mixpanel_monthly_events` models. This metric will be *true* new users.
+**Note:** This date range will not affect the `number_of_new_users` column in the `mixpanel_daily_events` or `mixpanel_monthly_events` models. This metric will be *true* new users.
 
 ### Global Event Filters
 In addition to limiting the date range, you may want to employ other filters to remove noise from your event data. 
@@ -114,7 +114,7 @@ config-version: 2
 
 vars:
   mixpanel:
-    # Ex: removing internal users
+    # Ex: removing internal user
     global_event_filter: 'distinct_id != "1234abcd"'
 ```
 
