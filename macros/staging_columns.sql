@@ -35,7 +35,7 @@
     {"name": "mp_keyword", "datatype": dbt_utils.type_string(), "alias": "referrer_keywords"},
     {"name": "mp_lib", "datatype": dbt_utils.type_string(), "alias": "mixpanel_library"},
     {"name": "mp_processing_time_ms", "datatype": dbt_utils.type_int()},
-    {"name": "name", "datatype": dbt_utils.type_string(), "alias": "event_type"},
+    {"name": "name", "datatype": dbt_utils.type_string(), "alias": "event_type_original_casing"},
     {"name": "os", "datatype": dbt_utils.type_string()},
     {"name": "os_version", "datatype": dbt_utils.type_string()},
     {"name": "properties", "datatype": dbt_utils.type_string(), "alias": "event_properties"},

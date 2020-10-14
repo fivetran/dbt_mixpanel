@@ -15,7 +15,7 @@ models:
           Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
           
       - name: event_type
-        description: Name of the type of event that was logged.
+        description: Name of the type of event that was logged (in lower case).
       
       - name: people_id
         description: Foreign key referencing the event's associated user's `people.distinct_id`.
@@ -70,6 +70,9 @@ models:
 
       - name: date_day
         description: Calendar day of when the event occurred.
+
+      - name: event_type_original_casing
+        description: Name of the type of event that was logged, in its orginal capitalization.
 
       # web only properties
       - name: initial_referring_domain

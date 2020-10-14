@@ -27,7 +27,7 @@ models:
           Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
           
       - name: event_type
-        description: Name of the type of event that was logged.
+        description: Name of the type of event that was logged, in lowercase.
       
       - name: people_id
         description: Foreign key referencing the event's associated user's `people.distinct_id`.
@@ -115,6 +115,9 @@ models:
       
       - name: device_name
         description: The name of the event sender's device, if they're on mobile web.
+
+      - name: event_type_original_casing
+        description: Name of the type of event that was logged, in its orginal capitalization.
 
       # mobile only properties
       - name: has_wifi_connected

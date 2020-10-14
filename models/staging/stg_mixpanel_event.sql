@@ -11,6 +11,7 @@ fields as (
 
     select
         cast( {{ dbt_utils.date_trunc('day', 'time') }} as date) as date_day,
+        lower(name) as event_type,
 
         -- pulls default properties and renames (see macros/staging_columns)
         -- columns missing from your source table will be completely NULL   
