@@ -68,7 +68,7 @@ new_sessions as (
     select 
         *,
         -- had the previous session timed out?
-        case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} then 1
+        case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} or previous_event_at is null then 1
         else 0 end as is_new_session
 
     from previous_event
