@@ -3,12 +3,11 @@
 This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
 
 This package enables you to better understand user activity and retention through your event data. To do this, the package:
-- De-duplicatates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
-- Pivots out custom event properties from JSONs into an enriched events table
-- Creates a daily timeline of each type of event, complete with trailing and daily metrics of user activity and retention
-- Creates a monthly timeline of each type of event, complete with metrics about user activity, retention, and churn
+- Creates both a daily and monthly timeline of each type of event, complete with metrics about user activity, retention, resurrection, and churn
 - Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
 - Provides a macro to easily create an event funnel
+- De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
+- Pivots out custom event properties from JSONs into an enriched events table
 
 
 **See the package docs site [here](https://fivetran-dbt-mixpanel.netlify.app/#!/overview).**
