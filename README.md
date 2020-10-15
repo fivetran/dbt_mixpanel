@@ -18,13 +18,13 @@ This package contains transformation models. The primary outputs of this package
 
 | **model**                | **description**                                                                                                                                |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| mixpanel__event             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
-| mixpanel__daily_events             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
-| mixpanel__monthly_events          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
-| mixpanel__sessions          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
+| [mixpanel__event](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__event.sql)             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
+| [mixpanel__daily_events](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__daily_events.sql)             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
+| [mixpanel__monthly_events](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__monthly_events.sql)          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
+| [mixpanel__sessions](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__sessions.sql)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
 
 ## Macros
-### analyze_funnel
+### analyze_funnel [(source)](https://github.com/fivetran/dbt_mixpanel/blob/master/macros/analyze_funnel.sql)
 You can use the `analyze_funnel(event_funnel, group_by_column, conversion_criteria)` macro to produce a funnel between a given list of event types. 
 
 It returns the following:
