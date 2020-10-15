@@ -40,7 +40,7 @@ sources:
           - name: properties
             description: >
               JSON capturing properties specific to this type of event. Properties specified in the `event_properties`
-              variable will be turned into columns in the `mixpanel_event` model.
+              variable will be turned into columns in the `mixpanel__event` model.
 
           - name: insert_id 
             description: > 

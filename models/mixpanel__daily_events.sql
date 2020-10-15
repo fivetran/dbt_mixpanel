@@ -18,7 +18,7 @@ with events as (
         unique_event_id,
         date_day
 
-    from {{ ref('mixpanel_event') }}
+    from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
 
@@ -34,7 +34,7 @@ with events as (
 date_spine as (
     
     select *
-    from {{ ref('stg_mixpanel_user_event_date_spine') }}
+    from {{ ref('stg_mixpanel__user_event_date_spine') }}
 
     {% if is_incremental() %}
 

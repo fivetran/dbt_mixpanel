@@ -25,7 +25,7 @@ with events as (
         {{ var('session_passthrough_columns', [] ) | join(', ') }}
         {% endif %}
 
-    from {{ ref('mixpanel_event') }}
+    from {{ ref('mixpanel__event') }}
 
     -- remove any events, etc
     where {{ var('session_event_criteria', 'true') }} 
@@ -36,7 +36,7 @@ with events as (
     and device_id in (
 
         select distinct device_id
-        from {{ ref('mixpanel_event') }}
+        from {{ ref('mixpanel__event') }}
 
         -- events can come in late and we want to still be able to incorporate them
         -- in the sessionization without requiring a full refresh

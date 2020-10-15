@@ -12,7 +12,7 @@
 with user_first_events as (
 
     select * 
-    from {{ ref('stg_mixpanel_user_first_event') }}
+    from {{ ref('stg_mixpanel__user_first_event') }}
 ),
 
 spine as (
@@ -43,7 +43,7 @@ user_event_spine as (
         user_first_events.people_id,
         user_first_events.event_type,
 
-        -- will use this in mixpanel_daily_events
+        -- will use this in mixpanel__daily_events
         case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,
 
         {{ dbt_utils.surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key

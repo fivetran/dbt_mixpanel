@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: mixpanel_event
+  - name: mixpanel__event
     description: >
       Table of de-duplicated Mixpanel events. Calls on the `pivot_event_properties_json` macro to 
       turn any properties specified by the `event_properties` variable into columns. 
@@ -35,7 +35,7 @@ models:
       - name: event_properties
         description: >
           JSON capturing properties specific to this type of event. Properties listed in the `event_properties`
-          variable will be turned into columns in the `mixpanel_event` model.
+          variable will be turned into columns in the `mixpanel__event` model.
       
       - name: city
         description: >
@@ -182,7 +182,7 @@ models:
       - name: has_bluetooth_enabled
         description: Boolean that is true if Bluetooth is enabled, false if not.
   
-  - name: mixpanel_daily_events
+  - name: mixpanel__daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
 
@@ -222,7 +222,7 @@ models:
           - unique
           - not_null
     
-  - name: mixpanel_monthly_events
+  - name: mixpanel__monthly_events
     description: >
       Table of each **event type's** monthly history of activity, as reflected in user retention and event metrics.
 
@@ -262,7 +262,7 @@ models:
           - unique
           - not_null
 
-  - name: mixpanel_sessions
+  - name: mixpanel__sessions
     description: > 
       Table aggregating events into unique user sessions, according to the `sessionization_inactivity` timeout length.
       Contains any additional columns specified by the `session_passthrough_columns` variable. Note that sessions are 
@@ -308,10 +308,10 @@ macros:
           List of events whose funnel will be created. Format: ['event_name_1', 'event_name_2',...]
 
       - name: group_by_column 
-        description: Optional column in `mixpanel_event` to segment the funnel by. Default is `None`.
+        description: Optional column in `mixpanel__event` to segment the funnel by. Default is `None`.
 
       - name: conversion_criteria
-        description: An optional `WHERE` clause that will be applied when selecting from `mixpanel_event`.
+        description: An optional `WHERE` clause that will be applied when selecting from `mixpanel__event`.
   
   - name: pivot_event_properties_json
     description: >
@@ -319,4 +319,4 @@ macros:
       and pivots these JSON fields into columns.
 
   - name: get_event_columns
-    description: Macro used to rename and properly cast columns in `stg_mixpanel_event`. Found in `staging_columns.sql`.
+    description: Macro used to rename and properly cast columns in `stg_mixpanel__event`. Found in `staging_columns.sql`.

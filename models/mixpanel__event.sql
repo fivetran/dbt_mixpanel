@@ -13,7 +13,7 @@ with stg_event as (
 
     select *
 
-    from {{ ref('stg_mixpanel_event') }}
+    from {{ ref('stg_mixpanel__event') }}
 
     where 
     {% if is_incremental() %}

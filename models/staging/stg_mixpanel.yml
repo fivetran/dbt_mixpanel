@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_mixpanel_event
+  - name: stg_mixpanel__event
     description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
     columns: 
@@ -23,7 +23,7 @@ models:
       - name: event_properties
         description: >
           JSON capturing properties specific to this type of event. Properties listed in the `event_properties`
-          variable will be turned into columns in the `mixpanel_event` model.
+          variable will be turned into columns in the `mixpanel__event` model.
       
       - name: city
         description: >
@@ -170,11 +170,11 @@ models:
       - name: has_bluetooth_enabled
         description: Boolean that is true if Bluetooth is enabled, false if not.
 
-  - name: stg_mixpanel_user_event_date_spine
+  - name: stg_mixpanel__user_event_date_spine
     description: >
       Incrementally materialized table relating each user-event_type combination to a calendar day (starting
       at the first day they performed the type of event). This is necessary for certain window functions in 
-      `mixpanel_daily_events`.
+      `mixpanel__daily_events`.
     
     columns:
       - name: date_day
@@ -197,7 +197,7 @@ models:
           - unique
           - not_null
 
-  - name: stg_mixpanel_user_first_event
+  - name: stg_mixpanel__user_first_event
     description: Table in which each row represents the first day a user performed a type of event.
 
     columns:
@@ -210,7 +210,7 @@ models:
       - name: first_event_day
         description: Calendar date of the first time
 
-  - name: stg_mixpanel_event_tmp
+  - name: stg_mixpanel__event_tmp
     description: >
       View that simply selects * from the source table. It is only used for the fivetran_utils.fill_staging_columns() macro,
       which requires a model to `ref()`. 
