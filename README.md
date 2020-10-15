@@ -10,7 +10,8 @@ This package enables you to better understand user activity and retention throug
 - Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
 - Provides a macro to easily create an event funnel
 
-See the Mixpanel package [docs site here](https://fivetran-dbt-mixpanel.netlify.app/#!/overview).
+
+**See the package docs site [here](https://fivetran-dbt-mixpanel.netlify.app/#!/overview).**
 
 ## Models
 
