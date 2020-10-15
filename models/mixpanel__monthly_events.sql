@@ -18,7 +18,7 @@ with events as (
         people_id,
         cast( {{ dbt_utils.date_trunc('month', 'occurred_at') }} as date) as date_month
 
-    from {{ ref('mixpanel_event') }}
+    from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
 

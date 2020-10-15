@@ -13,7 +13,7 @@ with stg_event as (
 
     select *
 
-    from {{ ref('stg_mixpanel_event') }}
+    from {{ ref('stg_mixpanel__event') }}
 
     where 
     {% if is_incremental() %}
@@ -50,7 +50,8 @@ dedupe as (
 pivot_properties as (
 
     select 
-        *,
+        *
+        {%- if var('event_properties_to_pivot', []) != [] %},{% endif %}
         {{ pivot_event_properties_json(var('event_properties_to_pivot', [])) }}
     
     from dedupe

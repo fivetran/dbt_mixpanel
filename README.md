@@ -10,16 +10,18 @@ This package enables you to better understand user activity and retention throug
 - Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
 - Provides a macro to easily create an event funnel
 
+See the Mixpanel package docs site [here](https://fivetran-dbt-mixpanel.netlify.app/#!/overview).
+
 ## Models
 
 This package contains transformation models. The primary outputs of this package are described below. Intermediate models are used to create these output models and can be found in the models/staging folder.
 
 | **model**                | **description**                                                                                                                                |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| mixpanel_event             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
-| mixpanel_daily_events             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
-| mixpanel_monthly_events          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
-| mixpanel_sessions          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
+| mixpanel__event             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
+| mixpanel__daily_events             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
+| mixpanel__monthly_events          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
+| mixpanel__sessions          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
 
 ## Macros
 ### analyze_funnel
@@ -34,9 +36,9 @@ It returns the following:
 The macro takes the following as arguments:
 - `event_funnel`: List of event types (not case sensitive). 
   - Example: `'['play_song', 'stop_song', 'exit']`
-- `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel_event` model). The default value is `None`. 
+- `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel__event` model). The default value is `None`. 
   - Examaple: `group_by_column = 'country_code'`.
-- `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel_event`. 
+- `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel__event`. 
   - Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
 ## Installation Instructions
@@ -58,7 +60,7 @@ vars:
 ```
 
 ### Custom Columns
-By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that you'd like to include in the `mixpanel_event` model.
+By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that you'd like to include in the `mixpanel__event` model.
 
 If there are properties in the `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
 
@@ -102,7 +104,7 @@ vars:
     date_range_start: 'yyyy-mm-dd' 
 ```
 
-**Note:** This date range will not affect the `number_of_new_users` column in the `mixpanel_daily_events` or `mixpanel_monthly_events` models. This metric will be *true* new users.
+**Note:** This date range will not affect the `number_of_new_users` column in the `mixpanel__daily_events` or `mixpanel__monthly_events` models. This metric will be *true* new users.
 
 ### Global Event Filters
 In addition to limiting the date range, you may want to employ other filters to remove noise from your event data. 
@@ -139,12 +141,12 @@ vars:
 ```
 
 #### Session Pass-Through Columns
-By default, the `mixpanel_sessions` model will contain the following columns from `mixpanel_event`:
+By default, the `mixpanel__sessions` model will contain the following columns from `mixpanel__event`:
 - `people_id`: The ID of the user
 - `device_id`: The ID of the device they used in this session
 - `event_frequencies`: A JSON of the frequency of each `event_type` in the session
 
-To pass through any additional columns from the events table to `mixpanel_sessions`, add the following variable to your `dbt_project.yml` file. The value of each field will be pulled from the first event of the session.
+To pass through any additional columns from the events table to `mixpanel__sessions`, add the following variable to your `dbt_project.yml` file. The value of each field will be pulled from the first event of the session.
 
 ```yml
 # dbt_project.yml
@@ -160,7 +162,7 @@ vars:
 #### Session Event Criteria
 In addition to any global event filters, you may want to disclude events or place filters on them in order to qualify for sessionization. 
 
-To apply any filters to the events in the sessions model, add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel_event`.
+To apply any filters to the events in the sessions model, add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel__event`.
 
 ```yml
 # dbt_project.yml

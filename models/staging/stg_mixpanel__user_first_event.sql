@@ -4,12 +4,12 @@
     )
 }}
 
--- using stg_mixpanel_event to look at ALL-TIME events
--- mixpanel_event is cut off by the `date_range_start` variable
+-- using stg_mixpanel__event to look at ALL-TIME events
+-- mixpanel__event is cut off by the `date_range_start` variable
 with alltime_events as (
 
     select *
-    from {{ ref('stg_mixpanel_event') }}
+    from {{ ref('stg_mixpanel__event') }}
 
 ),
 

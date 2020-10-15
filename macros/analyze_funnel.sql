@@ -4,7 +4,7 @@
 with events as (
 
     select *
-    from {{ ref('mixpanel_event') }}
+    from {{ ref('mixpanel__event') }}
 
     where (
     {% for event_type in event_funnel %}

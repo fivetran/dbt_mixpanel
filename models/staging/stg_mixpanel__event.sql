@@ -3,7 +3,7 @@
 with events as (
 
     select * 
-    from {{ ref('stg_mixpanel_event_tmp') }}
+    from {{ ref('stg_mixpanel__event_tmp') }}
 
 ),
 
@@ -17,7 +17,7 @@ fields as (
         -- columns missing from your source table will be completely NULL   
         {{
             fivetran_utils.fill_staging_columns(
-                source_columns=adapter.get_columns_in_relation(ref('stg_mixpanel_event_tmp')),
+                source_columns=adapter.get_columns_in_relation(ref('stg_mixpanel__event_tmp')),
                 staging_columns=get_event_columns()
             )
         }}
