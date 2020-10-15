@@ -7,7 +7,7 @@ This package enables you to better understand user activity and retention throug
 - Pivots out custom event properties from JSONs into an enriched events table
 - Creates a daily timeline of each type of event, complete with trailing and daily metrics of user activity and retention
 - Creates a monthly timeline of each type of event, complete with metrics about user activity, retention, and churn
-- Aggregates events into unique user sessions, complete with metrics about event frequency and relevant fields from the session's first event
+- Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
 - Provides a macro to easily create an event funnel
 
 ## Models
@@ -32,9 +32,12 @@ It returns the following:
 > Note: The relative order of the steps is determined by their event volume, not the order in which they are input.
 
 The macro takes the following as arguments:
-- `event_funnel`: List of event types (not case sensitive). Example: `'['play_song', 'stop_song', 'exit']`
-- `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel_event` model). The default value is `None`. Examaple: `group_by_column = 'country_code'`.
-- `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel_event`. Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
+- `event_funnel`: List of event types (not case sensitive). 
+  - Example: `'['play_song', 'stop_song', 'exit']`
+- `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel_event` model). The default value is `None`. 
+  - Examaple: `group_by_column = 'country_code'`.
+- `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel_event`. 
+  - Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
 ## Installation Instructions
 Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions, or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
@@ -104,7 +107,7 @@ vars:
 ### Global Event Filters
 In addition to limiting the date range, you may want to employ other filters to remove noise from your event data. 
 
-To apply a global filter to events (and all models in this package), add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from the source table, `mixpanel.event`. 
+To apply a global filter to events (and therefore **all** models in this package), add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from the source table, `mixpanel.event`. 
 
 ```yml
 # dbt_project.yml
@@ -155,7 +158,7 @@ vars:
 ```
 
 #### Session Event Criteria
-Similar to the timeline models, `mixpanel_sessions` pulls from `mixpanel_event`. You may want to disclude events or place filters on them in order to qualify for sessionization. 
+In addition to any global event filters, you may want to disclude events or place filters on them in order to qualify for sessionization. 
 
 To apply any filters to the events in the sessions model, add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel_event`.
 
@@ -168,12 +171,12 @@ config-version: 2
 vars:
   mixpanel:
 
-    # Limit sessions to include only these kinds of events
+    # ex: limit sessions to include only these kinds of events
     session_event_criteria: 'event_type in ("play_song", "stop_song", "create_playlist")'
 ```
 
 #### Session Trailing Window
-Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
+Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier/costlier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
 
 Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
 
