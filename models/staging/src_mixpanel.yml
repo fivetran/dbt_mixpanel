@@ -3,7 +3,7 @@ version: 2
 sources: 
   - name: mixpanel
     database: "{{ var('mixpanel_database', target.database)}}" # add var config to dbt_project.yml
-    schema: "{{ var('mixpanel_schema', target.schema)}}" # TODO: replace target with 'mixpanel' before releasing
+    schema: "{{ var('mixpanel_schema', 'mixpanel')}}"
 
     loader: fivetran
     loaded_at_field: _fivetran_synced
@@ -13,7 +13,7 @@ sources:
       error_after: {count: 96, period: hour}
 
     tables:
-      - name: stratified_sample_mixpanel_events # TODO: replace with 'event' before releasing
+      - name: event
         description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
         columns:

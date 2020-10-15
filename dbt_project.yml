@@ -6,18 +6,17 @@ version: '0.0.1'
 require-dbt-version: '>=0.18.0'
 
 
-vars: # todo: remove these  due to [order of variable declaration precedence](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/using-variables/#variable-precedence) 
+vars:
     mixpanel: 
-        event_table: "{{ source('mixpanel', 'stratified_sample_mixpanel_events') }}"  # switch table to 'event' before releasing
+        event_table: "{{ source('mixpanel', 'event') }}"
 
-        # date_range_start: '2020-09-01' 
+        # date_range_start: # mostly global filter placed on mixpanel_event to limit the date range. does not apply to stg_mixpanel_event and stg_mixpanel_user_first_event
+        # global_event_filter: # global filter to place on this whole package in order to remove noise from events
 
-        event_custom_columns: [ 'ios_ifa' ]
-        event_properties_to_pivot: ['user_id', 'video_id', 'videoId']
+        # event_custom_columns: # any custom column names in the source mixpanel.event table to include in mixpanel_event
+        # event_properties_to_pivot: # list of events in mixpanel_event.event_properties (in the source table, event.properties) to pivot out into columns in mixpanel_event
 
-
-        session_passthrough_columns: ['city', 'referrer', 'search_engine']
-        
-        
-profile: integration_test
-# integration_test
+        # sessionization_inactivity: # number of minutes it takes for a session to timeout due to inactivity
+        # session_event_criteria: # filter to place on events in order to qualify for sessionization
+        # sessionization_trailing_window: # number of hours to look back at for each mixpanel_sessions run. this allows you to sessionize events that arrive late without requiring a full refresh
+        # session_passthrough_columns: # choose event columns to pass through to mixpanel_sessions (values taken from first event of session)
