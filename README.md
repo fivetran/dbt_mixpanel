@@ -1,4 +1,4 @@
-# Mixpanel 
+# Mixpanel ([docs](https://fivetran-dbt-mixpanel.netlify.app/#!/overview))
 
 This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
 
@@ -9,8 +9,7 @@ This package enables you to better understand user activity and retention throug
 - De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
 - Pivots out custom event properties from JSONs into an enriched events table
 
-
-**See the package docs site [here](https://fivetran-dbt-mixpanel.netlify.app/#!/overview).**
+> The Mixpanel dbt package is compatible with BigQuery, Redshift, and Snowflake.
 
 ## Models
 
