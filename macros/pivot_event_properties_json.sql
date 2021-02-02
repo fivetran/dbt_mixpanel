@@ -5,7 +5,7 @@
 replace(json_extract(event_properties, {{ "'$." ~ property ~ "'" }} ), '"', '') as {{ property }}
 
 {%- elif target.type == 'snowflake' -%}
-replace(parse_json(event_properties):{{ property }}, '"', '') as {{ property }}
+replace(parse_json(event_properties):"{{ property }}", '"', '') as "{{ property }}"
 
 {%- elif target.type == 'redshift' -%}
 replace(json_extract_path_text(event_properties, {{ "'" ~ property ~ "'" }} ), '"', '') as {{ property }}
