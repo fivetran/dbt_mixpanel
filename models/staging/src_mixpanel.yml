@@ -15,14 +15,16 @@ sources:
     tables:
       - name: event
         description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: 
+                - _fivetran_id
+                - time
 
         columns:
         # default properties regardless of platforms used
           - name: _fivetran_id
             description: Fivetran-generated unique ID of the event record.
-            tests:
-              - unique
-              - not_null
 
           - name: event_id
             description: Fivetran-generated attribute that was formerly the primary key.
