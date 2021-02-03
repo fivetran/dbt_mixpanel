@@ -71,7 +71,7 @@ config-version: 2
 
 vars:
   mixpanel:
-    event_properties_to_pivot: ['the', 'list', 'of', 'property', 'fields'] # Note: this is case-SENSITIVE and much match the casing of the property as it appears in the JSON
+    event_properties_to_pivot: ['the', 'list', 'of', 'property', 'fields'] # Note: this is case-SENSITIVE and must match the casing of the property as it appears in the JSON
 ```
 
 And if there are columns in your source `mixpanel.event` table that are not the Mixpanel default columns, add the following variable to your `dbt_project.yml` file to include them:
