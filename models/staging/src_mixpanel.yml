@@ -15,11 +15,6 @@ sources:
     tables:
       - name: event
         description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              combination_of_columns: 
-                - _fivetran_id
-                - time
 
         columns:
         # default properties regardless of platforms used
@@ -48,8 +43,6 @@ sources:
             description: > 
               Random 16 character string of alphanumeric characters that is unique to an event. 
               Used to de-duplicate data.
-            tests:
-              - not_null
           
           - name: mp_processing_time_ms
             description: >
