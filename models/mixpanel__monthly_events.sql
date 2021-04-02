@@ -61,7 +61,7 @@ user_monthly_events as (
 
         from events
         group by 1,2,3
-    )
+    ) as sub
 ),
 
 monthly_metrics as (

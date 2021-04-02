@@ -122,7 +122,7 @@ agg_event_types as (
         from session_ids
         group by session_id, event_type
     
-    ) group by session_id
+    ) as sub group by session_id
 ), 
 
 session_join as (

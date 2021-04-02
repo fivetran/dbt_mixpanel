@@ -22,7 +22,7 @@ spine as (
     from (
         {{ dbt_utils.date_spine(
             datepart = "day", 
-            start_date =  "'" ~ var('date_range_start',  '2010-01-01') ~ "'" , 
+            start_date =  "'" ~ var('date_range_start',  'cast(2010-01-01 as date)') ~ "'" , 
             end_date = dbt_utils.dateadd("week", 1, dbt_utils.date_trunc('day', dbt_utils.current_timestamp())) 
             ) 
         }} 
@@ -30,7 +30,7 @@ spine as (
 
     {% if is_incremental() %} 
     
-    where date_day > coalesce(( select max(date_day) from {{ this }} ) as last_date, '2010-01-01') -- every user-event_type will have the same last day
+    where date_day > coalesce(( select max(date_day) from {{ this }} ), '2010-01-01') -- every user-event_type will have the same last day
     
     {% endif %}
     

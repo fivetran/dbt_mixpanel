@@ -19,7 +19,7 @@ with stg_event as (
     {% if is_incremental() %}
 
     -- events are only eligible for de-duping if they occurred on the same calendar day 
-    occurred_at >= coalesce((select cast( max(date_day) as {{ dbt_utils.type_timestamp() }} ) from {{ this }} ) as last_date, '2010-01-01')
+    occurred_at >= coalesce((select cast( max(date_day) as {{ dbt_utils.type_timestamp() }} ) from {{ this }} ), '2010-01-01')
 
     {% else %}
     
