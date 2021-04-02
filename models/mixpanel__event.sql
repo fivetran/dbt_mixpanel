@@ -51,9 +51,10 @@ pivot_properties as (
 
     select 
         *
-        {%- if var('event_properties_to_pivot', []) != [] %},{% endif %}
-        {{ pivot_event_properties_json(var('event_properties_to_pivot', [])) }}
-    
+        {%- if var('event_properties_to_pivot') %},
+        {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
+        {% endif -%}
+
     from dedupe
 
 )

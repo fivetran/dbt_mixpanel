@@ -312,11 +312,6 @@ macros:
 
       - name: conversion_criteria
         description: An optional `WHERE` clause that will be applied when selecting from `mixpanel__event`.
-  
-  - name: pivot_event_properties_json
-    description: >
-      Macro that parses out any event-specific properties declared in the `event_properties_to_pivot` variable,
-      and pivots these JSON fields into columns.
 
   - name: get_event_columns
     description: Macro used to rename and properly cast columns in `stg_mixpanel__event`. Found in `staging_columns.sql`.
