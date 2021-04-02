@@ -42,7 +42,7 @@ dedupe as (
         row_number() over(partition by insert_id, people_id, event_type, date_day order by mp_processing_time_ms asc) as nth_event_record
         
         from stg_event
-    ) 
+    ) as dupes
     where nth_event_record = 1
 
 ),

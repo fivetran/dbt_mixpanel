@@ -26,7 +26,7 @@ spine as (
             end_date = dbt_utils.dateadd("week", 1, dbt_utils.date_trunc('day', dbt_utils.current_timestamp())) 
             ) 
         }} 
-    )
+    ) as spine
 
     {% if is_incremental() %} 
     
