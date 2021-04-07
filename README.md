@@ -43,6 +43,13 @@ The macro takes the following as arguments:
 ## Installation Instructions
 Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions, or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
 
+```yml
+# packages.yml
+packages:
+  - package: fivetran/mixpanel
+    version: [">=0.2.0", "<0.3.0"]
+```
+
 ## Configuration
 By default, this package looks for your Mixpanel data in the `mixpanel` schema of your [target database](https://docs.getdbt.com/docs/running-a-dbt-project/using-the-command-line-interface/configure-your-profile). If this is not where your Mixpanel data is, add the following configuration to your `dbt_project.yml` file:
 
