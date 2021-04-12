@@ -47,7 +47,6 @@
     {"name": "screen_height", "datatype": dbt_utils.type_int()},
     {"name": "screen_width", "datatype": dbt_utils.type_int()},
     {"name": "search_engine", "datatype": dbt_utils.type_string()},
-    {"name": "time", "datatype": dbt_utils.type_timestamp(), "alias": "occurred_at"},
     {"name": "wifi", "datatype": "boolean", "alias": "has_wifi_connected"}
 ] %}
 
