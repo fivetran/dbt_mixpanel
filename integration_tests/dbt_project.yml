@@ -1,0 +1,18 @@
+name: 'mixpanel_integration_tests'
+version: '0.2.0'
+config-version: 2
+profile: 'integration_tests'
+
+
+vars:
+  mixpanel: 
+    event_table: "{{ ref('event') }}"
+
+
+seeds:
+  mixpanel_integration_tests:
+    +column_types:
+      _fivetran_synced: timestamp
+    event:
+      +column_types:
+        time: timestamp

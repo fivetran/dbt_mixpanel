@@ -22,11 +22,11 @@ spine as (
     from (
         {{ dbt_utils.date_spine(
             datepart = "day", 
-            start_date =  "'" ~ var('date_range_start',  '2010-01-01') ~ "'" , 
+            start_date =  "cast('" ~ var('date_range_start',  '2010-01-01') ~ "' as date)", 
             end_date = dbt_utils.dateadd("week", 1, dbt_utils.date_trunc('day', dbt_utils.current_timestamp())) 
             ) 
         }} 
-    )
+    ) as spine
 
     {% if is_incremental() %} 
     

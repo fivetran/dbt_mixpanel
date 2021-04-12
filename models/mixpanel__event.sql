@@ -42,7 +42,7 @@ dedupe as (
         row_number() over(partition by insert_id, people_id, event_type, date_day order by mp_processing_time_ms asc) as nth_event_record
         
         from stg_event
-    ) 
+    ) as dupes
     where nth_event_record = 1
 
 ),
@@ -51,9 +51,10 @@ pivot_properties as (
 
     select 
         *
-        {%- if var('event_properties_to_pivot', []) != [] %},{% endif %}
-        {{ pivot_event_properties_json(var('event_properties_to_pivot', [])) }}
-    
+        {% if var('event_properties_to_pivot') %},
+        {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
+        {% endif %}
+
     from dedupe
 
 )
