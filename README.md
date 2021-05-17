@@ -213,6 +213,14 @@ models:
         +schema: my_new_schema_name # leave blank for just the target_schema
 ```
 
+## Event De-Duplication Logic
+
+Events are considered duplicates and consolidated by the package if they contain the same:
+* `insert_id`
+* `people_id` (originally named `distinct_id`)
+* type of event
+* calendar date of occurrence (event timestamps are set in the timezone the Mixpanel project is configured to)
+
 ## Contributions
 Additional contributions to this package are very welcome! Please create issues
 or open PRs against `master`. Check out 
