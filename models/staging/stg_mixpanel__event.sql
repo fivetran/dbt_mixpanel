@@ -24,10 +24,7 @@ fields as (
         }}
 
         -- custom properties as specified in your dbt_project.yml
-        {%- for column in var('event_custom_columns', []) %}
-        ,
-        {{ column }}
-        {%- endfor %}
+        {{ fivetran_utils.fill_pass_through_columns('event_custom_columns') }}
         
     from events
 
