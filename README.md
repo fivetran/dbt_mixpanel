@@ -95,7 +95,7 @@ vars:
     event_custom_columns:
       - name:           "property_field_id"
         alias:          "new_name_for_this_field_id"
-        transform_sql:  "cast(new_name_for_this_field as int64)"
+        transform_sql:  "cast(property_field_id as int64)"
       - name:           "this_other_field"
         transform_sql:  "cast(this_other_field as string)"
 ```
