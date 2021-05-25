@@ -83,7 +83,7 @@ vars:
 
 ### Passthrough Columns
 
-Additionally, this package includes all standard source `EVENT` columns defined in the `staging_columns` macro. You can add more columns using our passthrough column variables. These variables allow the passthrough fields to be aliased (`alias`) and casted (`transform_sql`) if desired, although it is not required. Datatype casting is configured via a SQL snippet within the `transform_sql` key. You may add the desired SQL snippet while omitting the `as field_name` part of the casting statement - this will be dealt with by the alias attribute - and your custom passthrough fields will be casted accordingly.
+Additionally, this package includes all standard source `EVENT` columns defined in the `staging_columns` macro. You can add more columns using our passthrough column variables. These variables allow the passthrough fields to be aliased (`alias`) and casted (`transform_sql`) if desired, although it is not required. Data type casting is configured via a SQL snippet within the `transform_sql` key. You may add the desired SQL snippet while omitting the `as field_name` part of the casting statement - this will be dealt with by the alias attribute - and your custom passthrough fields will be casted accordingly.
 
 Use the following format for declaring the respective passthrough variables:
 
