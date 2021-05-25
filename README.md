@@ -213,6 +213,16 @@ models:
         +schema: my_new_schema_name # leave blank for just the target_schema
 ```
 
+## Event De-Duplication Logic
+
+Events are considered duplicates and consolidated by the package if they contain the same:
+* `insert_id` (used for de-deuplication internally by Mixpanel)
+* `people_id` (originally named `distinct_id`)
+* type of event
+* calendar date of occurrence (event timestamps are set in the timezone the Mixpanel project is configured to)
+
+This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
+
 ## Contributions
 Additional contributions to this package are very welcome! Please create issues
 or open PRs against `master`. Check out 
