@@ -65,7 +65,7 @@ vars:
     mixpanel_schema: your_schema_name 
 ```
 
-### Custom Columns
+### Pivoting Out Event Properties
 By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that you'd like to include in the `mixpanel__event` model.
 
 If there are properties in the `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
@@ -81,17 +81,23 @@ vars:
     event_properties_to_pivot: ['the', 'list', 'of', 'property', 'fields'] # Note: this is case-SENSITIVE and must match the casing of the property as it appears in the JSON
 ```
 
-And if there are columns in your source `mixpanel.event` table that are not the Mixpanel default columns, add the following variable to your `dbt_project.yml` file to include them:
+### Passthrough Columns
+
+Additionally, this package includes all standard source `EVENT` columns defined in the `staging_columns` macro. You can add more columns using our passthrough column variables. These variables allow the passthrough fields to be aliased (`alias`) and casted (`transform_sql`) if desired, although it is not required. Data type casting is configured via a SQL snippet within the `transform_sql` key. You may add the desired SQL snippet while omitting the `as field_name` part of the casting statement - this will be dealt with by the alias attribute - and your custom passthrough fields will be casted accordingly.
+
+Use the following format for declaring the respective passthrough variables:
 
 ```yml
 # dbt_project.yml
 
-...
-config-version: 2
-
 vars:
   mixpanel:
-    event_custom_columns: ['the', 'list', 'of', 'column', 'names']
+    event_custom_columns:
+      - name:           "property_field_id"
+        alias:          "new_name_for_this_field_id"
+        transform_sql:  "cast(property_field_id as int64)"
+      - name:           "this_other_field"
+        transform_sql:  "cast(this_other_field as string)"
 ```
 
 ### Event Date Range
@@ -212,6 +218,16 @@ models:
       staging:
         +schema: my_new_schema_name # leave blank for just the target_schema
 ```
+
+## Event De-Duplication Logic
+
+Events are considered duplicates and consolidated by the package if they contain the same:
+* `insert_id` (used for de-deuplication internally by Mixpanel)
+* `people_id` (originally named `distinct_id`)
+* type of event
+* calendar date of occurrence (event timestamps are set in the timezone the Mixpanel project is configured to)
+
+This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
 
 ## Contributions
 Additional contributions to this package are very welcome! Please create issues
