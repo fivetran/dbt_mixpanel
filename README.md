@@ -1,3 +1,4 @@
+[![Apache License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![dbt logo and version](https://img.shields.io/static/v1?logo=dbt&label=dbt-version&message=0.20.x&color=orange)
 # Mixpanel ([docs](https://fivetran-dbt-mixpanel.netlify.app/#!/overview))
 
 This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
@@ -43,11 +44,12 @@ The macro takes the following as arguments:
 ## Installation Instructions
 Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions, or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
 
-```yml
-# packages.yml
+Include in your `packages.yml`
+
+```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.3.0", "<0.4.0"]
+    version: [">=0.4.0", "<0.5.0"]
 ```
 
 ## Configuration
