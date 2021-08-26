@@ -80,7 +80,7 @@ session_numbers as (
 
     -- will cumulatively create session numbers
     sum(is_new_session) over (
-            partition by device_id
+            partition by device_id, date_day
             order by occurred_at asc
             rows between unbounded preceding and current row
             ) as session_number
