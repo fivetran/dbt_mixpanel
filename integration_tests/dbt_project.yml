@@ -16,3 +16,4 @@ seeds:
     event:
       +column_types:
         time: timestamp
+        distinct_id: "{{ 'varchar(100)'  if target.type == 'redshift' else 'string'}}"
