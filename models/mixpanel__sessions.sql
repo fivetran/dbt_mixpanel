@@ -135,6 +135,7 @@ session_join as (
         session_ids.session_started_at,
         session_ids.session_started_on_day,
         session_ids.user_id, -- coalescing of device_id and peeople_id
+        session_ids.device_id,
         session_ids.total_number_of_events,
         agg_event_types.event_frequencies
 
