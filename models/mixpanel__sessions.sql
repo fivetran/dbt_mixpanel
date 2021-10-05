@@ -18,7 +18,8 @@ with events as (
         unique_event_id,
         people_id,
         date_day,
-        device_id
+        device_id,
+        coalesce(device_id, people_id) as user_id
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,
@@ -33,9 +34,9 @@ with events as (
     {% if is_incremental() %}
 
     -- grab ALL events for each user to appropriately use window functions to sessionize
-    and device_id in (
+    and coalesce(device_id, people_id) in (
 
-        select distinct device_id
+        select distinct coalesce(device_id, people_id)
         from {{ ref('mixpanel__event') }}
 
         -- events can come in late and we want to still be able to incorporate them
@@ -57,7 +58,8 @@ previous_event as (
 
     select 
         *,
-        lag(occurred_at) over(partition by device_id order by occurred_at asc) as previous_event_at
+        -- limiting session-eligibility to same calendar day
+        lag(occurred_at) over(partition by user_id, date_day order by occurred_at asc) as previous_event_at
 
     from events 
 
@@ -67,7 +69,7 @@ new_sessions as (
     
     select 
         *,
-        -- had the previous session timed out?
+        -- had the previous session timed out? Either via inactivity or a new calendar day occurring
         case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} or previous_event_at is null then 1
         else 0 end as is_new_session
 
@@ -80,7 +82,7 @@ session_numbers as (
 
     -- will cumulatively create session numbers
     sum(is_new_session) over (
-            partition by device_id
+            partition by user_id, date_day
             order by occurred_at asc
             rows between unbounded preceding and current row
             ) as session_number
@@ -92,13 +94,13 @@ session_ids as (
 
     select
         *,
-        min(occurred_at) over (partition by device_id, session_number) as session_started_at,
-        min(date_day) over (partition by device_id, session_number) as session_started_on_day,
+        min(occurred_at) over (partition by user_id, date_day, session_number) as session_started_at,
+        min(date_day) over (partition by user_id, date_day, session_number) as session_started_on_day,
 
-        {{ dbt_utils.surrogate_key(['device_id', 'session_number']) }} as session_id,
+        {{ dbt_utils.surrogate_key(['user_id', 'session_number', 'date_day']) }} as session_id,
 
-        count(unique_event_id) over (partition by device_id, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
-        count(unique_event_id) over (partition by device_id, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
+        count(unique_event_id) over (partition by user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
+        count(unique_event_id) over (partition by user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
 
 
     from session_numbers
@@ -132,6 +134,7 @@ session_join as (
         session_ids.people_id,
         session_ids.session_started_at,
         session_ids.session_started_on_day,
+        session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
         session_ids.total_number_of_events,
         agg_event_types.event_frequencies
