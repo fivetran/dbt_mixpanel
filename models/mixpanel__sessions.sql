@@ -69,7 +69,7 @@ new_sessions as (
     
     select 
         *,
-        -- had the previous session timed out? either via inactivity or a new calendar day occurring
+        -- had the previous session timed out? Either via inactivity or a new calendar day occurring
         case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} or previous_event_at is null then 1
         else 0 end as is_new_session
 
