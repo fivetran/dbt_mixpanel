@@ -298,7 +298,7 @@ models:
         description: JSON of the frequency of each `event_type` during this user session.
       
       - name: user_id
-        dev_snowflake: Coalescing of `device_id` and `people_id`.
+        description: Coalescing of `device_id` and `people_id`.
 
 macros:
   - name: analyze_funnel
