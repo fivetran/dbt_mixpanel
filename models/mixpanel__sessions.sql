@@ -145,7 +145,7 @@ session_join as (
         {% endif %}
     
     from session_ids
-    join agg_event_types using(session_id) -- join regardless of event type
+    join agg_event_types using(session_id) -- join regardless of event type 
 
     where session_ids.is_new_session = 1 -- only return fields of first event
 
