@@ -110,7 +110,16 @@ session_ids as (
 agg_event_types as (
 
     select 
-        session_id
+        session_id,
+        -- turn into json
+        {% if target.type in ('postgres','redshift') %}
+        case when count(event_type) <= {{ var('mixpanel__event_frequency_limit', 50000) }} 
+            then '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' 
+            else 'Too many event types to render' 
+        end
+        {% else %}
+        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}'
+        {% endif %} as event_frequencies
     
     from (
 
@@ -134,7 +143,8 @@ session_join as (
         session_ids.session_started_on_day,
         session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
-        session_ids.total_number_of_events
+        session_ids.total_number_of_events,
+        agg_event_types.event_frequencies
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,

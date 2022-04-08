@@ -66,7 +66,6 @@ vars:
     mixpanel_database: your_database_name
     mixpanel_schema: your_schema_name 
 ```
-
 ### Pivoting Out Event Properties
 By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that you'd like to include in the `mixpanel__event` model.
 
@@ -101,7 +100,14 @@ vars:
       - name:           "this_other_field"
         transform_sql:  "cast(this_other_field as string)"
 ```
-
+### Sessions Event Frequency Limit
+The `event_frequencies` field within the `mixpanel__sessions` model reports all event types and the frequency of those events as a JSON blob via a string aggregation. For some users there can be thousands of different event types that take place. For Redshift and Postgres warehouses there currently exists a limit for string aggregations (up to 65,535). As a result, in order for Redshift and Postgres users to still leverage the `event_frequencies` field, an artificial limit is applied to this field of 50,000. If you would like to adjust this limit, you may do so by modifying the below variable in your project configuration.
+```yml
+# dbt_project.yml
+vars:
+  mixpanel:
+    mixpanel__event_frequency_limit: 1000 ## Default is 50000
+```
 ### Event Date Range
 Because of the typical volume of event data, you may want to limit this package's models to work with a recent date range of your Mixpanel data (however, note that all final models are materialized as [incremental](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/materializations#incremental) tables).
 
