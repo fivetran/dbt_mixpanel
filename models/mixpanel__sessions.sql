@@ -111,8 +111,6 @@ agg_event_types as (
 
     select 
         session_id
-        -- turn into json
-        -- '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' as event_frequencies
     
     from (
 
@@ -137,7 +135,6 @@ session_join as (
         session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
         session_ids.total_number_of_events
-        -- agg_event_types.event_frequencies
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,
