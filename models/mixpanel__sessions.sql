@@ -112,7 +112,14 @@ agg_event_types as (
     select 
         session_id,
         -- turn into json
-        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' as event_frequencies
+        {% if target.type in ('postgres','redshift') %}
+        case when count(event_type) <= {{ var('mixpanel__event_frequency_limit', 1000) }} 
+            then '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' 
+            else 'Too many event types to render' 
+        end
+        {% else %}
+        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}'
+        {% endif %} as event_frequencies
     
     from (
 
@@ -145,7 +152,7 @@ session_join as (
         {% endif %}
     
     from session_ids
-    join agg_event_types using(session_id) -- join regardless of event type
+    join agg_event_types using(session_id) -- join regardless of event type 
 
     where session_ids.is_new_session = 1 -- only return fields of first event
 
