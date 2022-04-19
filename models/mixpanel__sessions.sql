@@ -113,7 +113,7 @@ agg_event_types as (
         session_id,
         -- turn into json
         {% if target.type in ('postgres','redshift') %}
-        case when count(event_type) <= {{ var('mixpanel__event_frequency_limit', 50000) }} 
+        case when count(event_type) <= {{ var('mixpanel__event_frequency_limit', 1000) }} 
             then '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' 
             else 'Too many event types to render' 
         end

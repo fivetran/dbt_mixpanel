@@ -16,7 +16,7 @@ vars:
   mixpanel:
     event_table: "{{ source('mixpanel', 'event') }}"
 
-    mixpanel__event_frequency_limit: 50000
+    mixpanel__event_frequency_limit: 1000
 
     date_range_start: '2010-01-01'     # mostly global filter placed on mixpanel__event to limit the date range. does not apply to stg_mixpanel__event and stg_mixpanel__user_first_event
         # global_event_filter: # global filter to place on this whole package in order to remove noise from events

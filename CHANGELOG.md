@@ -1,6 +1,6 @@
 # dbt_mixpanel v0.6.1
 ## Fixes
-- Redshift and Postgres warehouses have a limit to the amount of aggregation that may take place within certain functions. The `mixpanel__sessions` model currently performs a LISTAGG and customers have identified the aggregation exceeds the limit. Therefore, a conditional was added to check if the target type is Redshift or Postgres. If it is either, it will only perform the aggregation if the count is less than the amount defined by the `mixpanel__event_frequency_limit` (default 50000) variable.
+- Redshift and Postgres warehouses have a limit to the amount of aggregation that may take place within certain functions. The `mixpanel__sessions` model currently performs a LISTAGG and customers have identified the aggregation exceeds the limit. Therefore, a conditional was added to check if the target type is Redshift or Postgres. If it is either, it will only perform the aggregation if the count is less than the amount defined by the `mixpanel__event_frequency_limit` (default 1000) variable. ([#27](https://github.com/fivetran/dbt_mixpanel/pull/27))
 # dbt_mixpanel v0.6.0
 🎉 dbt v1.0.0 Compatibility 🎉
 ## 🚨 Breaking Changes 🚨
