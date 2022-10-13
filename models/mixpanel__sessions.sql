@@ -43,12 +43,12 @@ with events as (
         -- in the sessionization without requiring a full refresh
         where occurred_at >= cast (coalesce((
           select
-            {{ dbt_utils.dateadd(
+            {{ dbt.dateadd(
                 'hour',
                 -var('sessionization_trailing_window', 3),
                 'max(session_started_at)'
             ) }}
-          from {{ this }} ), '2010-01-01') as {{ dbt_utils.type_timestamp() }} )
+          from {{ this }} ), '2010-01-01') as {{ dbt.type_timestamp() }} )
     )
 
     {% endif %}
@@ -70,7 +70,7 @@ new_sessions as (
     select 
         *,
         -- had the previous session timed out? Either via inactivity or a new calendar day occurring
-        case when {{ dbt_utils.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} or previous_event_at is null then 1
+        case when {{ dbt.datediff('previous_event_at', 'occurred_at', 'minute') }} > {{ var('sessionization_inactivity', 30) }} or previous_event_at is null then 1
         else 0 end as is_new_session
 
     from previous_event
@@ -97,7 +97,7 @@ session_ids as (
         min(occurred_at) over (partition by user_id, date_day, session_number) as session_started_at,
         min(date_day) over (partition by user_id, date_day, session_number) as session_started_on_day,
 
-        {{ dbt_utils.surrogate_key(['user_id', 'session_number', 'date_day']) }} as session_id,
+        {{ dbt_utils.generate_surrogate_key(['user_id', 'session_number', 'date_day']) }} as session_id,
 
         count(unique_event_id) over (partition by user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
         count(unique_event_id) over (partition by user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events

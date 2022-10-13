@@ -10,9 +10,9 @@ with events as (
 fields as (
 
     select
-        cast( {{ dbt_utils.date_trunc('day', 'time') }} as date) as date_day,
+        cast( {{ dbt.date_trunc('day', 'time') }} as date) as date_day,
         lower(name) as event_type,
-        cast(time as {{ dbt_utils.type_timestamp() }} ) as occurred_at,
+        cast(time as {{ dbt.type_timestamp() }} ) as occurred_at,
 
         -- pulls default properties and renames (see macros/staging_columns)
         -- columns missing from your source table will be completely NULL   

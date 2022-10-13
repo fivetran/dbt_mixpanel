@@ -23,7 +23,7 @@ with events as (
     {% if is_incremental() %}
 
     -- we look at the most recent 28 days for this model's window functions to compute properly
-    where date_day >= coalesce( ( select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
+    where date_day >= coalesce( ( select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
                                 from {{ this }} ), '2010-01-01')
 
     {% endif %}
@@ -39,7 +39,7 @@ date_spine as (
     {% if is_incremental() %}
 
     -- look backward for the last 28 days
-    where date_day >= coalesce((select {{ dbt_utils.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
+    where date_day >= coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
                                 from {{ this }} ), '2010-01-01')
 
     {% endif %}

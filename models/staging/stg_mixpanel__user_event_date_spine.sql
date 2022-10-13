@@ -23,7 +23,7 @@ spine as (
         {{ dbt_utils.date_spine(
             datepart = "day", 
             start_date =  "cast('" ~ var('date_range_start',  '2010-01-01') ~ "' as date)", 
-            end_date = dbt_utils.dateadd("week", 1, dbt_utils.date_trunc('day', dbt_utils.current_timestamp())) 
+            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp_backcompat())) 
             ) 
         }} 
     ) as spine
@@ -46,7 +46,7 @@ user_event_spine as (
         -- will use this in mixpanel__daily_events
         case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,
 
-        {{ dbt_utils.surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key
+        {{ dbt_utils.generate_surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key
 
     from
     spine join user_first_events

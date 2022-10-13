@@ -16,7 +16,7 @@ with events as (
         occurred_at,
         unique_event_id,
         people_id,
-        cast( {{ dbt_utils.date_trunc('month', 'occurred_at') }} as date) as date_month
+        cast( {{ dbt.date_trunc('month', 'occurred_at') }} as date) as date_month
 
     from {{ ref('mixpanel__event') }}
 
@@ -24,7 +24,7 @@ with events as (
 
     -- look backward one month for churn/retention
     where occurred_at >= coalesce( (select cast ( 
-                        {{ dbt_utils.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt_utils.type_timestamp() }} ) 
+                        {{ dbt.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt.type_timestamp() }} ) 
                         from {{ this }} ) ,'2010-01-01')
 
     {% endif %}
@@ -76,12 +76,12 @@ monthly_metrics as (
 
         -- defining repeat user as someone who also performed this action the previous month
         count(distinct case when user_monthly_events.previous_month_with_event is not null and 
-            {{ dbt_utils.datediff('user_monthly_events.previous_month_with_event', 'user_monthly_events.date_month', 'month') }} = 1
+            {{ dbt.datediff('user_monthly_events.previous_month_with_event', 'user_monthly_events.date_month', 'month') }} = 1
             then user_monthly_events.people_id end) as number_of_repeat_users,
 
         -- defining return user as someone who has performed this action farther in the past
         count(distinct case when user_monthly_events.previous_month_with_event is not null and
-            {{ dbt_utils.datediff('user_monthly_events.previous_month_with_event', 'user_monthly_events.date_month', 'month') }} > 1
+            {{ dbt.datediff('user_monthly_events.previous_month_with_event', 'user_monthly_events.date_month', 'month') }} > 1
             then user_monthly_events.people_id end) as number_of_return_users,
 
         sum(user_monthly_events.number_of_events) as number_of_events

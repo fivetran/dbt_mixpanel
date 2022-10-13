@@ -19,7 +19,7 @@ with stg_event as (
     {% if is_incremental() %}
 
     -- events are only eligible for de-duping if they occurred on the same calendar day 
-    occurred_at >= coalesce((select cast( max(date_day) as {{ dbt_utils.type_timestamp() }} ) from {{ this }} ), '2010-01-01')
+    occurred_at >= coalesce((select cast( max(date_day) as {{ dbt.type_timestamp() }} ) from {{ this }} ), '2010-01-01')
 
     {% else %}
     
@@ -34,7 +34,7 @@ dedupe as (
     select * from (
 
     select 
-        {{ dbt_utils.surrogate_key(['insert_id', 'people_id', 'event_type', 'date_day']) }} as unique_event_id,
+        {{ dbt_utils.generate_surrogate_key(['insert_id', 'people_id', 'event_type', 'date_day']) }} as unique_event_id,
         *,
         
         -- aligned with mixpanel' s deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
