@@ -11,13 +11,15 @@ vars:
   mixpanel:
     event_table: "{{ source('mixpanel', 'event') }}"
     mixpanel__event_frequency_limit: 1000
-    date_range_start: '2010-01-01'
+    date_range_start: '2010-01-01'  # mostly global filter placed on mixpanel__event to limit the date range. does not apply to stg_mixpanel__event and stg_mixpanel__user_first_event
+        # global_event_filter: # global filter to place on this whole package in order to remove noise from events
     event_custom_columns: []     # any custom column names in the source mixpanel.event table to include in mixpanel__event
             # - name: "app_version" <- example format
             #   alias: "app_version_alias"
             #   transform_sql: "cast(app_version as string)"
     event_properties_to_pivot: []     # list of events in mixpanel__event.event_properties (in the source table, event.properties) to pivot out into columns in mixpanel__event
 
-    sessionization_inactivity: 30
-    sessionization_trailing_window: 3
+    sessionization_inactivity: 30 # number of minutes it takes for a session to timeout due to inactivity
+        # session_event_criteria: # filter to place on events in order to qualify for sessionization
+    sessionization_trailing_window: 3 # number of hours to look back at for each mixpanel__sessions run. this allows you to sessionize events that arrive late without requiring a full refresh
     session_passthrough_columns: []     # choose event columns to pass through to mixpanel__sessions (values taken from first event of session)
