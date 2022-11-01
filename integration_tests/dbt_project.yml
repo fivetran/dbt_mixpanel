@@ -4,9 +4,8 @@ config-version: 2
 profile: 'integration_tests'
 vars:
   mixpanel_schema: mixpanel_integration_tests
-  mixpanel_event_identifier: "event"
   mixpanel:
-    event_table: "{{ ref('event') }}"
+    mixpanel_event_identifier: "event"
 seeds:
   mixpanel_integration_tests:
     +column_types:
