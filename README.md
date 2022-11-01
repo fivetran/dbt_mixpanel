@@ -10,29 +10,56 @@
         <img src="https://img.shields.io/badge/Contributions-welcome-blueviolet" /></a>
 </p>
 
-# Mixpanel ([docs](https://fivetran-dbt-mixpanel.netlify.app/#!/overview))
+# Mixpanel dbt Package ([Docs](https://fivetran.github.io/dbt_mixpanel/))
+# 📣 What does this dbt package do?
 
-This package models Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://docs.google.com/presentation/d/1WA0gCAYBy2ASlCQCPNfD1rLgyrgwRwJ_FmxTIJ1QfY8/edit#slide=id.p).
+- Produces modeled tables that leverage Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://fivetran.com/docs/applications/mixpanel#schemainformation).
 
-This package enables you to better understand user activity and retention through your event data. To do this, the package:
-- Creates both a daily and monthly timeline of each type of event, complete with metrics about user activity, retention, resurrection, and churn
-- Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
-- Provides a macro to easily create an event funnel
-- De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
-- Pivots out custom event properties from JSONs into an enriched events table
+- Enables you to better understand user activity and retention through your event data. It:
+  - Creates both a daily and monthly timeline of each type of event, complete with metrics about user activity, retention, resurrection, and churn
+  - Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
+  - Provides a macro to easily create an event funnel
+  - De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
+  - Pivots out custom event properties from JSONs into an enriched events table
+- Generates a comprehensive data dictionary of your source and modeled Mixpanel data through the [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview).
+The following table provides a detailed list of all models materialized within this package by default. 
+> TIP: See more details about these models in the package's [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1).
 
-> The Mixpanel dbt package is compatible with BigQuery, Redshift, and Snowflake.
-
-## Models
-
-This package contains transformation models. The primary outputs of this package are described below. Intermediate models are used to create these output models and can be found in the models/staging folder.
-
-| **model**                | **description**                                                                                                                                |
+| **Model**                | **Description**                                                                                                                                |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [mixpanel__event](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__event.sql)             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
-| [mixpanel__daily_events](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__daily_events.sql)             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
-| [mixpanel__monthly_events](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__monthly_events.sql)          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
-| [mixpanel__sessions](https://github.com/fivetran/dbt_mixpanel/blob/master/models/mixpanel__sessions.sql)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
+| [mixpanel__event](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__event)             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
+| [mixpanel__daily_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__daily_events)             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
+| [mixpanel__monthly_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__monthly_events)          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
+| [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
+
+# 🎯 How do I use the dbt package?
+
+## Step 1: Prerequisites
+To use this dbt package, you must have the following:
+
+- At least one Fivetran Mixpanel connector syncing data into your destination.
+- A **BigQuery**, **Snowflake**, **Redshift**, or **PostgreSQL** destination.
+
+## Step 2: Install the package
+Include the following mixpanel package version in your `packages.yml` file:
+> TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
+
+```yaml
+packages:
+  - package: fivetran/mixpanel
+    version: [">=0.7.0", "<0.8.0"]
+```
+## Step 3: Define database and schema variables
+By default, this package runs using your destination and the `mixpanel` schema. If this is not where your Mixpanel data is (for example, if your Mixpanel schema is named `mixpanel_fivetran`), add the following configuration to your root `dbt_project.yml` file:
+
+```yml
+vars:
+    mixpanel_database: your_database_name
+    mixpanel_schema: your_schema_name 
+```
+
+## (Optional) Step 4: Additional configurations
+<details><summary>Expand for configurations</summary>
 
 ## Macros
 ### analyze_funnel [(source)](https://github.com/fivetran/dbt_mixpanel/blob/master/macros/analyze_funnel.sql)
@@ -52,56 +79,23 @@ The macro takes the following as arguments:
 - `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel__event`. 
   - Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
-## Installation Instructions
-Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions, or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
-
-Include in your `packages.yml`
-
-```yaml
-packages:
-  - package: fivetran/mixpanel
-    version: [">=0.7.0", "<0.8.0"]
-```
-
-## Configuration
-By default, this package looks for your Mixpanel data in the `mixpanel` schema of your [target database](https://docs.getdbt.com/docs/running-a-dbt-project/using-the-command-line-interface/configure-your-profile). If this is not where your Mixpanel data is, add the following configuration to your `dbt_project.yml` file:
-
-```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
-vars:
-  mixpanel:
-    mixpanel_database: your_database_name
-    mixpanel_schema: your_schema_name 
-```
 ### Pivoting Out Event Properties
 By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that you'd like to include in the `mixpanel__event` model.
 
 If there are properties in the `mixpanel.event.properties` JSON blob that you'd like to pivot out into columns, add the following variable to your `dbt_project.yml` file:
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
     event_properties_to_pivot: ['the', 'list', 'of', 'property', 'fields'] # Note: this is case-SENSITIVE and must match the casing of the property as it appears in the JSON
 ```
 
 ### Passthrough Columns
-
 Additionally, this package includes all standard source `EVENT` columns defined in the `staging_columns` macro. You can add more columns using our passthrough column variables. These variables allow the passthrough fields to be aliased (`alias`) and casted (`transform_sql`) if desired, although it is not required. Data type casting is configured via a SQL snippet within the `transform_sql` key. You may add the desired SQL snippet while omitting the `as field_name` part of the casting statement - this will be dealt with by the alias attribute - and your custom passthrough fields will be casted accordingly.
 
 Use the following format for declaring the respective passthrough variables:
 
 ```yml
-# dbt_project.yml
-
 vars:
   mixpanel:
     event_custom_columns:
@@ -114,7 +108,6 @@ vars:
 ### Sessions Event Frequency Limit
 The `event_frequencies` field within the `mixpanel__sessions` model reports all event types and the frequency of those events as a JSON blob via a string aggregation. For some users there can be thousands of different event types that take place. For Redshift and Postgres warehouses there currently exists a limit for string aggregations (up to 65,535). As a result, in order for Redshift and Postgres users to still leverage the `event_frequencies` field, an artificial limit is applied to this field of 1,000. If you would like to adjust this limit, you may do so by modifying the below variable in your project configuration.
 ```yml
-# dbt_project.yml
 vars:
   mixpanel:
     mixpanel__event_frequency_limit: 500 ## Default is 1000
@@ -125,11 +118,6 @@ Because of the typical volume of event data, you may want to limit this package'
 By default, the package looks at all events since January 1, 2010. To change this start date, add the following variable to your `dbt_project.yml` file:
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
     date_range_start: 'yyyy-mm-dd' 
@@ -143,11 +131,6 @@ In addition to limiting the date range, you may want to employ other filters to 
 To apply a global filter to events (and therefore **all** models in this package), add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from the source table, `mixpanel.event`. 
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
     # Ex: removing internal user
@@ -161,11 +144,6 @@ This package sessionizes events based on the periods of inactivity between a use
 To change this timeout value, add the following variable to your `dbt_project.yml` file:
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
     sessionization_inactivity: number_of_minutes # ex: 60
@@ -180,11 +158,6 @@ By default, the `mixpanel__sessions` model will contain the following columns fr
 To pass through any additional columns from the events table to `mixpanel__sessions`, add the following variable to your `dbt_project.yml` file. The value of each field will be pulled from the first event of the session.
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
     session_passthrough_columns: ['the', 'list', 'of', 'column', 'names'] 
@@ -196,11 +169,6 @@ In addition to any global event filters, you may want to disclude events or plac
 To apply any filters to the events in the sessions model, add the following variable to your `dbt_project.yml` file. It will be applied as a `WHERE` clause when selecting from `mixpanel__event`.
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
 
@@ -214,11 +182,6 @@ Events can sometimes come late. For example, events triggered on a mobile device
 Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
 
 ```yml
-# dbt_project.yml
-
-...
-config-version: 2
-
 vars:
   mixpanel:
     sessionization_trailing_window: number_of_hours # ex: 12
@@ -228,14 +191,21 @@ vars:
 By default this package will build the Mixpanel staging models within a schema titled (<target_schema> + `_stg_mixpanel`) and Mixpanel final models within a schema titled (<target_schema> + `mixpanel`) in your target database. If this is not where you would like your modeled Mixpanel data to be written to, add the following configuration to your `dbt_project.yml` file:
 
 ```yml
-# dbt_project.yml
-
-...
 models:
     mixpanel:
       +schema: my_new_schema_name # leave blank for just the target_schema
       staging:
         +schema: my_new_schema_name # leave blank for just the target_schema
+```
+
+### Change the source table references
+If an individual source table has a different name than the package expects, add the table name as it appears in your destination to the respective variable:
+
+> IMPORTANT: See this project's [`dbt_project.yml`](https://github.com/fivetran/dbt_mixpanel_source/blob/main/dbt_project.yml) variable declarations to see the expected names.
+
+```yml
+vars:
+    mixpanel_<default_source_table_name>_identifier: your_table_name 
 ```
 
 ## Event De-Duplication Logic
@@ -248,7 +218,16 @@ Events are considered duplicates and consolidated by the package if they contain
 
 This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
 
-## Dependencies
+</details>
+
+## (Optional) Step 5: Orchestrate your models with Fivetran Transformations for dbt Core™
+<details><summary>Expand for details</summary>
+<br>
+    
+Fivetran offers the ability for you to orchestrate your dbt project through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt). Learn how to set up your project for orchestration through Fivetran in our [Transformations for dbt Core setup guides](https://fivetran.com/docs/transformations/dbt#setupguide).
+</details>
+
+# 🔍 Does this package have dependencies?
 This dbt package is dependent on the following dbt packages. Please be aware that these dependencies are installed by default within this package. For more information on the following packages, refer to the [dbt hub](https://hub.getdbt.com/) site.
 > IMPORTANT: If you have any of these dependent packages in your own `packages.yml` file, we highly recommend that you remove them from your root `packages.yml` to avoid package version conflicts.
     
@@ -260,24 +239,16 @@ packages:
     - package: dbt-labs/dbt_utils
       version: [">=1.0.0", "<2.0.0"]
 ```
+# 🙌 How is this package maintained and can I contribute?
+## Package Maintenance
+The Fivetran team maintaining this package _only_ maintains the latest version of the package. We highly recommend you stay consistent with the [latest version](https://hub.getdbt.com/fivetran/mixpanel/latest/) of the package and refer to the [CHANGELOG](https://github.com/fivetran/dbt_mixpanel/blob/main/CHANGELOG.md) and release notes for more information on changes across versions.
+
 ## Contributions
-Additional contributions to this package are very welcome! Please create issues
-or open PRs against `main`. Check out 
-[this post](https://discourse.getdbt.com/t/contributing-to-a-dbt-package/657) 
-on the best workflow for contributing to a package.
+A small team of analytics engineers at Fivetran develops these dbt packages. However, the packages are made better by community contributions! 
 
-## Database Support
-This package has been tested on BigQuery, Snowflake, Redshift, and Postgres.
+We highly encourage and welcome contributions to this package. Check out [this dbt Discourse article](https://discourse.getdbt.com/t/contributing-to-a-dbt-package/657) on the best workflow for contributing to a package!
 
-## Resources:
-- Provide [feedback](https://www.surveymonkey.com/r/DQ7K7WW) on our existing dbt packages or what you'd like to see next
-- Have questions, feedback, or need help? Book a time during our office hours [using Calendly](https://calendly.com/fivetran-solutions-team/fivetran-solutions-team-office-hours) or email us at solutions@fivetran.com
-- Find all of Fivetran's pre-built dbt packages in our [dbt hub](https://hub.getdbt.com/fivetran/)
-- Learn how to orchestrate your models with [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt)
-- Learn more about Fivetran overall [in our docs](https://fivetran.com/docs)
-- Check out [Fivetran's blog](https://fivetran.com/blog)
-- Learn more about dbt [in the dbt docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](http://slack.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the dbt blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+# 🏪 Are there any resources available?
+- If you have questions or want to reach out for help, please refer to the [GitHub Issue](https://github.com/fivetran/dbt_mixpanel/issues/new/choose) section to find the right avenue of support for you.
+- If you would like to provide feedback to the dbt package team at Fivetran or would like to request a new dbt package, fill out our [Feedback Form](https://www.surveymonkey.com/r/DQ7K7WW).
+- Have questions or want to just say hi? Book a time during our office hours [on Calendly](https://calendly.com/fivetran-solutions-team/fivetran-solutions-team-office-hours) or email us at solutions@fivetran.com.

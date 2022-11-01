@@ -1,6 +1,6 @@
 # dbt_mixpanel v0.7.0
-## 🚨 Breaking Changes 🚨:
 [PR #28](https://github.com/fivetran/dbt_mixpanel/pull/28) includes the following breaking changes:
+## 🚨 Breaking Changes 🚨:
 - Dispatch update for dbt-utils to dbt-core cross-db macros migration. Specifically `{{ dbt_utils.<macro> }}` have been updated to `{{ dbt.<macro> }}` for the below macros:
     - `any_value`
     - `bool_or`
@@ -36,6 +36,10 @@
     - `dbt.current_timestamp_in_utc_backcompat`
 - `dbt_utils.surrogate_key` has also been updated to `dbt_utils.generate_surrogate_key`. Since the method for creating surrogate keys differ, we suggest all users do a `full-refresh` for the most accurate data. For more information, please refer to dbt-utils [release notes](https://github.com/dbt-labs/dbt-utils/releases) for this update.
 - Dependencies on `fivetran/fivetran_utils` have been upgraded, previously `[">=0.3.0", "<0.4.0"]` now `[">=0.4.0", "<0.5.0"]`.
+
+## 🎉 Documentation and Feature Updates 🎉:
+- Updated README documentation for easier navigation and dbt package setup.
+- Included the `mixpanel_[source_table_name]_identifier` variables for easier flexibility of the package models to refer to differently named sources tables.
 
 # dbt_mixpanel v0.6.1
 🎉 LISTAGG fix 🎉
