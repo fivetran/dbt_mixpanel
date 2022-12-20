@@ -1,14 +1,11 @@
 name: 'mixpanel_integration_tests'
-version: '0.6.1'
+version: '0.7.0'
 config-version: 2
 profile: 'integration_tests'
-
-
 vars:
-  mixpanel: 
-    event_table: "{{ ref('event') }}"
-
-
+  mixpanel_schema: mixpanel_integration_tests
+  mixpanel:
+    mixpanel_event_identifier: "event"
 seeds:
   mixpanel_integration_tests:
     +column_types:
