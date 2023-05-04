@@ -1,8 +1,10 @@
 # dbt_mixpanel v0.7.1
+## 🎉 Feature Updates 🎉
+- Databricks and Postgres compatibility! ([PR #33](https://github.com/fivetran/dbt_mixpanel/pull/33))
 
  ## Under the Hood:
-- Incorporated the new `fivetran_utils.drop_schemas_automation` macro into the end of each Buildkite integration test job.
-- Updated the pull request [templates](/.github).
+- Incorporated the new `fivetran_utils.drop_schemas_automation` macro into the end of each Buildkite integration test job. ([PR #32](https://github.com/fivetran/dbt_mixpanel/pull/32))
+- Updated the pull request [templates](/.github). ([PR #32](https://github.com/fivetran/dbt_mixpanel/pull/32))
 
 # dbt_mixpanel v0.7.0
 [PR #28](https://github.com/fivetran/dbt_mixpanel/pull/28) includes the following breaking changes:
