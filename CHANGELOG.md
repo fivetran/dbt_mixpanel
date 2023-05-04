@@ -1,9 +1,9 @@
-# dbt_mixpanel v0.UPDATE.UPDATE
+# dbt_mixpanel v0.7.1
 
  ## Under the Hood:
-
 - Incorporated the new `fivetran_utils.drop_schemas_automation` macro into the end of each Buildkite integration test job.
 - Updated the pull request [templates](/.github).
+
 # dbt_mixpanel v0.7.0
 [PR #28](https://github.com/fivetran/dbt_mixpanel/pull/28) includes the following breaking changes:
 ## 🚨 Breaking Changes 🚨:
