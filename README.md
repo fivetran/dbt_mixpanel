@@ -47,7 +47,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.7.0", "<0.8.0"]
+    version: [">=0.7.0", "<0.8.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 ## Step 3: Define database and schema variables
 By default, this package runs using your destination and the `mixpanel` schema. If this is not where your Mixpanel data is (for example, if your Mixpanel schema is named `mixpanel_fivetran`), add the following configuration to your root `dbt_project.yml` file:
