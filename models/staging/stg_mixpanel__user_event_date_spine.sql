@@ -2,10 +2,9 @@
     config(
         materialized='incremental',
         unique_key='unique_key',
-        partition_by={
-            "field": "date_day",
-            "data_type": "date"
-        }
+        partition_by={'field': 'date_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_day'],
+        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
+        file_format = 'delta' 
     )
 }}
 
