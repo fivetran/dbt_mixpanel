@@ -15,3 +15,7 @@ seeds:
         time: timestamp
         distinct_id: "{{ 'varchar(100)'  if target.type in ('redshift', 'postgres') else 'string'}}"
         device_id: "{{ 'varchar(100)'  if target.type in ('redshift', 'postgres') else 'string'}}"
+
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['spark_utils', 'dbt_utils']
