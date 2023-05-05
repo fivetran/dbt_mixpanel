@@ -67,14 +67,6 @@ vars:
     mixpanel_schema: your_schema_name 
 ```
 
-### Databricks dispatch configuration
-If you are using a Databricks destination with this package, you must add the following (or a variation of the following) dispatch configuration within your `dbt_project.yml`. This is required in order for the package to accurately search for macros within the `dbt-labs/spark_utils` then the `dbt-labs/dbt_utils` packages respectively.
-```yml
-dispatch:
-  - macro_namespace: dbt_utils
-    search_order: ['spark_utils', 'dbt_utils']
-```
-
 ## (Optional) Step 4: Additional configurations
 <details><summary>Expand for configurations</summary>
 
