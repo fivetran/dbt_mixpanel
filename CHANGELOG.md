@@ -2,7 +2,13 @@
 ## 🎉 Feature Updates 🎉
 - Databricks and Postgres compatibility! ([PR #33](https://github.com/fivetran/dbt_mixpanel/pull/33))
 
- ## Under the Hood:
+## Under the Hood:
+- Updated incremental strategy for the following incremental models ([PR #33](https://github.com/fivetran/dbt_mixpanel/pull/33)):
+    - mixpanel__daily_events
+    - mixpanel__event
+    - mixpanel__monthly_events
+    - mixpanel__sessions
+    - stg_mixpanel__user_event_date_spine
 - Incorporated the new `fivetran_utils.drop_schemas_automation` macro into the end of each Buildkite integration test job. ([PR #32](https://github.com/fivetran/dbt_mixpanel/pull/32))
 - Updated the pull request [templates](/.github). ([PR #32](https://github.com/fivetran/dbt_mixpanel/pull/32))
 
