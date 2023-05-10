@@ -2,7 +2,7 @@ version: 2
 
 sources: 
   - name: mixpanel
-    database: "{{ var('mixpanel_database', target.database)}}" # add var config to dbt_project.yml
+    database: "{% if target.type != 'spark' %}{{ var('mixpanel_database', target.database) }}{% endif %}" # add var config to dbt_project.yml
     schema: "{{ var('mixpanel_schema', 'mixpanel')}}"
 
     loader: fivetran
