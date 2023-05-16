@@ -1,9 +1,9 @@
 name: 'mixpanel_integration_tests'
-version: '0.7.0'
+version: '0.8.0'
 config-version: 2
 profile: 'integration_tests'
 vars:
-  mixpanel_schema: mixpanel_integration_tests
+  mixpanel_schema: mixpanel_integration_tests_2
   mixpanel:
     mixpanel_event_identifier: "event"
 seeds:
@@ -15,3 +15,7 @@ seeds:
         time: timestamp
         distinct_id: "{{ 'varchar(100)'  if target.type in ('redshift', 'postgres') else 'string'}}"
         device_id: "{{ 'varchar(100)'  if target.type in ('redshift', 'postgres') else 'string'}}"
+
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['spark_utils', 'dbt_utils']

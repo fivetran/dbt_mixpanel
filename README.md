@@ -38,7 +38,22 @@ The following table provides a detailed list of all models materialized within t
 To use this dbt package, you must have the following:
 
 - At least one Fivetran Mixpanel connector syncing data into your destination.
-- A **BigQuery**, **Snowflake**, or **Redshift** destination.
+- A **BigQuery**, **Snowflake**, **Redshift**, **PostgreSQL**, or **Databricks** destination.
+
+### Databricks dispatch configuration
+If you are using a Databricks destination with this package, you must add the following (or a variation of the following) dispatch configuration within your `dbt_project.yml`. This is required in order for the package to accurately search for macros within the `dbt-labs/spark_utils` then the `dbt-labs/dbt_utils` packages respectively.
+```yml
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['spark_utils', 'dbt_utils']
+```
+
+### Database Incremental Strategies 
+Some end models in this package are materialized incrementally. We currently use the `merge` strategy as the default strategy for BigQuery, Snowflake, and Databricks databases. For Redshift and Postgres databases, we use `delete+insert` as the default strategy.
+
+We recognize there are some limitations with these strategies, particularly around updated records in the past which cause duplicates, and are assessing using a different strategy in the future.
+
+> For either of these strategies, we highly recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
 
 ## Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
@@ -47,8 +62,9 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.7.0", "<0.8.0"]
+    version: [">=0.8.0", "<0.9.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
+
 ## Step 3: Define database and schema variables
 By default, this package runs using your destination and the `mixpanel` schema. If this is not where your Mixpanel data is (for example, if your Mixpanel schema is named `mixpanel_fivetran`), add the following configuration to your root `dbt_project.yml` file:
 
