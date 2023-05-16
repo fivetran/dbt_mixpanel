@@ -49,13 +49,11 @@ dispatch:
 ```
 
 ### Database Incremental Strategies 
-Some end models in this package are materialized incrementally. We currently use the `merge` as the default strategy for **BigQuery**, **Snowflake**, and **Databricks** databases. For **Redshift** and **Postgres** databases, we use `delete+insert` as the default strategy.
+Some end models in this package are materialized incrementally. We currently use the `merge` strategy as the default strategy for BigQuery, Snowflake, and Databricks databases. For Redshift and Postgres databases, we use `delete+insert` as the default strategy.
 
-`merge` is our current incremental strategy as it handles duplicates well and automatically handles insertions, updates, and deletions. We recognize there are some limitations with this strategy and are assessing using a different strategy in the future. 
+We recognize there are some limitations with these strategies, particularly around updated records in the past which cause duplicates, and are assessing using a different strategy in the future.
 
-When `merge` is not available in a warehouse, `delete+insert` handles incremental loads well that do not contain changes to past records. However, if a past record has been updated and is outside of the incremental window, `delete+insert` will insert a duplicate record. 😱
-
-> Because of this, we highly recommend that **Redshift** and **Postgres** users periodically run a `--full-refresh` to ensure a high level of data quality and remove any possible duplicates.
+> For either of these strategies, we highly recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
 
 ## Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
