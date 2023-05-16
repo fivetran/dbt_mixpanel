@@ -40,6 +40,23 @@ To use this dbt package, you must have the following:
 - At least one Fivetran Mixpanel connector syncing data into your destination.
 - A **BigQuery**, **Snowflake**, **Redshift**, **PostgreSQL**, or **Databricks** destination.
 
+### Databricks dispatch configuration
+If you are using a Databricks destination with this package, you must add the following (or a variation of the following) dispatch configuration within your `dbt_project.yml`. This is required in order for the package to accurately search for macros within the `dbt-labs/spark_utils` then the `dbt-labs/dbt_utils` packages respectively.
+```yml
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['spark_utils', 'dbt_utils']
+```
+
+### Database Incremental Strategies 
+Some end models in this package are materialized incrementally. We currently use the `merge` as the default strategy for **BigQuery**, **Snowflake**, and **Databricks** databases. For **Redshift** and **Postgres** databases, we use `delete+insert` as the default strategy.
+
+`merge` is our current incremental strategy as it handles duplicates well and automatically handles insertions, updates, and deletions. We recognize there are some limitations with this strategy and are assessing using a different strategy in the future. 
+
+When `merge` is not available in a warehouse, `delete+insert` handles incremental loads well that do not contain changes to past records. However, if a past record has been updated and is outside of the incremental window, `delete+insert` will insert a duplicate record. 😱
+
+> Because of this, we highly recommend that **Redshift** and **Postgres** users periodically run a `--full-refresh` to ensure a high level of data quality and remove any possible duplicates.
+
 ## Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
 > TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
@@ -48,14 +65,6 @@ Include the following mixpanel package version in your `packages.yml` file:
 packages:
   - package: fivetran/mixpanel
     version: [">=0.8.0", "<0.9.0"] # we recommend using ranges to capture non-breaking changes automatically
-```
-
-### Databricks dispatch configuration
-If you are using a Databricks destination with this package, you must add the following (or a variation of the following) dispatch configuration within your `dbt_project.yml`. This is required in order for the package to accurately search for macros within the `dbt-labs/spark_utils` then the `dbt-labs/dbt_utils` packages respectively.
-```yml
-dispatch:
-  - macro_namespace: dbt_utils
-    search_order: ['spark_utils', 'dbt_utils']
 ```
 
 ## Step 3: Define database and schema variables

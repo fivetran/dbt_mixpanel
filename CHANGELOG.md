@@ -1,4 +1,5 @@
 # dbt_mixpanel v0.8.0
+>Note: If you run into issues with this update, we suggest to try a **full refresh**.
 ## 🎉 Feature Updates 🎉
 - Databricks and Postgres compatibility! ([PR #33](https://github.com/fivetran/dbt_mixpanel/pull/33))
 
