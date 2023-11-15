@@ -24,6 +24,8 @@
   - Provides a macro to easily create an event funnel
   - De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
   - Pivots out custom event properties from JSONs into an enriched events table
+  
+<!--section="mixpanel_transformation_model-->
 - Generates a comprehensive data dictionary of your source and modeled Mixpanel data through the [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview).
 The following table provides a detailed list of all models materialized within this package by default. 
 > TIP: See more details about these models in the package's [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1).
@@ -34,6 +36,8 @@ The following table provides a detailed list of all models materialized within t
 | [mixpanel__daily_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__daily_events)             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
 | [mixpanel__monthly_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__monthly_events)          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
 | [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
+
+<!--section-end-->
 
 # 🎯 How do I use the dbt package?
 
