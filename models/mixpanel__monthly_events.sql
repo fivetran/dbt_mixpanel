@@ -3,6 +3,7 @@
         materialized='incremental',
         unique_key='unique_key',
         partition_by={'field': 'date_month', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_month'],
+        cluster_by=['date_month'],
         incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
         file_format = 'delta' 
     )
