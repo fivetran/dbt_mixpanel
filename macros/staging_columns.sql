@@ -3,6 +3,7 @@
 {% set columns = [
 
     {"name": "_fivetran_synced", "datatype": dbt.type_timestamp()},
+    {"name": "_fivetran_id", "datatype": dbt.type_string()},
     {"name": "ae_session_length", "datatype": dbt.type_string(), "alias": "app_session_length"},
     {"name": "app_build_number", "datatype": dbt.type_string()},
 
