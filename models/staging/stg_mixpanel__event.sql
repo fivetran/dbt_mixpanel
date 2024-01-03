@@ -3,6 +3,7 @@
         materialized='incremental',
         unique_key='_fivetran_id',
         partition_by={'field': 'date_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_day'],
+        cluster_by='date_day',
         incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
         file_format = 'delta' 
     )
