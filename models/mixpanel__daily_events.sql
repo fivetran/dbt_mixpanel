@@ -1,10 +1,15 @@
-{{
-    config(
+{{ config(
         materialized='incremental',
         unique_key='unique_key',
-        partition_by={'field': 'date_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_day'],
-        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
-        file_format = 'delta' 
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "date_day", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['date_day'],
+        cluster_by=['date_day', 'event_type'] if target.type == 'snowflake' else ['event_type'],
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 

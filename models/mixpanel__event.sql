@@ -1,18 +1,21 @@
-{{
-    config(
+{{ config(
         materialized='incremental',
         unique_key='unique_event_id',
-        partition_by={'field': 'date_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_day'],
-        cluster_by='date_day',
-        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
-        file_format = 'delta' 
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "date_day", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['date_day'],
+        cluster_by=['date_day', 'nth_event_record'] if target.type == 'snowflake' else 'nth_event_record',
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
 with stg_event as (
 
     select *
-
     from {{ ref('stg_mixpanel__event') }}
 
     where 

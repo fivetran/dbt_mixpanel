@@ -1,10 +1,15 @@
-{{
-    config(
+{{ config(
         materialized='incremental',
         unique_key='unique_key',
-        partition_by={'field': 'date_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_day'],
-        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
-        file_format = 'delta' 
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "date_day", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['date_day'],
+        cluster_by=['date_day', 'event_type'] if target.type == 'snowflake' else ['event_type'],
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -39,8 +44,8 @@ user_event_spine as (
 
     select
         cast(spine.date_day as date) as date_day,
-        user_first_events.people_id,
         user_first_events.event_type,
+        user_first_events.people_id,
 
         -- will use this in mixpanel__daily_events
         case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,

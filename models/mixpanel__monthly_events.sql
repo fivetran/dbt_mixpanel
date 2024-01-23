@@ -8,6 +8,21 @@
     )
 }}
 
+{{ config(
+        materialized='incremental',
+        unique_key='unique_key',
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "date_month", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['date_month'],
+        cluster_by=['date_month', 'event_type'] if target.type == 'snowflake' else ['event_type'],
+        file_format='parquet',
+        on_schema_change='append_new_columns'
+    )
+}}
+
 with events as (
 
     select 

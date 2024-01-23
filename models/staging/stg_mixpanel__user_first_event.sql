@@ -4,25 +4,17 @@
     )
 }}
 
--- using stg_mixpanel__event to look at ALL-TIME events
--- mixpanel__event is cut off by the `date_range_start` variable
-with alltime_events as (
-
-    select *
-    from {{ ref('stg_mixpanel__event') }}
-
-),
-
-first_events as (
+-- using source to look at ALL-TIME events
+-- stg_mixpanel__event is cut off by the `date_range_start` variable
+with first_events as (
 
     select 
-        people_id,
-        event_type,
-        min(date_day) as first_event_day
+        distinct_id as people_id,
+        lower(name) as event_type,
+        cast(min(time) as date) as first_event_day
     
-    from alltime_events
-
-    group by people_id, event_type
+    from {{ var('event_table') }}
+    group by distinct_id, name
 )
 
 select * from first_events
