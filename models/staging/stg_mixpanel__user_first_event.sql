@@ -14,7 +14,7 @@ with first_events as (
         cast(min(time) as date) as first_event_day
     
     from {{ var('event_table') }}
-    group by distinct_id, name
+    group by 1, 2
 )
 
 select * from first_events

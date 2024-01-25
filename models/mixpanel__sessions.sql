@@ -7,9 +7,8 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['session_started_on_day'],
-        cluster_by=['session_started_on_day', 'people_id'] if target.type == 'snowflake' else ['people_id'],
-        file_format='parquet',
-        on_schema_change='append_new_columns'
+        cluster_by=['session_started_on_day', 'session_id'] if target.type == 'snowflake' else ['session_id'],
+        file_format='parquet'
     )
 }}
 

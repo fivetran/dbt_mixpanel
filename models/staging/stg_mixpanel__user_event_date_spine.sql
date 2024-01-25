@@ -8,8 +8,7 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type'] if target.type == 'snowflake' else ['event_type'],
-        file_format='parquet',
-        on_schema_change='append_new_columns'
+        file_format='parquet'
     )
 }}
 
