@@ -1,4 +1,5 @@
-{{ config(
+{{
+    config(
         materialized='incremental',
         unique_key='unique_event_id',
         incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
@@ -7,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
-        cluster_by=['date_day', 'nth_event_record'] if target.type == 'snowflake' else 'nth_event_record',
+        cluster_by=['date_day', 'people_id', 'event_type'] if target.type == 'snowflake' else ['people_id', 'event_type'],
         file_format='parquet'
     )
 }}

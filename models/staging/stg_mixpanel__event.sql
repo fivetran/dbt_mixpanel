@@ -1,4 +1,5 @@
-{{ config(
+{{
+    config(
         materialized='incremental',
         unique_key='_fivetran_id',
         incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
@@ -7,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
-        cluster_by=['date_day', 'event_type'] if target.type == 'snowflake' else ['event_type'],
+        cluster_by=['date_day', 'event_type', 'people_id'] if target.type == 'snowflake' else ['event_type', 'people_id'],
         file_format='parquet'
     )
 }}

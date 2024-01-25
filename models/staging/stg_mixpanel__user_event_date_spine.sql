@@ -1,4 +1,5 @@
-{{ config(
+{{
+    config(
         materialized='incremental',
         unique_key='unique_key',
         incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',

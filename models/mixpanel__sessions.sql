@@ -1,4 +1,5 @@
-{{ config(
+{{
+    config(
         materialized='incremental',
         unique_key='session_id',
         incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
@@ -7,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['session_started_on_day'],
-        cluster_by=['session_started_on_day', 'session_id'] if target.type == 'snowflake' else ['session_id'],
+        cluster_by='session_started_on_day',
         file_format='parquet'
     )
 }}
