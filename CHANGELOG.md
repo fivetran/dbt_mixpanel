@@ -1,3 +1,13 @@
+# dbt_mixpanel v0.9.0
+[PR #41](https://github.com/fivetran/dbt_mixpanel/pull/41) includes the following updates:
+
+## 🚨 Breaking Changes 🚨
+>Note: This update was made breaking since it will alter the materialization of existing models. While these changes do not necessitate a `--full-refresh`, it may be beneficial if you run into issues with this update.
+- Updated models with the following performance improvements:
+  - Update the incremental strategy for all models to `insert_overwrite` for BigQuery and Databricks and `delete+insert` for all other warehouses.
+  - Consolidated `stg_mixpanel__event` and `stg_mixpanel__event_tmp` into one incremental model. While this will increase storage, we opted to make this change to improve compute.
+  - Limit all incremental models to the `date_range_start` variable, if it is set.
+
 # dbt_mixpanel v0.8.0
 >Note: If you run into issues with this update, we suggest to try a **full refresh**.
 ## 🎉 Feature Updates 🎉

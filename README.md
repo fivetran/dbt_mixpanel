@@ -98,7 +98,7 @@ The macro takes the following as arguments:
 - `event_funnel`: List of event types (not case sensitive). 
   - Example: `'['play_song', 'stop_song', 'exit']`
 - `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel__event` model). The default value is `None`. 
-  - Examaple: `group_by_column = 'country_code'`.
+  - Example: `group_by_column = 'country_code'`.
 - `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel__event`. 
   - Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
