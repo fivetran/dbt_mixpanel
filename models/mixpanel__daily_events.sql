@@ -8,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
-        cluster_by=['date_day', 'event_type'] if target.type == 'snowflake' else ['event_type'],
+        cluster_by=['date_day', 'event_type'],
         file_format='parquet'
     )
 }}
@@ -142,8 +142,6 @@ final as (
     where date_day >= coalesce( (select max(date_day)  from {{ this }} ), '2010-01-01')
 
     {% endif %}
-
-    order by date_day desc, event_type
 )
 
 select *

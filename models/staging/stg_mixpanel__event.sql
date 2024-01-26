@@ -8,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
-        cluster_by=['date_day', 'event_type', 'people_id'] if target.type == 'snowflake' else ['event_type', 'people_id'],
+        cluster_by=['date_day', 'event_type', 'people_id'],
         file_format='parquet'
     )
 }}
@@ -21,8 +21,6 @@ with events as (
 
     {% if is_incremental() %}
     where cast(time as {{ dbt.type_timestamp() }}) >= (select max(cast((date_day) as {{ dbt.type_timestamp() }})) from {{ this }})
-    {% else %}
-    where cast(time as {{ dbt.type_timestamp() }} ) >= {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }}
     {% endif %}
 ),
 

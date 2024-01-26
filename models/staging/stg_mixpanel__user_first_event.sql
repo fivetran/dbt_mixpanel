@@ -9,11 +9,11 @@
 with first_events as (
 
     select 
-        distinct_id as people_id,
-        lower(name) as event_type,
-        cast(min(time) as date) as first_event_day
+        people_id,
+        event_type,
+        min(date_day) as first_event_day
     
-    from {{ var('event_table') }}
+    from {{ ref('stg_mixpanel__event') }}
     group by 1, 2
 )
 

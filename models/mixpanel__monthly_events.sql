@@ -8,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['date_month'],
-        cluster_by=['date_month', 'event_type'] if target.type == 'snowflake' else ['event_type'],
+        cluster_by=['date_month', 'event_type'],
         file_format='parquet'
     )
 }}

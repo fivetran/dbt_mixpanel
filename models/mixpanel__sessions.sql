@@ -8,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['session_started_on_day'],
-        cluster_by='session_started_on_day',
+        cluster_by=['session_started_on_day'],
         file_format='parquet'
     )
 }}
