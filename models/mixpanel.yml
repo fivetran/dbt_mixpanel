@@ -8,17 +8,21 @@ models:
       
       Default materialization is incremental.
     
-    columns: 
+    columns:
       - name: unique_event_id
-        description: > 
+        description: >
           Unique ID of the event. Events are de-duped according to Mixpanel's [requirements](https://developer.mixpanel.com/reference/http#event-deduplication).
           This is hashed on `insert_id`, `people_id`, `date_day`, and `event_type` 
         tests:
           - unique
           - not_null 
 
+      - name: _fivetran_id
+        description: >
+          Hash of `insert_id`, `distinct_id`, and `name` columns.
+
       - name: insert_id
-        description: > 
+        description: >
           Random 16 character string of alphanumeric characters that is unique to an event. 
           Used to de-duplicate data. 
 
