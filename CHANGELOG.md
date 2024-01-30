@@ -6,7 +6,6 @@
 - Updated models with the following performance improvements:
   - Update the incremental strategy for all models to `insert_overwrite` for BigQuery and Databricks and `delete+insert` for all other warehouses.
   - Consolidated `stg_mixpanel__event` and `stg_mixpanel__event_tmp` into one incremental model. While this will increase storage, we opted to make this change to improve compute.
-  - Limit all incremental models to the `date_range_start` variable, if it is set.
 
 ## Feature Updates
 - Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake and BigQuery users. 
