@@ -9,7 +9,7 @@
   - Limit all incremental models to the `date_range_start` variable, if it is set.
 
 ## Feature Updates
-- Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake, BigQuery, and Databricks users. 
+- Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake and BigQuery users. 
 
 # dbt_mixpanel v0.8.0
 >Note: If you run into issues with this update, we suggest to try a **full refresh**.
