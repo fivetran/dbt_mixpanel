@@ -47,7 +47,6 @@ date_spine as (
                                 from {{ this }} ), '2010-01-01')
 
     {% endif %}
-    
 ), 
 
 agg_user_events as (
@@ -60,7 +59,6 @@ agg_user_events as (
 
     from events
     group by 1,2,3
-    
 ), 
 
 -- join the spine with event metrics
@@ -79,7 +77,6 @@ spine_joined as (
         on agg_user_events.date_day = date_spine.date_day
         and agg_user_events.people_id = date_spine.people_id
         and agg_user_events.event_type = date_spine.event_type
-
 ), 
 
 trailing_events as (
@@ -94,7 +91,6 @@ trailing_events as (
             and number_of_events > 0 as is_repeat_user
 
     from spine_joined
-    
 ), 
 
 agg_event_days as (
@@ -114,7 +110,6 @@ agg_event_days as (
 
     from trailing_events
     group by 1,2
-    
 ),
 
 final as (
@@ -132,16 +127,9 @@ final as (
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
-        event_type || '-' || date_day as unique_key
+        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_day']) }} as unique_key
 
     from agg_event_days
-
-    {% if is_incremental() %}
-
-    -- only return the most recent day of data
-    where date_day >= coalesce( (select max(date_day)  from {{ this }} ), '2010-01-01')
-
-    {% endif %}
 )
 
 select *

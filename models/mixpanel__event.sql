@@ -22,7 +22,11 @@ with stg_event as (
     {% if is_incremental() %}
 
     -- events are only eligible for de-duping if they occurred on the same calendar day 
-    occurred_at >= coalesce((select cast( max(date_day) as {{ dbt.type_timestamp() }} ) from {{ this }} ), '2010-01-01')
+    occurred_at >= cast( coalesce((select max(date_day) from {{ this }} ), '2010-01-01') as {{ dbt.type_timestamp() }} )
+
+    {% if is_incremental() %}
+    where time >= cast( coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} from {{ this }}), '2010-01-01') as {{ dbt.type_timestamp() }} )
+    {% endif %}
 
     {% else %}
     

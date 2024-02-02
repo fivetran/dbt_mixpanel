@@ -89,8 +89,6 @@ monthly_metrics as (
             then user_monthly_events.people_id end) as number_of_return_users,
 
         sum(user_monthly_events.number_of_events) as number_of_events
-        
-
 
     from user_monthly_events
         left join month_totals using(date_month)
@@ -107,16 +105,9 @@ final as (
         -- note: churned users refer to users who did something last month and not this month
         coalesce(lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users, 0) as number_of_churn_users,
 
-        date_month || '-' || event_type as unique_key -- for incremental model :)
+        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_month']) }} as unique_key
 
     from monthly_metrics
-
-    {% if is_incremental() %}
-
-    -- only return the most recent month
-    where date_month >= coalesce((select max(date_month) from {{ this }}), '2010-01-01')
-
-    {% endif %}
 )
 
 select * from final

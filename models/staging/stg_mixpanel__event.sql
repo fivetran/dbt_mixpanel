@@ -20,7 +20,7 @@ with events as (
     from {{ var('event_table') }}
 
     {% if is_incremental() %}
-    where cast(time as {{ dbt.type_timestamp() }}) >= (select max(cast((date_day) as {{ dbt.type_timestamp() }})) from {{ this }})
+    where time >= cast( coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} from {{ this }}), '2010-01-01') as {{ dbt.type_timestamp() }} )
     {% endif %}
 ),
 
