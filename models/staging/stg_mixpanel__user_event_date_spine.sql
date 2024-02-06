@@ -23,7 +23,7 @@ with user_first_events as (
 spine as (
 
     select 
-        *,
+        *
 
     from (
         {{ dbt_utils.date_spine(

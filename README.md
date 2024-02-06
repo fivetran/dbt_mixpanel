@@ -56,11 +56,12 @@ dispatch:
 ```
 
 ### Database Incremental Strategies 
-Some end models in this package are materialized incrementally. We currently use the `merge` strategy as the default strategy for BigQuery, Snowflake, and Databricks databases. For Redshift and Postgres databases, we use `delete+insert` as the default strategy.
+Some of the end models in this package are materialized incrementally. We have chosen `insert_overwrite` as the default strategy for **BigQuery** and **Databricks** databases, as it is only available for these dbt adapters. For **Snowflake**, **Redshift**, and **Postgres** databases, we have chosen `delete+insert` as the default strategy.
 
-We recognize there are some limitations with these strategies, particularly around updated records in the past which cause duplicates, and are assessing using a different strategy in the future.
+`insert_overwrite` is our preferred incremental strategy because it will be able to properly handle updates to records that exist outside the immediate incremental window. That is, because it leverages partitions, `insert_overwrite` will appropriately update existing rows that have been changed upstream instead of inserting duplicates of them--all without requiring a full table scan.
 
-> For either of these strategies, we highly recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
+`delete+insert` is our second-choice as it resembles `insert_overwrite` but lacks partitions. This strategy works most of the time and appropriately handles incremental loads that do not contain changes to past records. However, if a past record has been updated and is outside of the incremental window, `delete+insert` will insert a duplicate record. 😱
+> Because of this, we highly recommend that **Snowflake**, **Redshift**, and **Postgres** users periodically run a `--full-refresh` to ensure a high level of data quality and remove any possible duplicates.
 
 ## Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
@@ -82,7 +83,6 @@ vars:
 ```
 
 ## (Optional) Step 4: Additional configurations
-<details><summary>Expand for configurations</summary>
 
 ## Macros
 ### analyze_funnel [(source)](https://github.com/fivetran/dbt_mixpanel/blob/master/macros/analyze_funnel.sql)
@@ -240,8 +240,6 @@ Events are considered duplicates and consolidated by the package if they contain
 * calendar date of occurrence (event timestamps are set in the timezone the Mixpanel project is configured to)
 
 This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
-
-</details>
 
 ## (Optional) Step 5: Orchestrate your models with Fivetran Transformations for dbt Core™
 <details><summary>Expand for details</summary>
