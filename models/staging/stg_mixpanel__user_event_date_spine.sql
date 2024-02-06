@@ -22,8 +22,7 @@ with user_first_events as (
 
 spine as (
 
-    select 
-        *
+    select *
 
     from (
         {{ dbt_utils.date_spine(
@@ -43,14 +42,14 @@ user_event_spine as (
 
     select
         cast(spine.date_day as date) as date_day,
-        user_first_events.event_type,
         user_first_events.people_id,
+        user_first_events.event_type,
 
         -- will use this in mixpanel__daily_events
         case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,
 
         {{ dbt_utils.generate_surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key,
-        {{ mixpanel.date_today('dbt_run_date') }},
+        {{ mixpanel.date_today('dbt_run_date') }}
 
     from spine
     join user_first_events
