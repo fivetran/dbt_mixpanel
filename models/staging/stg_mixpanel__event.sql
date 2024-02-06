@@ -9,7 +9,8 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type', 'people_id'],
-        file_format='parquet'
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -20,7 +21,7 @@ with events as (
     from {{ var('event_table') }}
 
     {% if is_incremental() %}
-    where time >= cast( coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} from {{ this }}), '2010-01-01') as {{ dbt.type_timestamp() }} )
+    where time >= cast( {{ mixpanel.lookback(from_date="max(dbt_run_date)") }} as {{ dbt.type_timestamp() }} )
     {% endif %}
 ),
 
@@ -28,8 +29,9 @@ fields as (
 
     select
         cast( {{ dbt.date_trunc('day', 'time') }} as date) as date_day,
-        cast(time as {{ dbt.type_timestamp() }} ) as occurred_at,
         lower(name) as event_type,
+        cast(time as {{ dbt.type_timestamp() }} ) as occurred_at,
+        {{ mixpanel.date_today('dbt_run_date') }},
 
         -- pulls default properties and renames (see macros/staging_columns)
         -- columns missing from your source table will be completely NULL   
@@ -50,3 +52,6 @@ fields as (
 )
 
 select * from fields
+{% if is_incremental() %}
+where dbt_run_date >= {{ mixpanel.lookback(from_date="max(dbt_run_date)", interval=1) }}
+{% endif %}

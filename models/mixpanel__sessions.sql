@@ -9,7 +9,8 @@
             } if target.type not in ('spark','databricks') 
             else ['session_started_on_day'],
         cluster_by=['session_started_on_day'],
-        file_format='parquet'
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -45,14 +46,12 @@ with events as (
 
         -- events can come in late and we want to still be able to incorporate them
         -- in the sessionization without requiring a full refresh
-        where occurred_at >= cast (coalesce((
-          select
-            {{ dbt.dateadd(
-                'hour',
-                -var('sessionization_trailing_window', 3),
-                'max(session_started_at)'
-            ) }}
-          from {{ this }} ), '2010-01-01') as {{ dbt.type_timestamp() }} )
+        where occurred_at >= cast(
+            {{ mixpanel.lookback(
+                from_date='max(session_started_at)', 
+                datepart='hour',
+                interval=var('sessionization_trailing_window', 3)) }}
+            as {{ dbt.type_timestamp() }} ) 
     )
 
     {% endif %}
@@ -106,8 +105,18 @@ session_ids as (
         count(unique_event_id) over (partition by user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
         count(unique_event_id) over (partition by user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
 
-
     from session_numbers
+),
+
+sub as (
+
+    select
+        session_id,
+        event_type,
+        count(unique_event_id) as number_of_events
+
+    from session_ids
+    group by session_id, event_type
 
 ),
 
@@ -125,17 +134,8 @@ agg_event_types as (
         '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}'
         {% endif %} as event_frequencies
     
-    from (
-
-        select
-            session_id,
-            event_type,
-            count(unique_event_id) as number_of_events
-
-        from session_ids
-        group by session_id, event_type
-    
-    ) as sub group by session_id
+    from sub
+    group by session_id
 ), 
 
 session_join as (
@@ -148,7 +148,8 @@ session_join as (
         session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
         session_ids.total_number_of_events,
-        agg_event_types.event_frequencies
+        agg_event_types.event_frequencies,
+        {{ mixpanel.date_today('dbt_run_date') }}
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,
@@ -156,7 +157,8 @@ session_join as (
         {% endif %}
     
     from session_ids
-    join agg_event_types using(session_id) -- join regardless of event type 
+    join agg_event_types 
+        on agg_event_types.session_id = session_ids.session_id -- join regardless of event type 
 
     where session_ids.is_new_session = 1 -- only return fields of first event
 

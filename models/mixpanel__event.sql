@@ -9,7 +9,8 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type', 'people_id'],
-        file_format='parquet'
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -19,19 +20,13 @@ with stg_event as (
     from {{ ref('stg_mixpanel__event') }}
 
     where 
-    {# {% if is_incremental() %}
-
-    -- events are only eligible for de-duping if they occurred on the same calendar day 
-    occurred_at >= cast( coalesce((select max(date_day) from {{ this }} ), '2010-01-01') as {{ dbt.type_timestamp() }} ) #}
 
     {% if is_incremental() %}
-    occurred_at >= cast( coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }} from {{ this }}), '2010-01-01') as {{ dbt.type_timestamp() }} )
+    dbt_run_date >= {{ mixpanel.lookback(from_date="max(dbt_run_date)", interval=1) }}
 
     {% else %}
-    
     -- limit date range on the first run / refresh
     occurred_at >= {{ "'" ~ var('date_range_start',  '2010-01-01') ~ "'" }} 
-    
     {% endif %}
 ),
 
@@ -58,8 +53,8 @@ pivot_properties as (
 
     select 
         *
-        {% if var('event_properties_to_pivot') %},
-        {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
+        {% if var('event_properties_to_pivot') %}
+        , {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
         {% endif %}
 
     from dedupe

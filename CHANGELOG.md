@@ -5,10 +5,12 @@
 >Note: This update was made breaking since it will alter the materialization of existing models. While these changes do not necessitate a `--full-refresh`, it may be beneficial if you run into issues with this update.
 - Updated models with the following performance improvements:
   - Update the incremental strategy for all models to `insert_overwrite` for BigQuery and Databricks and `delete+insert` for all other warehouses.
-  - Consolidated `stg_mixpanel__event` and `stg_mixpanel__event_tmp` into one incremental model. While this will increase storage, we opted to make this change to improve compute.
+  - Removed `stg_mixpanel__event_tmp` in favor of `stg_mixpanel__event_tmp`, which is now an incremental model. While this will increase storage, this change was made to improve compute.
 
 ## Feature Updates
 - Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake and BigQuery users. 
+- Added column `dbt_run_date` to incremental models to improve accuracy and optimize downstream models. This date captures the date a record was added or updated by this package.
+- Added a 7-day look-back to incremental models to accommodate late arriving events. 
 
 # dbt_mixpanel v0.8.0
 >Note: If you run into issues with this update, we suggest to try a **full refresh**.

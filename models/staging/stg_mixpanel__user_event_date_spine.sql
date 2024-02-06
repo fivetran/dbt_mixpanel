@@ -9,7 +9,8 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type', 'people_id'],
-        file_format='parquet'
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -21,7 +22,8 @@ with user_first_events as (
 
 spine as (
 
-    select * 
+    select 
+        *,
 
     from (
         {{ dbt_utils.date_spine(
@@ -31,14 +33,10 @@ spine as (
             ) 
         }} 
     ) as spine
-
     {% if is_incremental() %} 
-    
-    {# where date_day > coalesce(( select max(date_day) from {{ this }} ), '2010-01-01') #}
-    where date_day >= coalesce(( select {{ dbt.dateadd('day', -27, "max(date_day)") }} from {{ this }} ), '2010-01-01') -- every user-event_type will have the same last day
-    
+    -- every user-event_type will have the same last day. Use dbt_run_date to pick up late arriving new event types.
+    where date_day >= {{ mixpanel.lookback(from_date="max(dbt_run_date)") }}
     {% endif %}
-    
 ),
 
 user_event_spine as (
@@ -51,13 +49,13 @@ user_event_spine as (
         -- will use this in mixpanel__daily_events
         case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,
 
-        {{ dbt_utils.generate_surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key
+        {{ dbt_utils.generate_surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key,
+        {{ mixpanel.date_today('dbt_run_date') }},
 
     from spine
     join user_first_events
-        on spine.date_day >= user_first_events.first_event_day -- each user-event_type will a record for every day since their first day
-
-    group by 1,2,3,4,5
+    on spine.date_day >= user_first_events.first_event_day -- each user-event_type will a record for every day since their first day
+    group by 1,2,3,4,5,6
     
 )
 

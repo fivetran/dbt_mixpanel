@@ -9,7 +9,8 @@
             } if target.type not in ('spark','databricks') 
             else ['date_month'],
         cluster_by=['date_month', 'event_type'],
-        file_format='parquet'
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -25,12 +26,7 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-
-    -- look backward one month for churn/retention
-    where occurred_at >= coalesce( (select cast ( 
-                        {{ dbt.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt.type_timestamp() }} ) 
-                        from {{ this }} ) ,'2010-01-01')
-
+    where date_day >= {{ mixpanel.lookback(from_date="max(date_month)", datepart='month', interval=1) }}
     {% endif %}
 ),
 
@@ -39,11 +35,21 @@ month_totals as (
     select 
         date_month,
         count(distinct people_id) as total_monthly_active_users
-
     from events
-
-    group by date_month
+    group by 1
 ),
+
+sub as (
+-- aggregate number of events to the month
+        select
+            people_id,
+            event_type,
+            date_month,
+            count(unique_event_id) as number_of_events
+
+        from events
+        group by 1,2,3
+), 
 
 user_monthly_events as (
 
@@ -55,17 +61,7 @@ user_monthly_events as (
         -- last month that the user performed this kind of event during
         lag(date_month, 1) over(partition by people_id, event_type order by date_month asc) previous_month_with_event
 
-    from (
-        -- aggregate number of events to the month
-        select
-            people_id,
-            event_type,
-            date_month,
-            count(unique_event_id) as number_of_events
-
-        from events
-        group by 1,2,3
-    ) as sub
+    from sub
 ),
 
 monthly_metrics as (
@@ -105,7 +101,8 @@ final as (
         -- note: churned users refer to users who did something last month and not this month
         coalesce(lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users, 0) as number_of_churn_users,
 
-        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_month']) }} as unique_key
+        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_month']) }} as unique_key,
+        {{ mixpanel.date_today('dbt_run_date') }}
 
     from monthly_metrics
 )

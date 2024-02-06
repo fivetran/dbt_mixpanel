@@ -9,7 +9,8 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type'],
-        file_format='parquet'
+        file_format='parquet',
+        on_schema_change='append_new_columns'
     )
 }}
 
@@ -25,13 +26,8 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-
-    -- we look at the most recent 28 days for this model's window functions to compute properly
-    where date_day >= coalesce( ( select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
-                                from {{ this }} ), '2010-01-01')
-
+    where date_day >= {{ mixpanel.lookback(from_date="max(date_day)", interval=27) }}
     {% endif %}
-
 ),
 
 
@@ -41,11 +37,7 @@ date_spine as (
     from {{ ref('stg_mixpanel__user_event_date_spine') }}
 
     {% if is_incremental() %}
-
-    -- look backward for the last 28 days
-    where date_day >= coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
-                                from {{ this }} ), '2010-01-01')
-
+    where date_day >= {{ mixpanel.lookback(from_date="max(date_day)", interval=27) }}
     {% endif %}
 ), 
 
@@ -106,7 +98,7 @@ agg_event_days as (
         sum(case when is_repeat_user = true then 1 else 0 end) as number_of_repeat_users,
         
         sum(case when has_event_in_last_28_days = True then 1 else 0 end) as trailing_users_28d,
-        sum(case when has_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d
+        sum(case when has_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d,
 
     from trailing_events
     group by 1,2
@@ -127,9 +119,14 @@ final as (
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
-        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_day']) }} as unique_key
+        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_day']) }} as unique_key,
+        {{ mixpanel.date_today('dbt_run_date') }}
 
     from agg_event_days
+
+    {% if is_incremental() %}
+    where date_day >= {{ mixpanel.lookback(from_date="max(dbt_run_date)") }}
+    {% endif %}
 )
 
 select *
