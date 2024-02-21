@@ -9,8 +9,7 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type'],
-        file_format='parquet',
-        on_schema_change='append_new_columns'
+        file_format='parquet'
     )
 }}
 
@@ -26,7 +25,7 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.lookback(from_date="max(date_day)", interval=27) }}
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=27, datepart='day') }}
     {% endif %}
 ),
 
@@ -37,7 +36,7 @@ date_spine as (
     from {{ ref('stg_mixpanel__user_event_date_spine') }}
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.lookback(from_date="max(date_day)", interval=27) }}
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=27, datepart='day') }}
     {% endif %}
 ), 
 
@@ -119,13 +118,12 @@ final as (
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
-        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_day']) }} as unique_key,
-        {{ mixpanel.date_today('dbt_run_date') }}
+        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_day']) }} as unique_key
 
     from agg_event_days
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.lookback(from_date="max(dbt_run_date)") }}
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7), datepart='day') }}
     {% endif %}
 )
 
