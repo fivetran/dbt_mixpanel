@@ -17,10 +17,12 @@
     - `mixpanel__sessions`
   - Removed `stg_mixpanel__event_tmp` in favor of ephemeral model `stg_mixpanel__event`. This is to reduce redundancy of models created and reduce the number of full scans.
   - Updated the materialization of `stg_mixpanel__user_first_event` from a table to a view. This model is used in one downstream model, so a view will reduce storage requirements while not significantly hindering performance.
-  - Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake and BigQuery users. 
+  - For Snowflake and BigQuery destinations, added `cluster_by` columns to the configs for incremental models.
+  - For Databricks destinations, updated incremental model file formats to `parquet` for compatibility with the `insert_overwrite` strategy.
 
 ## Feature Updates
-- Added column `dbt_run_date` to incremental models to capture the date a record was added or updated by this package.
+- Added column `dbt_run_date` to incremental end models to capture the date a record was added or updated by this package.
+- Added `_fivetran_id` to the `mixpanel__event` model, since this is the source `event` table's primary key as of the [March 2023 connector release notes](https://fivetran.com/docs/applications/mixpanel/changelog#march2023).
 
 ## Contributors
 - [@jasongroob](https://github.com/jasongroob) ([#41](https://github.com/fivetran/dbt_mixpanel/pull/41))
