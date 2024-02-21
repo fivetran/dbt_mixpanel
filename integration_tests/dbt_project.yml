@@ -3,7 +3,7 @@ version: '0.9.0'
 config-version: 2
 profile: 'integration_tests'
 vars:
-  mixpanel_schema: 22_mixpanel_integration_tests_2
+  mixpanel_schema: mixpanel_integration_tests_2
   mixpanel:
     mixpanel_event_identifier: "event"
 seeds:
