@@ -2,11 +2,13 @@
 [PR #41](https://github.com/fivetran/dbt_mixpanel/pull/41) includes the following updates:
 
 ## 🚨 Breaking Changes 🚨
+
+> ⚠️ Since the following changes are breaking, a `--full-refresh` after upgrading will be required.
+
 - Added a default 7-day look-back to incremental models to accommodate late arriving events. The number of days can be changed by setting the var `lookback_window` in your dbt_project.yml. See the [Lookback Window section of the README](https://github.com/fivetran/dbt_mixpanel/blob/main/README.md#lookback-window) for more details. 
-  > ⚠️ This replaces the variable `sessionization_trailing_window`, which was previously used in the `mixpanel__sessions` model. This variable was replaced due to the change in the incremental and lookback strategy. 
+  - **Note:** This replaces the variable `sessionization_trailing_window`, which was previously used in the `mixpanel__sessions` model. This variable was replaced due to the change in the incremental and lookback strategy. 
 
 - Performance improvements:
-  > ⚠️ Since the following changes are breaking, a `--full-refresh` after upgrading will be required.
   - Updated the incremental strategy for of the following models to `insert_overwrite` for BigQuery and Databricks and `delete+insert` for all other supported warehouses. 
     - `stg_mixpanel__user_event_date_spine`
     - `mixpanel__event`
