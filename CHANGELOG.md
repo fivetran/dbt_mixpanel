@@ -19,6 +19,10 @@
   - Note: this replaces the variable `sessionization_trailing_window`, which was previously used in the `mixpanel__sessions` model. This variable was replaced due to the change in the incremental and lookback strategy. 
 - Added column `dbt_run_date` to incremental models to capture the date a record was added or updated by this package.
 
+## Contributors
+- [@jasongroob](https://github.com/jasongroob) ([#37](https://github.com/fivetran/dbt_mixpanel/issues/37))
+- [@CraigWilson-ZOE](https://github.com/CraigWilson-ZOE) ([#38](https://github.com/fivetran/dbt_mixpanel/issues/38))
+
 # dbt_mixpanel v0.8.0
 >Note: If you run into issues with this update, we suggest to try a **full refresh**.
 ## 🎉 Feature Updates 🎉

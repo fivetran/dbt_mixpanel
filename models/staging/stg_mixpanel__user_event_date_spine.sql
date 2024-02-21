@@ -33,7 +33,7 @@ spine as (
     ) as spine
     {% if is_incremental() %} 
     -- every user-event_type will have the same last day. Add 7 days to the lookback to account for the week added above.
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7) + 7, datepart='day') }}
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day') }}
     {% endif %}
 ),
 
