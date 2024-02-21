@@ -109,7 +109,7 @@ sub as (
         count(unique_event_id) as number_of_events
 
     from session_ids
-    group by session_id, event_type
+    group by 1, 2
 ),
 
 agg_event_types as (
@@ -127,7 +127,7 @@ agg_event_types as (
         {% endif %} as event_frequencies
     
     from sub
-    group by session_id
+    group by 1
 ), 
 
 session_join as (

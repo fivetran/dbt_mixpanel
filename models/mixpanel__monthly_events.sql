@@ -99,7 +99,7 @@ final as (
         -- subtract the returned users from the previous month's total users to get the # churned
         -- note: churned users refer to users who did something last month and not this month
         coalesce(lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users, 0) as number_of_churn_users,
-        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_month']) }} as unique_key,
+        date_month || '-' || event_type as unique_key, -- for incremental model :)
         {{ mixpanel.date_today('dbt_run_date')}}
 
     from monthly_metrics

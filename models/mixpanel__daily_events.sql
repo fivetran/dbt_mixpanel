@@ -124,7 +124,7 @@ final as (
     from agg_event_days
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7), datepart='day') }}
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7) + 7, datepart='day') }}
     {% endif %}
 )
 
