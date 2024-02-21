@@ -14,7 +14,7 @@
 
 {% endmacro %}
 
-{% macro bigquery__fivetran_log_lookback(from_date, datepart, interval, safety_date='2010-01-01')  %}
+{% macro bigquery__mixpanel_lookback(from_date, datepart, interval, safety_date='2010-01-01')  %}
 
     -- Capture the latest timestamp in a call statement instead of a subquery for optimizing BQ costs on incremental runs
     {%- call statement('date_agg', fetch_result=True) -%}

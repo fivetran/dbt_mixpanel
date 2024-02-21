@@ -118,7 +118,7 @@ final as (
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
-        {{ dbt_utils.generate_surrogate_key(['event_type', 'date_day']) }} as unique_key,
+        event_type || '-' || date_day as unique_key,
         {{ mixpanel.date_today('dbt_run_date')}}
 
     from agg_event_days
