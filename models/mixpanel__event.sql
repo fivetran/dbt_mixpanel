@@ -29,9 +29,7 @@ with stg_event as (
     {% endif %}
 ),
 
-dedupe as (
-
-    select * from (
+dupes as (
 
     select 
         {{ dbt_utils.generate_surrogate_key(['insert_id', 'people_id', 'event_type', 'date_day']) }} as unique_event_id,
@@ -43,7 +41,13 @@ dedupe as (
         row_number() over(partition by insert_id, people_id, event_type, date_day order by mp_processing_time_ms asc) as nth_event_record
         
         from stg_event
-    ) as dupes
+
+),
+
+dedupe as (
+
+    select *
+    from dupes
     where nth_event_record = 1
 
 ),
@@ -52,13 +56,12 @@ pivot_properties as (
 
     select 
         *,
-        {{ mixpanel.date_today('dbt_run_date')}},
+        {{ mixpanel.date_today('dbt_run_date')}}
         {% if var('event_properties_to_pivot') %}
         , {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
         {% endif %}
 
     from dedupe
-
 )
 
 select * from pivot_properties
