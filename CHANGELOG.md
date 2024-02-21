@@ -2,15 +2,21 @@
 [PR #41](https://github.com/fivetran/dbt_mixpanel/pull/41) includes the following updates:
 
 ## 🚨 Breaking Changes 🚨
->Note: This update was made breaking since it will alter the materialization of existing models. While these changes do not necessitate a `--full-refresh`, it may be beneficial if you run into issues with this update.
-- Updated models with the following performance improvements:
-  - Update the incremental strategy for all models to `insert_overwrite` for BigQuery and Databricks and `delete+insert` for all other warehouses.
-  - Removed `stg_mixpanel__event_tmp` in favor of `stg_mixpanel__event_tmp`, which is now an incremental model. While this will increase storage, this change was made to improve compute.
+> ⚠️ Since the following changes are breaking, we recommend running a `--full-refresh` after upgrading to this version.
+- Performance improvements:
+  - Updated the incremental strategy for of the following models to `insert_overwrite` for BigQuery and Databricks and `delete+insert` for all other warehouses. 
+    - `stg_mixpanel__user_event_date_spine`
+    - `mixpanel__event`
+    - `mixpanel__daily_events`
+    - `mixpanel__monthly_events`
+    - `mixpanel__sessions`
+  - Removed `stg_mixpanel__event_tmp` in favor of ephemeral model `stg_mixpanel__event`. This is to reduce redundancy of models created and reduce the number of full scans.
+  - Updated the materialization of `stg_mixpanel__user_first_event` to a view. 
+  - Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake and BigQuery users. 
 
 ## Feature Updates
-- Added `cluster_by` columns to the configs for incremental models. This will benefit Snowflake and BigQuery users. 
-- Added column `dbt_run_date` to incremental models to improve accuracy and optimize downstream models. This date captures the date a record was added or updated by this package.
-- Added a 7-day look-back to incremental models to accommodate late arriving events. 
+- Added a default 7-day look-back to incremental models to accommodate late arriving events. The numbers of days can be changed by setting the var `lookback_window` in your dbt_project.yml. See the [Lookback Window section of the README](https://github.com/fivetran/dbt_mixpanel/blob/main/README.md#lookback-window) for more details. 
+  - Note: this replaces the variable `sessionization_trailing_window`, which was previously used in the `mixpanel__sessions` model. This variable was replaced due to the change in the incremental and lookback strategy. 
 
 # dbt_mixpanel v0.8.0
 >Note: If you run into issues with this update, we suggest to try a **full refresh**.

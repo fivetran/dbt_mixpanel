@@ -199,15 +199,13 @@ vars:
     session_event_criteria: 'event_type in ("play_song", "stop_song", "create_playlist")'
 ```
 
-#### Session Trailing Window
-Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier/costlier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
-
-Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
+#### Lookback Window
+Events can sometimes arrive late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. Since many of the models in this package are incremental, by default we look back 7 days to ensure late arrivals are captured while avoiding requiring a full refresh. To change the default lookback window, add the following variable to your `dbt_project.yml` file:
 
 ```yml
 vars:
   mixpanel:
-    sessionization_trailing_window: number_of_hours # ex: 12
+    lookback_window: number_of_days # default is 7
 ```
 
 ### Changing the Build Schema

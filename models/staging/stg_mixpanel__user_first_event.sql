@@ -1,11 +1,7 @@
-{{
-    config(
-        materialized='table'
-    )
-}}
+{{ config(materialized='view') }}
 
 -- using source to look at ALL-TIME events
--- stg_mixpanel__event is cut off by the `date_range_start` variable
+-- mixpanel__event is cut off by the `date_range_start` variable
 with first_events as (
 
     select 
@@ -15,6 +11,8 @@ with first_events as (
     
     from {{ ref('stg_mixpanel__event') }}
     group by 1,2
+
 )
 
-select * from first_events
+select * 
+from first_events

@@ -9,8 +9,7 @@
             } if target.type not in ('spark','databricks') 
             else ['session_started_on_day'],
         cluster_by=['session_started_on_day'],
-        file_format='parquet',
-        on_schema_change='append_new_columns'
+        file_format='parquet'
     )
 }}
 
@@ -44,14 +43,8 @@ with events as (
         select distinct coalesce(device_id, people_id)
         from {{ ref('mixpanel__event') }}
 
-        -- events can come in late and we want to still be able to incorporate them
-        -- in the sessionization without requiring a full refresh
-        where occurred_at >= cast(
-            {{ mixpanel.lookback(
-                from_date='max(session_started_at)', 
-                datepart='hour',
-                interval=var('sessionization_trailing_window', 3)) }}
-            as {{ dbt.type_timestamp() }} ) 
+        where cast(occurred_at as date) >= 
+        {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
     )
 
     {% endif %}
@@ -117,7 +110,6 @@ sub as (
 
     from session_ids
     group by session_id, event_type
-
 ),
 
 agg_event_types as (
@@ -148,8 +140,7 @@ session_join as (
         session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
         session_ids.total_number_of_events,
-        agg_event_types.event_frequencies,
-        {{ mixpanel.date_today('dbt_run_date') }}
+        agg_event_types.event_frequencies
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,
@@ -157,11 +148,13 @@ session_join as (
         {% endif %}
     
     from session_ids
-    join agg_event_types 
-        on agg_event_types.session_id = session_ids.session_id -- join regardless of event type 
+    join agg_event_types using(session_id) -- join regardless of event type 
 
     where session_ids.is_new_session = 1 -- only return fields of first event
 
+    {% if is_incremental() %}
+    and session_started_on_day >= {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
+    {% endif %}
 )
 
 select * from session_join

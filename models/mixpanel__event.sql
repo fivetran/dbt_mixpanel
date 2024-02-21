@@ -9,8 +9,7 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type', 'people_id'],
-        file_format='parquet',
-        on_schema_change='append_new_columns'
+        file_format='parquet'
     )
 }}
 
@@ -22,7 +21,7 @@ with stg_event as (
     where 
 
     {% if is_incremental() %}
-    dbt_run_date >= {{ mixpanel.lookback(from_date="max(dbt_run_date)", interval=1) }}
+    date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7), datepart='day') }}
 
     {% else %}
     -- limit date range on the first run / refresh
@@ -53,6 +52,7 @@ pivot_properties as (
 
     select 
         *
+
         {% if var('event_properties_to_pivot') %}
         , {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
         {% endif %}
