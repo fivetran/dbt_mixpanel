@@ -185,7 +185,10 @@ models:
       
       - name: has_bluetooth_enabled
         description: Boolean that is true if Bluetooth is enabled, false if not.
-  
+
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
+
   - name: mixpanel__daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
@@ -225,7 +228,10 @@ models:
         tests:
           - unique
           - not_null
-    
+        
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
+
   - name: mixpanel__monthly_events
     description: >
       Table of each **event type's** monthly history of activity, as reflected in user retention and event metrics.
@@ -266,6 +272,9 @@ models:
           - unique
           - not_null
 
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
+
   - name: mixpanel__sessions
     description: > 
       Table aggregating events into unique user sessions, according to the `sessionization_inactivity` timeout length.
@@ -303,6 +312,9 @@ models:
       
       - name: user_id
         description: Coalescing of `device_id` and `people_id`.
+
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
 
 macros:
   - name: analyze_funnel

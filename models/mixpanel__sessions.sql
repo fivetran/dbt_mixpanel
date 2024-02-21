@@ -140,7 +140,8 @@ session_join as (
         session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
         session_ids.total_number_of_events,
-        agg_event_types.event_frequencies
+        agg_event_types.event_frequencies,
+        {{ mixpanel.date_today('dbt_run_date')}}
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,

@@ -51,7 +51,8 @@ dedupe as (
 pivot_properties as (
 
     select 
-        *
+        *,
+        {{ mixpanel.date_today('dbt_run_date')}},
         {% if var('event_properties_to_pivot') %}
         , {{ fivetran_utils.pivot_json_extract(string = 'event_properties', list_of_properties = var('event_properties_to_pivot')) }}
         {% endif %}

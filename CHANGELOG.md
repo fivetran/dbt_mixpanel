@@ -17,6 +17,7 @@
 ## Feature Updates
 - Added a default 7-day look-back to incremental models to accommodate late arriving events. The numbers of days can be changed by setting the var `lookback_window` in your dbt_project.yml. See the [Lookback Window section of the README](https://github.com/fivetran/dbt_mixpanel/blob/main/README.md#lookback-window) for more details. 
   - Note: this replaces the variable `sessionization_trailing_window`, which was previously used in the `mixpanel__sessions` model. This variable was replaced due to the change in the incremental and lookback strategy. 
+- Added column `dbt_run_date` to incremental models to capture the date a record was added or updated by this package.
 
 # dbt_mixpanel v0.8.0
 >Note: If you run into issues with this update, we suggest to try a **full refresh**.
