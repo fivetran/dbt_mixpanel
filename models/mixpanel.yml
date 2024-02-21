@@ -8,17 +8,21 @@ models:
       
       Default materialization is incremental.
     
-    columns: 
+    columns:
       - name: unique_event_id
-        description: > 
+        description: >
           Unique ID of the event. Events are de-duped according to Mixpanel's [requirements](https://developer.mixpanel.com/reference/http#event-deduplication).
           This is hashed on `insert_id`, `people_id`, `date_day`, and `event_type` 
         tests:
           - unique
           - not_null 
 
+      - name: _fivetran_id
+        description: >
+          Hash of `insert_id`, `distinct_id`, and `name` columns.
+
       - name: insert_id
-        description: > 
+        description: >
           Random 16 character string of alphanumeric characters that is unique to an event. 
           Used to de-duplicate data. 
 
@@ -181,7 +185,10 @@ models:
       
       - name: has_bluetooth_enabled
         description: Boolean that is true if Bluetooth is enabled, false if not.
-  
+
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
+
   - name: mixpanel__daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
@@ -221,7 +228,10 @@ models:
         tests:
           - unique
           - not_null
-    
+        
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
+
   - name: mixpanel__monthly_events
     description: >
       Table of each **event type's** monthly history of activity, as reflected in user retention and event metrics.
@@ -262,6 +272,9 @@ models:
           - unique
           - not_null
 
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
+
   - name: mixpanel__sessions
     description: > 
       Table aggregating events into unique user sessions, according to the `sessionization_inactivity` timeout length.
@@ -299,6 +312,9 @@ models:
       
       - name: user_id
         description: Coalescing of `device_id` and `people_id`.
+
+      - name: dbt_run_date
+        description: The date of the dbt run when the record was added.
 
 macros:
   - name: analyze_funnel

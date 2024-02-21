@@ -1,28 +1,18 @@
-{{
-    config(
-        materialized='table'
-    )
-}}
+{{ config(materialized='view') }}
 
--- using stg_mixpanel__event to look at ALL-TIME events
+-- using source to look at ALL-TIME events
 -- mixpanel__event is cut off by the `date_range_start` variable
-with alltime_events as (
-
-    select *
-    from {{ ref('stg_mixpanel__event') }}
-
-),
-
-first_events as (
+with first_events as (
 
     select 
         people_id,
         event_type,
         min(date_day) as first_event_day
     
-    from alltime_events
+    from {{ ref('stg_mixpanel__event') }}
+    group by 1,2
 
-    group by people_id, event_type
 )
 
-select * from first_events
+select * 
+from first_events

@@ -2,9 +2,14 @@
     config(
         materialized='incremental',
         unique_key='unique_key',
-        partition_by={'field': 'date_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_day'],
-        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
-        file_format = 'delta' 
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "date_day", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['date_day'],
+        cluster_by=['date_day', 'event_type'],
+        file_format='parquet'
     )
 }}
 
@@ -20,13 +25,8 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-
-    -- we look at the most recent 28 days for this model's window functions to compute properly
-    where date_day >= coalesce( ( select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
-                                from {{ this }} ), '2010-01-01')
-
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=27, datepart='day') }}
     {% endif %}
-
 ),
 
 
@@ -36,13 +36,8 @@ date_spine as (
     from {{ ref('stg_mixpanel__user_event_date_spine') }}
 
     {% if is_incremental() %}
-
-    -- look backward for the last 28 days
-    where date_day >= coalesce((select {{ dbt.dateadd(datepart='day', interval=-27, from_date_or_timestamp="max(date_day)") }}  
-                                from {{ this }} ), '2010-01-01')
-
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=27, datepart='day') }}
     {% endif %}
-    
 ), 
 
 agg_user_events as (
@@ -55,7 +50,6 @@ agg_user_events as (
 
     from events
     group by 1,2,3
-    
 ), 
 
 -- join the spine with event metrics
@@ -74,7 +68,6 @@ spine_joined as (
         on agg_user_events.date_day = date_spine.date_day
         and agg_user_events.people_id = date_spine.people_id
         and agg_user_events.event_type = date_spine.event_type
-
 ), 
 
 trailing_events as (
@@ -89,7 +82,6 @@ trailing_events as (
             and number_of_events > 0 as is_repeat_user
 
     from spine_joined
-    
 ), 
 
 agg_event_days as (
@@ -109,7 +101,6 @@ agg_event_days as (
 
     from trailing_events
     group by 1,2
-    
 ),
 
 final as (
@@ -127,18 +118,14 @@ final as (
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
-        event_type || '-' || date_day as unique_key
+        event_type || '-' || date_day as unique_key,
+        {{ mixpanel.date_today('dbt_run_date')}}
 
     from agg_event_days
 
     {% if is_incremental() %}
-
-    -- only return the most recent day of data
-    where date_day >= coalesce( (select max(date_day)  from {{ this }} ), '2010-01-01')
-
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7) + 7, datepart='day') }}
     {% endif %}
-
-    order by date_day desc, event_type
 )
 
 select *

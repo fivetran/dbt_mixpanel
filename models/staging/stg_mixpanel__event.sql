@@ -2,8 +2,9 @@
 
 with events as (
 
-    select * 
-    from {{ ref('stg_mixpanel__event_tmp') }}
+    select 
+        {{ dbt_utils.star(from=source('mixpanel', 'event')) }}
+    from {{ source('mixpanel', 'event') }}
 
 ),
 
@@ -18,7 +19,7 @@ fields as (
         -- columns missing from your source table will be completely NULL   
         {{
             fivetran_utils.fill_staging_columns(
-                source_columns=adapter.get_columns_in_relation(ref('stg_mixpanel__event_tmp')),
+                source_columns=adapter.get_columns_in_relation(source('mixpanel', 'event')),
                 staging_columns=get_event_columns()
             )
         }}

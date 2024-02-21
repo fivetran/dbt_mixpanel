@@ -56,11 +56,13 @@ dispatch:
 ```
 
 ### Database Incremental Strategies 
-Some end models in this package are materialized incrementally. We currently use the `merge` strategy as the default strategy for BigQuery, Snowflake, and Databricks databases. For Redshift and Postgres databases, we use `delete+insert` as the default strategy.
+Many of the end models in this package are materialized incrementally, so we have configured our models to work with the different strategies available to each supported warehouse.
 
-We recognize there are some limitations with these strategies, particularly around updated records in the past which cause duplicates, and are assessing using a different strategy in the future.
+For **BigQuery** and **Databricks** destinations, we have chosen `insert_overwrite` as the default strategy, which benefits from the partitioning capability. 
 
-> For either of these strategies, we highly recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
+For **Snowflake**, **Redshift**, and **Postgres** databases, we have chosen `delete+insert` as the default strategy.  
+
+> Regardless of strategy, we recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
 
 ## Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
@@ -69,7 +71,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.8.0", "<0.9.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.9.0", "<0.10.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 ## Step 3: Define database and schema variables
@@ -82,7 +84,6 @@ vars:
 ```
 
 ## (Optional) Step 4: Additional configurations
-<details><summary>Expand for configurations</summary>
 
 ## Macros
 ### analyze_funnel [(source)](https://github.com/fivetran/dbt_mixpanel/blob/master/macros/analyze_funnel.sql)
@@ -98,7 +99,7 @@ The macro takes the following as arguments:
 - `event_funnel`: List of event types (not case sensitive). 
   - Example: `'['play_song', 'stop_song', 'exit']`
 - `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel__event` model). The default value is `None`. 
-  - Examaple: `group_by_column = 'country_code'`.
+  - Example: `group_by_column = 'country_code'`.
 - `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel__event`. 
   - Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
@@ -199,15 +200,13 @@ vars:
     session_event_criteria: 'event_type in ("play_song", "stop_song", "create_playlist")'
 ```
 
-#### Session Trailing Window
-Events can sometimes come late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. This makes sessionizing a bit trickier/costlier, as the sessions model (and all final models in this package) is materialized as an incremental table. 
-
-Therefore, to avoid requiring a full refresh to incorporate these delayed events into sessions, the package by default re-sessionizes the most recent 3 hours of events on each run. To change this, add the following variable to your `dbt_project.yml` file:
+#### Lookback Window
+Events can sometimes arrive late. For example, events triggered on a mobile device that is offline will be sent to Mixpanel once the device reconnects to wifi or a cell network. Since many of the models in this package are incremental, by default we look back 7 days to ensure late arrivals are captured while avoiding requiring a full refresh. To change the default lookback window, add the following variable to your `dbt_project.yml` file:
 
 ```yml
 vars:
   mixpanel:
-    sessionization_trailing_window: number_of_hours # ex: 12
+    lookback_window: number_of_days # default is 7
 ```
 
 ### Changing the Build Schema
@@ -224,7 +223,7 @@ models:
 ### Change the source table references
 If an individual source table has a different name than the package expects, add the table name as it appears in your destination to the respective variable:
 
-> IMPORTANT: See this project's [`dbt_project.yml`](https://github.com/fivetran/dbt_mixpanel_source/blob/main/dbt_project.yml) variable declarations to see the expected names.
+> IMPORTANT: See this project's [`dbt_project.yml`](https://github.com/fivetran/dbt_mixpanel/blob/main/dbt_project.yml) variable declarations to see the expected names.
 
 ```yml
 vars:
@@ -240,8 +239,6 @@ Events are considered duplicates and consolidated by the package if they contain
 * calendar date of occurrence (event timestamps are set in the timezone the Mixpanel project is configured to)
 
 This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
-
-</details>
 
 ## (Optional) Step 5: Orchestrate your models with Fivetran Transformations for dbt Core™
 <details><summary>Expand for details</summary>

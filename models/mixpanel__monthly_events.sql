@@ -2,9 +2,14 @@
     config(
         materialized='incremental',
         unique_key='unique_key',
-        partition_by={'field': 'date_month', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['date_month'],
-        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
-        file_format = 'delta' 
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "date_month", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['date_month'],
+        cluster_by=['date_month', 'event_type'],
+        file_format='parquet'
     )
 }}
 
@@ -20,12 +25,7 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-
-    -- look backward one month for churn/retention
-    where occurred_at >= coalesce( (select cast ( 
-                        {{ dbt.dateadd(datepart='month', interval=-1, from_date_or_timestamp="max(date_month)") }} as {{ dbt.type_timestamp() }} ) 
-                        from {{ this }} ) ,'2010-01-01')
-
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=1) }}
     {% endif %}
 ),
 
@@ -34,11 +34,21 @@ month_totals as (
     select 
         date_month,
         count(distinct people_id) as total_monthly_active_users
-
     from events
-
-    group by date_month
+    group by 1
 ),
+
+sub as (
+-- aggregate number of events to the month
+        select
+            people_id,
+            event_type,
+            date_month,
+            count(unique_event_id) as number_of_events
+
+        from events
+        group by 1,2,3
+), 
 
 user_monthly_events as (
 
@@ -50,17 +60,7 @@ user_monthly_events as (
         -- last month that the user performed this kind of event during
         lag(date_month, 1) over(partition by people_id, event_type order by date_month asc) previous_month_with_event
 
-    from (
-        -- aggregate number of events to the month
-        select
-            people_id,
-            event_type,
-            date_month,
-            count(unique_event_id) as number_of_events
-
-        from events
-        group by 1,2,3
-    ) as sub
+    from sub
 ),
 
 monthly_metrics as (
@@ -84,8 +84,6 @@ monthly_metrics as (
             then user_monthly_events.people_id end) as number_of_return_users,
 
         sum(user_monthly_events.number_of_events) as number_of_events
-        
-
 
     from user_monthly_events
         left join month_totals using(date_month)
@@ -101,17 +99,10 @@ final as (
         -- subtract the returned users from the previous month's total users to get the # churned
         -- note: churned users refer to users who did something last month and not this month
         coalesce(lag(number_of_users, 1) over(partition by event_type order by date_month asc) - number_of_repeat_users, 0) as number_of_churn_users,
-
-        date_month || '-' || event_type as unique_key -- for incremental model :)
+        date_month || '-' || event_type as unique_key, -- for incremental model :)
+        {{ mixpanel.date_today('dbt_run_date')}}
 
     from monthly_metrics
-
-    {% if is_incremental() %}
-
-    -- only return the most recent month
-    where date_month >= coalesce((select max(date_month) from {{ this }}), '2010-01-01')
-
-    {% endif %}
 )
 
 select * from final

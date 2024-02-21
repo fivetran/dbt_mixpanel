@@ -2,9 +2,14 @@
     config(
         materialized='incremental',
         unique_key='session_id',
-        partition_by={'field': 'session_started_on_day', 'data_type': 'date'} if target.type not in ('spark','databricks') else ['session_started_on_day'],
-        incremental_strategy = 'merge' if target.type not in ('postgres', 'redshift') else 'delete+insert',
-        file_format = 'delta' 
+        incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
+        partition_by={
+            "field": "session_started_on_day", 
+            "data_type": "date"
+            } if target.type not in ('spark','databricks') 
+            else ['session_started_on_day'],
+        cluster_by=['session_started_on_day'],
+        file_format='parquet'
     )
 }}
 
@@ -38,16 +43,8 @@ with events as (
         select distinct coalesce(device_id, people_id)
         from {{ ref('mixpanel__event') }}
 
-        -- events can come in late and we want to still be able to incorporate them
-        -- in the sessionization without requiring a full refresh
-        where occurred_at >= cast (coalesce((
-          select
-            {{ dbt.dateadd(
-                'hour',
-                -var('sessionization_trailing_window', 3),
-                'max(session_started_at)'
-            ) }}
-          from {{ this }} ), '2010-01-01') as {{ dbt.type_timestamp() }} )
+        where cast(occurred_at as date) >= 
+        {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
     )
 
     {% endif %}
@@ -101,9 +98,18 @@ session_ids as (
         count(unique_event_id) over (partition by user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
         count(unique_event_id) over (partition by user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
 
-
     from session_numbers
+),
 
+sub as (
+
+    select
+        session_id,
+        event_type,
+        count(unique_event_id) as number_of_events
+
+    from session_ids
+    group by 1, 2
 ),
 
 agg_event_types as (
@@ -120,17 +126,8 @@ agg_event_types as (
         '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}'
         {% endif %} as event_frequencies
     
-    from (
-
-        select
-            session_id,
-            event_type,
-            count(unique_event_id) as number_of_events
-
-        from session_ids
-        group by session_id, event_type
-    
-    ) as sub group by session_id
+    from sub
+    group by 1
 ), 
 
 session_join as (
@@ -143,7 +140,8 @@ session_join as (
         session_ids.user_id, -- coalescing of device_id and peeople_id
         session_ids.device_id,
         session_ids.total_number_of_events,
-        agg_event_types.event_frequencies
+        agg_event_types.event_frequencies,
+        {{ mixpanel.date_today('dbt_run_date')}}
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,
@@ -151,10 +149,14 @@ session_join as (
         {% endif %}
     
     from session_ids
-    join agg_event_types using(session_id) -- join regardless of event type 
+    join agg_event_types -- join regardless of event type 
+        on agg_event_types.session_id = session_ids.session_id
 
     where session_ids.is_new_session = 1 -- only return fields of first event
 
+    {% if is_incremental() %}
+    and session_started_on_day >= {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
+    {% endif %}
 )
 
 select * from session_join

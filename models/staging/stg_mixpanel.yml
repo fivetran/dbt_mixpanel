@@ -5,8 +5,12 @@ models:
     description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
     columns: 
+      - name: _fivetran_id
+        description: >
+          Hash of `insert_id`, `distinct_id`, and `name` columns.
+
       - name: insert_id
-        description: > 
+        description: >
           Random 16 character string of alphanumeric characters that is unique to an event. 
           Used to de-duplicate data. 
 
@@ -209,8 +213,3 @@ models:
 
       - name: first_event_day
         description: Calendar date of the first time
-
-  - name: stg_mixpanel__event_tmp
-    description: >
-      View that simply selects * from the source table. It is only used for the fivetran_utils.fill_staging_columns() macro,
-      which requires a model to `ref()`. 
