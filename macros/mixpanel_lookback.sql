@@ -6,30 +6,13 @@
 
 {% macro default__mixpanel_lookback(from_date, datepart, interval, safety_date='2010-01-01')  %}
 
-    coalesce(
-        (select {{ dbt.dateadd(datepart=datepart, interval=-interval, from_date_or_timestamp=from_date) }} 
-            from {{ this }}), 
-        {{ "'" ~ safety_date ~ "'" }}
-        )
+    {% set sql_statement %}
+        select coalesce({{ from_date }}, {{ "'" ~ safety_date ~ "'" }})
+        from {{ this }}
+    {%- endset -%}
 
-{% endmacro %}
+    {%- set result = dbt_utils.get_single_value(sql_statement) %}
 
-{% macro bigquery__mixpanel_lookback(from_date, datepart, interval, safety_date='2010-01-01')  %}
-
-    -- Capture the latest timestamp in a call statement instead of a subquery for optimizing BQ costs on incremental runs
-    {%- call statement('date_agg', fetch_result=True) -%}
-        select {{ from_date }} from {{ this }}
-    {%- endcall -%}
-
-    -- load the result from the above query into a new variable
-    {%- set query_result = load_result('date_agg') -%}
-
-    -- the query_result is stored as a dataframe. Therefore, we want to now store it as a singular value.
-    {%- set date_agg = query_result['data'][0][0] %}
-
-    coalesce(
-        {{ dbt.dateadd(datepart=datepart, interval=-interval, from_date_or_timestamp="'" ~ date_agg ~ "'") }}, 
-        {{ "'" ~ safety_date ~ "'" }}
-        )
+    {{ dbt.dateadd(datepart=datepart, interval=-interval, from_date_or_timestamp="cast('" ~ result ~ "' as date)") }}
 
 {% endmacro %}
