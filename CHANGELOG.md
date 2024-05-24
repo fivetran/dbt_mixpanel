@@ -1,3 +1,8 @@
+# dbt_mixpanel VERSION
+
+## Under the hood
+- Updated logic for macro `mixpanel_lookback` to align with logic used in similar macros in other packages. 
+
 # dbt_mixpanel v0.9.0
 [PR #41](https://github.com/fivetran/dbt_mixpanel/pull/41) includes the following updates:
 
