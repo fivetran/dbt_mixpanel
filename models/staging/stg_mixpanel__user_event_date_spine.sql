@@ -9,7 +9,7 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type', 'people_id'],
-        file_format='parquet'
+        file_format='delta'
     )
 }}
 

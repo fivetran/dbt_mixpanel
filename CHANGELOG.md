@@ -1,3 +1,15 @@
+# dbt_mixpanel v0.10.0
+
+[PR #46](https://github.com/fivetran/dbt_mixpanel/pull/46) includes the following updates:
+
+## 🚨 Breaking Changes 🚨
+> ⚠️ Since the following changes result in the table format changing, we recommend running a `--full-refresh` after upgrading to this version to avoid possible incremental failures.
+
+## Under the Hood
+- The `is_databricks_sql_warehouse` macro has been renamed to `is_incremental_compatible` and has been modified to return `true` if the Databricks runtime being used is an all-purpose cluster (previously this macro checked if a sql warehouse runtime was used) **or** if any other non-Databricks supported destination is being used.
+  - This update was applied as there have been other Databricks runtimes discovered (ie. an endpoint and external runtime) which do not support the `insert_overwrite` incremental strategy used in the `mixpanel__` model. 
+- In addition to the above, for Databricks users the `mixpanel__` model will now leverage the incremental strategy only if the Databricks runtime is all-purpose. Otherwise, all other Databricks runtimes will not leverage an incremental strategy.
+
 # dbt_mixpanel v0.9.0
 [PR #41](https://github.com/fivetran/dbt_mixpanel/pull/41) includes the following updates:
 
