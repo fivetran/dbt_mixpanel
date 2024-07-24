@@ -1,11 +1,17 @@
 name: 'mixpanel_integration_tests'
-version: '0.9.0'
+version: '0.10.0'
 config-version: 2
 profile: 'integration_tests'
+
+models:
+  mixpanel:
+    +schema: "{{ 'mixpanel_sqlw_tests' if target.name == 'databricks-sql' else 'mixpanel' }}"
+
 vars:
   mixpanel_schema: mixpanel_integration_tests_2
   mixpanel:
     mixpanel_event_identifier: "event"
+
 seeds:
   mixpanel_integration_tests:
     +column_types:

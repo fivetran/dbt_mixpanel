@@ -16,9 +16,19 @@ db=$1
 echo `pwd`
 cd integration_tests
 dbt deps
+if [ "$db" = "databricks-sql" ]; then
+dbt seed --vars '{mixpanel_schema: mixpanel_sqlw_tests}' --target "$db" --full-refresh
+dbt compile --vars '{mixpanel_schema: mixpanel_sqlw_tests}' --target "$db"
+dbt run --vars '{mixpanel_schema: mixpanel_sqlw_tests}' --target "$db" --full-refresh
+dbt test --vars '{mixpanel_schema: mixpanel_sqlw_tests}' --target "$db"
+dbt run --vars '{mixpanel_schema: mixpanel_sqlw_tests}' --target "$db"
+dbt test --vars '{mixpanel_schema: mixpanel_sqlw_tests}' --target "$db"
+else
 dbt seed --target "$db" --full-refresh
+dbt compile --target "$db"
 dbt run --target "$db" --full-refresh
 dbt test --target "$db"
 dbt run --target "$db"
 dbt test --target "$db"
+fi
 dbt run-operation fivetran_utils.drop_schemas_automation --target "$db"

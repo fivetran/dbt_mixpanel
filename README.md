@@ -56,14 +56,14 @@ dispatch:
 ```
 
 ### Database Incremental Strategies 
-Many of the end models in this package are materialized incrementally, so we have configured our models to work with the different strategies available to each supported warehouse.
+Many of the models in this package are materialized incrementally, so we have configured our models to work with the different strategies available to each supported warehouse.
 
-For **BigQuery** and **Databricks** destinations, we have chosen `insert_overwrite` as the default strategy, which benefits from the partitioning capability. 
+For **BigQuery** and **Databricks All Purpose Cluster runtime** destinations, we have chosen `insert_overwrite` as the default strategy, which benefits from the partitioning capability. 
+> For Databricks SQL Warehouse destinations, models are materialized as tables without support for incremental runs.
 
 For **Snowflake**, **Redshift**, and **Postgres** databases, we have chosen `delete+insert` as the default strategy.  
 
 > Regardless of strategy, we recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
-
 ## Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
 > TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
@@ -71,7 +71,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.9.0", "<0.10.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.10.0", "<0.11.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 ## Step 3: Define database and schema variables
@@ -84,6 +84,7 @@ vars:
 ```
 
 ## (Optional) Step 4: Additional configurations
+<details open><summary>Collapse/expand details</summary>
 
 ## Macros
 ### analyze_funnel [(source)](https://github.com/fivetran/dbt_mixpanel/blob/master/macros/analyze_funnel.sql)
@@ -239,6 +240,7 @@ Events are considered duplicates and consolidated by the package if they contain
 * calendar date of occurrence (event timestamps are set in the timezone the Mixpanel project is configured to)
 
 This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
+</details>
 
 ## (Optional) Step 5: Orchestrate your models with Fivetran Transformations for dbt Core™
 <details><summary>Expand for details</summary>

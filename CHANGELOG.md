@@ -1,6 +1,18 @@
-# dbt_mixpanel VERSION
+# dbt_mixpanel v0.10.0
 
-## Under the hood
+[PR #48](https://github.com/fivetran/dbt_mixpanel/pull/48) includes the following updates:
+
+## 🚨 Breaking Changes 🚨
+> ⚠️ Since the following changes result in the table format changing, we recommend running a `--full-refresh` after upgrading to this version to avoid possible incremental failures.
+
+- For Databricks All-Purpose clusters, incremental models will now be materialized using the delta table format (previously parquet).
+  - Delta tables are generally more performant than parquet and are also more widely available for Databricks users. This will also prevent compilation issues on customers' managed tables.
+
+- For Databricks SQL Warehouses, incremental materialization will not be used due to the incompatibility of the `insert_overwrite` strategy.
+
+## Under the Hood
+- The `is_databricks_sql_warehouse` has been added to return `true` if the Databricks runtime being used is an all-purpose cluster  **or** if any other Databricks non-supported destination is being used.
+  - This update was applied as there have been other Databricks runtimes discovered (ie. an endpoint and external runtime) which do not support the `insert_overwrite` incremental strategy used. 
 - Updated logic for macro `mixpanel_lookback` to align with logic used in similar macros in other packages. 
 
 # dbt_mixpanel v0.9.0
