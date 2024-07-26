@@ -6,12 +6,12 @@
 -- this test is to make sure the rows counts are the same between versions
 with prod as (
     select count(*) as prod_rows
-    from {{ target.schema }}_hubspot_prod.hubspot__monthly_events
+    from {{ target.schema }}_mixpanel_prod.mixpanel__monthly_events
 ),
 
 dev as (
     select count(*) as dev_rows
-    from {{ target.schema }}_hubspot_dev.hubspot__monthly_events
+    from {{ target.schema }}_mixpanel_dev.mixpanel__monthly_events
 )
 
 -- test will return values and fail if the row counts don't match
