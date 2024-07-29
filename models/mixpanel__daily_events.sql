@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='incremental' if is_incremental_compatible() else 'table',
+        materialized='incremental' if mixpanel.is_incremental_compatible() else 'table',
         unique_key='unique_key',
         incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
         partition_by={

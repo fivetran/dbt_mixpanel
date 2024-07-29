@@ -1,6 +1,6 @@
 # dbt_mixpanel v0.10.0
 
-[PR #48](https://github.com/fivetran/dbt_mixpanel/pull/48) includes the following updates:
+[PR #49](https://github.com/fivetran/dbt_mixpanel/pull/49) includes the following updates:
 
 ## 🚨 Breaking Changes 🚨
 > ⚠️ Since the following changes result in the table format changing, we recommend running a `--full-refresh` after upgrading to this version to avoid possible incremental failures.
@@ -11,7 +11,7 @@
 - For Databricks SQL Warehouses, incremental materialization will not be used due to the incompatibility of the `insert_overwrite` strategy.
 
 ## Under the Hood
-- The `is_incremental_compatible` macro has been added to return `true` if the target warehouse supports our chosen incremental strategy.
+- The `is_incremental_compatible` macro has been added and will return `true` if the target warehouse supports our chosen incremental strategy.
   - This update was applied as there have been other Databricks runtimes discovered (ie. an endpoint and external runtime) which do not support the `insert_overwrite` incremental strategy used. 
 - Added integration testing for Databricks SQL Warehouse.
 - Added consistency tests for models:
