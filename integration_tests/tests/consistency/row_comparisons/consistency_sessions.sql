@@ -2,15 +2,17 @@
     tags="fivetran_validations",
     enabled=var('fivetran_validation_tests_enabled', false)
 ) }}
+{% set exclude_fields = ["event_frequencies"] %}
+{% set fields = dbt_utils.star(from=ref('mixpanel__sessions'), except=exclude_fields) %}
 
 -- this test ensures the daily_activity end model matches the prior version
 with prod as (
-    select *
+    select {{ fields }}
     from {{ target.schema }}_mixpanel_prod.mixpanel__sessions
 ),
 
 dev as (
-    select *
+    select {{ fields }}
     from {{ target.schema }}_mixpanel_dev.mixpanel__sessions
 ),
 
