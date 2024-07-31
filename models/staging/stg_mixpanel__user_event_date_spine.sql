@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='incremental',
+        materialized='incremental' if mixpanel.is_incremental_compatible() else 'table',
         unique_key='unique_key',
         incremental_strategy='insert_overwrite' if target.type in ('bigquery', 'spark', 'databricks') else 'delete+insert',
         partition_by={
@@ -9,7 +9,7 @@
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
         cluster_by=['date_day', 'event_type', 'people_id'],
-        file_format='parquet'
+        file_format='delta'
     )
 }}
 
