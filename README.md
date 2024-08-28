@@ -19,18 +19,18 @@
 - Produces modeled tables that leverage Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://fivetran.com/docs/applications/mixpanel#schemainformation).
 
 - Enables you to better understand user activity and retention through your event data. It:
-- Creates both a daily and monthly timeline of each type of event, complete with metrics about user activity, retention, resurrection, and churn
-- Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
-- Provides a macro to easily create an event funnel
-- De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
-- Pivots out custom event properties from JSONs into an enriched events table
+  - Creates both a daily and monthly timeline of each type of event, complete with metrics about user activity, retention, resurrection, and churn
+  - Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
+  - Provides a macro to easily create an event funnel
+  - De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
+  - Pivots out custom event properties from JSONs into an enriched events table
 
 <!--section="mixpanel_transformation_model-->
 - Generates a comprehensive data dictionary of your source and modeled Mixpanel data through the [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview).
-The following table provides a detailed list of all models materialized within this package by default.
-> TIP: See more details about these models in the package's [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1).
+The following table provides a detailed list of all tables materialized within this package by default.
+> TIP: See more details about these tables in the package's [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1).
 
-| **Model**                | **Description**                                                                                                                                |
+| **Table**                | **Description**                                                                                                                                |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | [mixpanel__event](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__event)             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
 | [mixpanel__daily_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__daily_events)             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
@@ -98,11 +98,11 @@ It returns the following:
 
 The macro takes the following as arguments:
 - `event_funnel`: List of event types (not case sensitive).
-- Example: `'['play_song', 'stop_song', 'exit']`
+  - Example: `'['play_song', 'stop_song', 'exit']`
 - `group_by_column`: (Optional) A column by which you want to segment the funnel (this macro pulls data from the `mixpanel__event` model). The default value is `None`.
-- Example: `group_by_column = 'country_code'`.
+  - Example: `group_by_column = 'country_code'`.
 - `conversion_criteria`: (Optional) A `WHERE` clause that will be applied when selecting from `mixpanel__event`.
-- Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
+  - Example: To limit all events in the funnel to the United States, you'd provide `conversion_criteria = 'country_code = "US"'`. To limit the events to only song play events to the US, you'd input `conversion_criteria = 'country_code = "US"' OR event_type != 'play_song'`.
 
 #### Pivoting Out Event Properties
 By default, this package selects the [default columns collected by Mixpanel](https://help.mixpanel.com/hc/en-us/articles/115004613766-What-properties-do-Mixpanel-s-libraries-store-by-default-). However, you likely have custom properties or columns that you'd like to include in the `mixpanel__event` model.
