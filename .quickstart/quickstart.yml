@@ -8,3 +8,10 @@ destination_configurations:
     dispatch:
       - macro_namespace: dbt_utils
         search_order: [ 'spark_utils', 'dbt_utils' ]
+
+public_models: [
+  "mixpanel__daily_events",
+  "mixpanel__sessions",
+  "mixpanel__monthly_events",
+  "mixpanel__event"
+]
