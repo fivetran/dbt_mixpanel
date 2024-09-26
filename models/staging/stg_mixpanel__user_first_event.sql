@@ -6,6 +6,7 @@ with first_events as (
 
     select 
         people_id,
+        source_relation,
         event_type,
         min(date_day) as first_event_day
     

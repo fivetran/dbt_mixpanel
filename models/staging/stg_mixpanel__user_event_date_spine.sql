@@ -52,6 +52,7 @@ user_event_spine as (
     from spine
     join user_first_events
         on spine.date_day >= user_first_events.first_event_day -- each user-event_type will a record for every day since their first day
+        and spine.source_relation = user_first_events.source_relation
     group by 1,2,3,4,5
     
 )
