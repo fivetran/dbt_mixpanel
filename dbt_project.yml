@@ -1,6 +1,6 @@
 config-version: 2
 name: 'mixpanel'
-version: '0.10.0'
+version: '0.11.0'
 require-dbt-version: [">=1.3.0", "<2.0.0"]
 models:
   mixpanel:
@@ -9,6 +9,8 @@ models:
       +schema: stg_mixpanel
 vars:
   mixpanel:
+    mixpanel_database: analytics
+    mixpanel_union_schemas: [mixpanel_prod_firm, mixpanel_prod_provider]
     event_table: "{{ source('mixpanel', 'event') }}"
     mixpanel__event_frequency_limit: 1000
     date_range_start: '2010-01-01'  # mostly global filter placed on mixpanel__event to limit the date range. does not apply to stg_mixpanel__event and stg_mixpanel__user_first_event
