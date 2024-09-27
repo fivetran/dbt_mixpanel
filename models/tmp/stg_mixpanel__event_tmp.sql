@@ -1,0 +1,12 @@
+{{
+    fivetran_utils.union_data(
+        table_identifier='event', 
+        database_variable='mixpanel_database', 
+        schema_variable='mixpanel_schema', 
+        default_database=target.database,
+        default_schema='mixpanel',
+        default_variable='event',
+        union_schema_variable='mixpanel_union_schemas',
+        union_database_variable='mixpanel_union_databases'
+    )
+}}

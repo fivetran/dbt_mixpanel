@@ -1,3 +1,6 @@
+# dbt_mixpanel v0.11.0
+- Added `union_schemas` support
+
 # dbt_mixpanel v0.10.0
 
 [PR #49](https://github.com/fivetran/dbt_mixpanel/pull/49) includes the following updates:
