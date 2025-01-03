@@ -1,9 +1,9 @@
 # dbt_mixpanel v0.11.0
-[PR #53](https://github.com/fivetran/dbt_mixpanel/pull/53) and [PR #54](https://github.com/fivetran/dbt_mixpanel/pull/54) include the following updates:
+[PR #53](https://github.com/fivetran/dbt_mixpanel/pull/53) and [PR #55](https://github.com/fivetran/dbt_mixpanel/pull/55) include the following updates:
 
 ## Feature Update: Run Package on Unioned Connectors
 - This release supports running the package on multiple Mixpanel sources at once! See the [README](https://github.com/fivetran/dbt_mixpanel?tab=readme-ov-file#step-3-define-database-and-schema-variables) for details on how to leverage this feature. 
-  - This was achieved through the introduction of new unioning macros.
+  - This was achieved through the introduction of new unioning [macros](https://github.com/fivetran/dbt_mixpanel/tree/main/macros/union).
 
 > Please note: This is a **Breaking Change** in that we have a added a new field, `source_relation`, that points to the source connector from which the record originated. This will **require running a full refresh**.
 

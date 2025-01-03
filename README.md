@@ -131,7 +131,7 @@ sources:
         columns: # copy and paste from mixpanel/models/staging/src_mixpanel.yml - see https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/ for how to use anchors to only do so once
 ```
 
-1. Set the `has_defined_sources` variable (scoped to the `mixpanel` package) to `True`, like such:
+2. Set the `has_defined_sources` variable (scoped to the `mixpanel` package) to `True`, like such:
 ```yml
 # dbt_project.yml
 vars:

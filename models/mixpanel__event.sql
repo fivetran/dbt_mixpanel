@@ -38,7 +38,7 @@ dupes as (
         -- aligned with mixpanel' s deduplication method: https://developer.mixpanel.com/reference/http#event-deduplication
         -- de-duping on calendar day + insert_id but also on people_id + event_type to reduce the rate of false positives 
         -- using calendar day as mixpanel de-duplicates events at the end of each day
-        row_number() over(partition by insert_id, people_id, event_type, date_day, source_relation order by mp_processing_time_ms asc) as nth_event_record
+        row_number() over(partition by insert_id, people_id, event_type, date_day {{ ', source_relation' if var('mixpanel_sources')|length > 1 }} order by mp_processing_time_ms asc) as nth_event_record
         
         from stg_event
 
