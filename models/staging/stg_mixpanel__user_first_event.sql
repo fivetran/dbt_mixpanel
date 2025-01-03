@@ -6,11 +6,12 @@ with first_events as (
 
     select 
         people_id,
+        source_relation,
         event_type,
         min(date_day) as first_event_day
     
     from {{ ref('stg_mixpanel__event') }}
-    group by 1,2
+    group by 1,2,3
 
 )
 

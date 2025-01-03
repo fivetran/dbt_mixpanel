@@ -3,8 +3,8 @@
 with events as (
 
     select 
-        {{ dbt_utils.star(from=source('mixpanel', 'event')) }}
-    from {{ source('mixpanel', 'event') }}
+        {{ dbt_utils.star(from=ref('stg_mixpanel__event_tmp')) }}
+    from {{ ref('stg_mixpanel__event_tmp') }}
 
 ),
 
@@ -24,6 +24,11 @@ fields as (
             )
         }}
 
+        {{ fivetran_utils.source_relation(
+            union_schema_variable='mixpanel_union_schemas', 
+            union_database_variable='mixpanel_union_databases') 
+        }}
+        
         -- custom properties as specified in your dbt_project.yml
         {{ fivetran_utils.fill_pass_through_columns('event_custom_columns') }}
         

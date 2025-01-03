@@ -8,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['date_day'],
-        cluster_by=['date_day', 'event_type', 'people_id'],
+        cluster_by=['date_day', 'event_type', 'people_id', 'source_relation'],
         file_format='delta'
     )
 }}
@@ -42,6 +42,7 @@ user_event_spine as (
     select
         cast(spine.date_day as date) as date_day,
         user_first_events.people_id,
+        user_first_events.source_relation,
         user_first_events.event_type,
 
         -- will use this in mixpanel__daily_events
@@ -52,7 +53,7 @@ user_event_spine as (
     from spine
     join user_first_events
         on spine.date_day >= user_first_events.first_event_day -- each user-event_type will a record for every day since their first day
-    group by 1,2,3,4,5
+    group by 1,2,3,4,5,6
     
 )
 
