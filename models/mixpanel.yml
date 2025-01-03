@@ -12,14 +12,14 @@ models:
       - name: unique_event_id
         description: >
           Unique ID of the event. Events are de-duped according to Mixpanel's [requirements](https://developer.mixpanel.com/reference/http#event-deduplication).
-          This is hashed on `insert_id`, `people_id`, `date_day`, and `event_type` 
+          This is hashed on `insert_id`, `people_id`, `date_day`, `source_relation`, and `event_type` 
         tests:
           - unique
           - not_null 
 
       - name: _fivetran_id
         description: >
-          Hash of `insert_id`, `distinct_id`, and `name` columns.
+          Hash of `insert_id`, `distinct_id`, `source_relation`, and `name` columns.
 
       - name: insert_id
         description: >
@@ -189,6 +189,10 @@ models:
       - name: dbt_run_date
         description: The date of the dbt run when the record was added.
 
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.
+
   - name: mixpanel__daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.
@@ -231,6 +235,10 @@ models:
         
       - name: dbt_run_date
         description: The date of the dbt run when the record was added.
+
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.
 
   - name: mixpanel__monthly_events
     description: >
@@ -275,6 +283,10 @@ models:
       - name: dbt_run_date
         description: The date of the dbt run when the record was added.
 
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.
+
   - name: mixpanel__sessions
     description: > 
       Table aggregating events into unique user sessions, according to the `sessionization_inactivity` timeout length.
@@ -315,6 +327,10 @@ models:
 
       - name: dbt_run_date
         description: The date of the dbt run when the record was added.
+
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.
 
 macros:
   - name: analyze_funnel

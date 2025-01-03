@@ -64,6 +64,7 @@ For **BigQuery** and **Databricks All Purpose Cluster runtime** destinations, we
 For **Snowflake**, **Redshift**, and **Postgres** databases, we have chosen `delete+insert` as the default strategy.
 
 > Regardless of strategy, we recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
+
 ### Step 2: Install the package
 Include the following mixpanel package version in your `packages.yml` file:
 > TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
@@ -71,16 +72,71 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.10.0", "<0.11.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.11.0", "<0.12.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 ### Step 3: Define database and schema variables
+#### Option A: Single connector
 By default, this package runs using your destination and the `mixpanel` schema. If this is not where your Mixpanel data is (for example, if your Mixpanel schema is named `mixpanel_fivetran`), add the following configuration to your root `dbt_project.yml` file:
 
 ```yml
 vars:
     mixpanel_database: your_database_name
     mixpanel_schema: your_schema_name 
+```
+
+#### Option B: Union multiple connectors
+If you have multiple Mixpanel connectors in Fivetran and would like to use this package on all of them simultaneously, we have provided functionality to do so. For each source table, the package will union all of the data together and pass the unioned table into the transformations. The `source_relation` column in each model indicates the origin of each record.
+
+To use this functionality, you will need to set the `mixpanel_sources` variable in your root `dbt_project.yml` file:
+
+```yml
+# dbt_project.yml
+
+vars:
+  mixpanel_sources:
+    - database: connector_1_destination_name # Required
+      schema: connector_1_schema_name # Rquired
+      name: connector_1_source_name # Required only if following the step in the following subsection
+
+    - database: connector_2_destination_name
+      schema: connector_2_schema_name
+      name: connector_2_source_name
+```
+
+##### Recommended: Incorporate unioned sources into DAG
+> *If you are running the package through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt#transformationsfordbtcore), the below step is necessary in order to synchronize model runs with your Mixpanel connectors. Alternatively, you may choose to run the package through Fivetran [Quickstart](https://fivetran.com/docs/transformations/quickstart), which would create separate sets of models for each Mixpanel source rather than one set of unioned models.*
+
+By default, this package defines one single-connector source, called `mixpanel`, which will be disabled if you are unioning multiple connectors. This means that your DAG will not include your Mixpanel sources, though the package will run successfully.
+
+To properly incorporate all of your Mixpanel connectors into your project's DAG:
+1. Define each of your sources in a `.yml` file in your project. Utilize the following template for the `source`-level configurations, and, **most importantly**, copy and paste the table and column-level definitions from the package's `src_mixpanel.yml` [file](https://github.com/fivetran/dbt_mixpanel/blob/main/models/staging/src_mixpanel.yml). This package currently only uses the `EVENT` source table.
+
+```yml
+# a .yml file in your root project
+sources:
+  - name: <name> # ex: Should match name in mixpanel_sources
+    schema: <schema_name>
+    database: <database_name>
+    loader: fivetran
+    loaded_at_field: _fivetran_synced
+      
+    freshness: # feel free to adjust to your liking
+      warn_after: {count: 72, period: hour}
+      error_after: {count: 168, period: hour}
+
+    tables: 
+      - name: event
+        description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
+        columns: # copy and paste from mixpanel/models/staging/src_mixpanel.yml - see https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/ for how to use anchors to only do so once
+```
+
+1. Set the `has_defined_sources` variable (scoped to the `mixpanel` package) to `True`, like such:
+```yml
+# dbt_project.yml
+vars:
+  mixpanel:
+    has_defined_sources: true
 ```
 
 ### (Optional) Step 4: Additional configurations

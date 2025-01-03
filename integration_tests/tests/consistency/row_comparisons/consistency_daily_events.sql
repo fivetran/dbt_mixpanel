@@ -5,12 +5,12 @@
 
 -- this test ensures the daily_activity end model matches the prior version
 with prod as (
-    select *
+    select * except(unique_key)
     from {{ target.schema }}_mixpanel_prod.mixpanel__daily_events
 ),
 
 dev as (
-    select *
+    select * except(source_relation, unique_key)
     from {{ target.schema }}_mixpanel_dev.mixpanel__daily_events
 ),
 

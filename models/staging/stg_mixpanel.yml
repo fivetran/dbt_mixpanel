@@ -7,7 +7,7 @@ models:
     columns: 
       - name: _fivetran_id
         description: >
-          Hash of `insert_id`, `distinct_id`, and `name` columns.
+          Hash of `insert_id`, `distinct_id`, `name`, and `source_relation` columns.
 
       - name: insert_id
         description: >
@@ -174,6 +174,10 @@ models:
       - name: has_bluetooth_enabled
         description: Boolean that is true if Bluetooth is enabled, false if not.
 
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.
+
   - name: stg_mixpanel__user_event_date_spine
     description: >
       Incrementally materialized table relating each user-event_type combination to a calendar day (starting
@@ -196,10 +200,14 @@ models:
           day.
 
       - name: unique_key
-        description: Unique key used for the incremental model configuration. Hashed on `people_id`, `event_type`, and `date_day`.
+        description: Unique key used for the incremental model configuration. Hashed on `people_id`, `event_type`, `source_relation`, and `date_day`.
         tests:
           - unique
           - not_null
+      
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.
 
   - name: stg_mixpanel__user_first_event
     description: Table in which each row represents the first day a user performed a type of event.
@@ -213,3 +221,7 @@ models:
 
       - name: first_event_day
         description: Calendar date of the first time
+
+      - name: source_relation
+        description: >
+          The `<datbase>`.`<schema>` this record came from.

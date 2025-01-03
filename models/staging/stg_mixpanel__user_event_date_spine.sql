@@ -40,20 +40,20 @@ spine as (
 user_event_spine as (
 
     select
+        user_first_events.source_relation,
         cast(spine.date_day as date) as date_day,
         user_first_events.people_id,
-        user_first_events.source_relation,
         user_first_events.event_type,
 
         -- will use this in mixpanel__daily_events
         case when spine.date_day = user_first_events.first_event_day then 1 else 0 end as is_first_event_day,
 
-        {{ dbt_utils.generate_surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type']) }} as unique_key
+        {{ dbt_utils.generate_surrogate_key(['user_first_events.people_id', 'spine.date_day', 'user_first_events.event_type', 'user_first_events.source_relation']) }} as unique_key
 
     from spine
     join user_first_events
         on spine.date_day >= user_first_events.first_event_day -- each user-event_type will a record for every day since their first day
-    group by 1,2,3,4,5,6
+    {{ dbt_utils.group_by(n=6) }}
     
 )
 
