@@ -114,6 +114,8 @@ To properly incorporate all of your Mixpanel connectors into your project's DAG:
 
 ```yml
 # a .yml file in your root project
+version: 2
+
 sources:
   - name: <name> # ex: Should match name in mixpanel_sources
     schema: <schema_name>
@@ -125,10 +127,10 @@ sources:
       warn_after: {count: 72, period: hour}
       error_after: {count: 168, period: hour}
 
-    tables: 
+    tables:
       - name: event
         description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
-        columns: # copy and paste from mixpanel/models/staging/src_mixpanel.yml - see https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/ for how to use anchors to only do so once
+        columns: # copy and paste from mixpanel/models/staging/src_mixpanel.yml - see https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/ for how to use &/* anchors to only do so once
 ```
 
 2. Set the `has_defined_sources` variable (scoped to the `mixpanel` package) to `True`, like such:

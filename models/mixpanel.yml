@@ -193,6 +193,9 @@ models:
         description: >
           The `<datbase>`.`<schema>` this record came from.
 
+      - name: nth_event_record
+        description: Window-function generated field used to dedupe events. Will always = 1.
+
   - name: mixpanel__daily_events
     description: > 
       Table of each **event type's** daily history of activity, as reflected in user retention and event metrics.

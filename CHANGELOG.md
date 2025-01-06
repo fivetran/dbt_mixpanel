@@ -7,6 +7,9 @@
 
 > Please note: This is a **Breaking Change** in that we have a added a new field, `source_relation`, that points to the source connector from which the record originated. This will **require running a full refresh**.
 
+## Documentation
+- Provided missing column yml documentation.
+
 # dbt_mixpanel v0.10.0
 
 [PR #49](https://github.com/fivetran/dbt_mixpanel/pull/49) includes the following updates:
