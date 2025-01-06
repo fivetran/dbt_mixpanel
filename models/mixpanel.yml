@@ -19,7 +19,7 @@ models:
 
       - name: _fivetran_id
         description: >
-          Hash of `insert_id`, `distinct_id`, `source_relation`, and `name` columns.
+          Hash of `insert_id`, `distinct_id`, and `name` columns.
 
       - name: insert_id
         description: >
@@ -231,7 +231,7 @@ models:
         description: The number of unique users who have completed this kind of event in the past 7 days.
 
       - name: unique_key
-        description: Unique key used for the incremental model configuration. Concats `event_type` and `date_day`
+        description: Unique key used for the incremental model configuration. Concats `event_type`, `date_day` and `source_relation`
         tests:
           - unique
           - not_null
@@ -278,7 +278,7 @@ models:
         description: The number of unique users who performed this kind of event last month, but not this month. 
 
       - name: unique_key
-        description: Unique key used for the incremental model configuration. Concats `event_type` and `date_month`
+        description: Unique key used for the incremental model configuration. Concats `event_type`, `date_month` and `source_relation`
         tests:
           - unique
           - not_null
@@ -300,7 +300,7 @@ models:
     
     columns:
       - name: session_id
-        description: Unique ID of the user session. 
+        description: Unique ID of the user session. Hashed on `user_id`, `session_number`, `date_day`, and `source_relation`
         tests:
           - unique
           - not_null
