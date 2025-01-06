@@ -7,7 +7,7 @@ models:
     columns: 
       - name: _fivetran_id
         description: >
-          Hash of `insert_id`, `distinct_id`, `name`, and `source_relation` columns.
+          Hash of `insert_id`, `distinct_id`, and `name` columns.
 
       - name: insert_id
         description: >

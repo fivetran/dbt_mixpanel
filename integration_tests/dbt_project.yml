@@ -9,7 +9,10 @@ models:
     # +schema: "mixpanel_{{ var('directed_schema','dev') }}" ## To be used for validation testing
 
 vars:
-  mixpanel_schema: mixpanel_integration_tests_3
+  mixpanel_schema: mixpanel_integration_tests_4
+
+  # mixpanel_sources: 
+
   mixpanel:
     mixpanel_event_identifier: "event"
 
