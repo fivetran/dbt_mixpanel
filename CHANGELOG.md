@@ -1,3 +1,9 @@
+# dbt_mixpanel version.version
+
+## Documentation
+- Added Quickstart model counts to README. ([#56](https://github.com/fivetran/dbt_mixpanel/pull/56))
+- Corrected references to connectors and connections in the README. ([#56](https://github.com/fivetran/dbt_mixpanel/pull/56))
+
 # dbt_mixpanel v0.10.0
 
 [PR #49](https://github.com/fivetran/dbt_mixpanel/pull/49) includes the following updates:
