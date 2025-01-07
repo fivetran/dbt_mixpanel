@@ -1,0 +1,197 @@
+version: 2
+
+sources:
+  - name: source_3 # ex: Should match name in mixpanel_sources
+    schema: mixpanel_integration_tests_3
+    database: '{{ target.database }}'
+    loader: fivetran
+    loaded_at_field: _fivetran_synced
+      
+    freshness: # feel free to adjust to your liking
+      warn_after: {count: 72, period: hour}
+      error_after: {count: 168, period: hour}
+
+    tables:
+      - name: event
+        description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
+        columns: &columns
+        # default properties regardless of platforms used
+          - name: _fivetran_id
+            description: Fivetran-generated unique ID of the event record.
+
+          - name: event_id
+            description: Fivetran-generated attribute that was formerly the primary key.
+
+          - name: name
+            description: Name of the type of event that was logged.
+
+          - name: time
+            description: >
+              Timestamp of when the event was recorded. Set in the timezone specified by the mixpanel project.
+
+          - name: distinct_id
+            description: Foreign key referencing the event's associated user's `people.distinct_id`.
+
+          - name: properties
+            description: >
+              JSON capturing properties specific to this type of event. Properties specified in the `event_properties`
+              variable will be turned into columns in the `mixpanel__event` model.
+
+          - name: insert_id 
+            description: > 
+              Random 16 character string of alphanumeric characters that is unique to an event. 
+              Used to de-duplicate data.
+          
+          - name: mp_processing_time_ms
+            description: >
+              Time in milliseconds in Unix Processing Time in which the event was ingested by Mixpanel.
+          
+          - name: screen_width 
+            description: Width of the device screen in pixels (web or android) or points (ios).
+
+          - name: screen_height
+            description: The height of the device screen in pixels (web or android) or points (ios).
+
+          - name: city
+            description: > 
+              The city of the event sender, as parsed from the IP property or the Latitude and Longitude properties.
+            
+          - name: mp_country_code
+            description: >
+              The country code of the event sender, as parsed from the IP property or the Latitude and Longitude 
+              properties.
+
+          - name: region
+            description: > 
+              The region (state or province) of the event sender, as parsed from the IP property or the Latitude and 
+              Longitude properties.
+
+          - name: os
+            description: Operating system of the event sender.
+
+          - name: mp_lib
+            description:  Mixpanel Library that sent the event.
+
+          - name: device_id
+            description: >
+              A unique string that identifies a user before an authentication or identification flow. 
+              By default, Mixpanel creates a device_id for every unique browser/device.
+
+          - name: distinct_id_before_identity
+            description: > 
+              When an event comes in with a distinct_id that has been remapped to something 
+              else, this property contains the original value to aid debugging and error solution.
+            
+          - name: _fivetran_synced
+            description: UTC timestamp of when the row was last successfully synced.
+
+          # web only
+          - name: initial_referring_domain
+            description: The referring domain at first arrival.
+
+          - name: referrer
+            description: Referring URL, including your own domain.
+
+          - name: referring_domain
+            description: Referring domain, including your own domain.
+
+          - name: current_url
+            description: The full URL of the webpage on which the event was triggered.
+
+          - name: browser
+            description: Browser name (not versioned).
+
+          - name: browser_version
+            description: Browser version number.
+
+          - name: initial_referrer
+            description: The referring URL at first arrival.
+
+          - name: search_engine
+            description: Search engine a customer used when they arrived at your domain.
+
+          - name: mp_keyword
+            description: >
+              Search keywords detected on the referrer from a search engine to your domain. 
+              This property is only collected when search keywords are included in a URL. 
+
+          - name: device
+            description: The name of the event sender's device, if they're on mobile web.
+
+          # mobile only
+          - name: app_build_number
+            description: General build of this app.
+
+          - name: wifi
+            description: >
+              Boolean that is true if the event user’s device has an active, available Wifi connection, 
+              and false if not.
+          
+          - name: os_version
+            description: Current version of iOS or Android on the device.
+
+          - name: lib_version
+            description: Mixpanel library used to send this data.
+
+          - name: manufacturer
+            description: Device manufacturer.
+
+          - name: carrier
+            description: Wireless carrier of the device owner.
+
+          - name: model
+            description: Device model ID, in format "iPad 3,4".
+
+          - name: app_version_string
+            description: Current app version.
+
+          - name: ae_session_length
+            description: >
+              The length of the user's mobile app session. This is captured as a property of 
+              the default App Session mobile event tracked by mixpanel (triggers after > 10 seconds 
+              in the app).
+
+          # ios only
+          - name: radio
+            description: > 
+              The current cellular network communication standard type (3G, 4G, LTE, etc.) of the device 
+              that produced the event.
+
+          # android-only default properties
+          - name: bluetooth_version
+            description: Set to "none", "ble", or "classic".
+
+          - name: bluetooth_enabled
+            description: Boolean that is true if Bluetooth is enabled, false if not.
+
+          - name: has_nfc
+            description: Boolean that is true if Near Field Communication is being used, false if not.
+
+          - name: brand
+            description: Device brand.
+
+          - name: has_telephone
+            description: Boolean that is true if this device has telephone functionality, false if not.
+
+          - name: screen_dpi
+            description: Pixel density (dots per inch) of the device screen.
+
+          - name: google_play_services
+            description: >
+              Verifies that Google Play services is installed and enabled on this device, 
+              and that the version installed on this device is no older than the one required by this client.
+                  
+  - name: source_4 # ex: Should match name in mixpanel_sources
+    schema: mixpanel_integration_tests_4
+    database: '{{ target.database }}'
+    loader: fivetran
+    loaded_at_field: _fivetran_synced
+      
+    freshness: # feel free to adjust to your liking
+      warn_after: {count: 72, period: hour}
+      error_after: {count: 168, period: hour}
+
+    tables:
+      - name: event
+        description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
+        columns: *columns
