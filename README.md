@@ -95,8 +95,8 @@ To use this functionality, you will need to set the `mixpanel_sources` variable 
 
 vars:
   mixpanel_sources:
-    - database: connection_1_destination_name # Required
-      schema: connection_1_schema_name # Rquired
+    - database: connection_1_destination_name # Likely Required. Default value = target.database
+      schema: connection_1_schema_name # Likely Required. Default value = 'mixpanel'
       name: connection_1_source_name # Required only if following the step in the following subsection
 
     - database: connection_2_destination_name
