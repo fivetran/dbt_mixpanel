@@ -1,3 +1,5 @@
+{{ config(enabled=var('mixpanel_sources',[]) != []) }}
+
 {{
     mixpanel.union_mixpanel_connections(
         connection_dictionary=var('mixpanel_sources'), 
