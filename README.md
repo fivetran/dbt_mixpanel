@@ -104,6 +104,9 @@ vars:
       name: connection_2_source_name
 ```
 
+> [!NOTE]  
+> If you choose to make use of this unioning functionality, you will incur an additional model materialized as a `view`, called `stg_mixpanel__event_tmp`. This extra model is necessary for the proper compilation of our connection-unioning macros.
+
 ##### Recommended: Incorporate unioned sources into DAG
 > *If you are running the package through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt#transformationsfordbtcore), the below step is necessary in order to synchronize model runs with your Mixpanel connections. Alternatively, you may choose to run the package through Fivetran [Quickstart](https://fivetran.com/docs/transformations/quickstart), which would create separate sets of models for each Mixpanel source rather than one set of unioned models.*
 
