@@ -39,7 +39,7 @@ The following table provides a detailed list of all tables materialized within t
 | [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
 
 ### Materialized Models
-Each Quickstart transformation job run materializes 6 models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
+Each Quickstart transformation job run materializes 7 models if all components of this data model are enabled (6 if you are running the package on only one Mixpanel connection). This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
 <!--section-end-->
 
 ## How do I use the dbt package?
