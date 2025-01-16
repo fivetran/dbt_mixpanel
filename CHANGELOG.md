@@ -12,6 +12,8 @@
 
 ## Documentation
 - Provided missing column yml documentation.
+- Added Quickstart model counts to README. ([#56](https://github.com/fivetran/dbt_mixpanel/pull/56))
+- Corrected references to connectors and connections in the README. ([#56](https://github.com/fivetran/dbt_mixpanel/pull/56))
 
 # dbt_mixpanel v0.10.0
 

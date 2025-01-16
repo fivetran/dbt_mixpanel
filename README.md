@@ -1,4 +1,6 @@
-<p align="center">
+# Mixpanel dbt Package ([Docs](https://fivetran.github.io/dbt_mixpanel/))
+
+<p align="left">
     <a alt="License"
         href="https://github.com/fivetran/dbt_mixpanel/blob/main/LICENSE">
         <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a>
@@ -13,7 +15,6 @@
         <img src="https://img.shields.io/badge/Fivetran_Quickstart_Compatible%3F-yes-green.svg" /></a>
 </p>
 
-# Mixpanel dbt Package ([Docs](https://fivetran.github.io/dbt_mixpanel/))
 ## What does this dbt package do?
 
 - Produces modeled tables that leverage Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://fivetran.com/docs/applications/mixpanel#schemainformation).
@@ -37,6 +38,8 @@ The following table provides a detailed list of all tables materialized within t
 | [mixpanel__monthly_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__monthly_events)          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
 | [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
 
+### Materialized Models
+Each Quickstart transformation job run materializes 6 models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
 <!--section-end-->
 
 ## How do I use the dbt package?
