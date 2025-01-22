@@ -191,7 +191,7 @@ models:
 
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
 
       - name: nth_event_record
         description: Window-function generated field used to dedupe events. Will always = 1.
@@ -241,7 +241,7 @@ models:
 
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
 
   - name: mixpanel__monthly_events
     description: >
@@ -288,7 +288,7 @@ models:
 
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
 
   - name: mixpanel__sessions
     description: > 
@@ -333,7 +333,7 @@ models:
 
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
 
 macros:
   - name: analyze_funnel

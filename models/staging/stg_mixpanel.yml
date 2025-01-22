@@ -176,7 +176,7 @@ models:
 
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
 
   - name: stg_mixpanel__user_event_date_spine
     description: >
@@ -207,7 +207,7 @@ models:
       
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
 
   - name: stg_mixpanel__user_first_event
     description: Table in which each row represents the first day a user performed a type of event.
@@ -224,4 +224,4 @@ models:
 
       - name: source_relation
         description: >
-          The `<datbase>`.`<schema>` this record came from.
+          The `<database>`.`<schema>` this record came from.
