@@ -19,7 +19,7 @@ vars:
 
   mixpanel:
     mixpanel_event_identifier: "event"
-    has_defined_sources: true
+    # has_defined_sources: true
     
 seeds:
   mixpanel_integration_tests:
