@@ -2,7 +2,7 @@
     tags="fivetran_validations",
     enabled=var('fivetran_validation_tests_enabled', false)
 ) }}
-{% set exclude_fields = ["properties", 'event_properties',"source_relation", "unique_event_id"] %}
+{% set exclude_fields = ["properties", 'event_properties'] %}
 {% set fields = dbt_utils.star(from=ref('mixpanel__event'), except=exclude_fields) %}
 
 -- this test ensures the daily_activity end model matches the prior version

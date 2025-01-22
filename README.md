@@ -39,7 +39,7 @@ The following table provides a detailed list of all tables materialized within t
 | [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
 
 ### Materialized Models
-Each Quickstart transformation job run materializes 7 models if all components of this data model are enabled (6 if you are running the package on only one Mixpanel connection). This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
+Each Quickstart transformation job run materializes 6 models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
 <!--section-end-->
 
 ## How do I use the dbt package?
@@ -107,11 +107,13 @@ vars:
       name: connection_2_source_name
 ```
 
-> [!NOTE]  
-> If you choose to make use of this unioning functionality, you will incur an additional model materialized as a `view`, called `stg_mixpanel__event_tmp`. This extra model is necessary for the proper compilation of our connection-unioning macros.
+> **Note:** If you choose to make use of this unioning functionality, you will incur an additional model materialized as a `view`, called `stg_mixpanel__event_tmp`. This extra model is necessary for the proper compilation of our connection-unioning macros.
 
 ##### Recommended: Incorporate unioned sources into DAG
 > *If you are running the package through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt#transformationsfordbtcore), the below step is necessary in order to synchronize model runs with your Mixpanel connections. Alternatively, you may choose to run the package through Fivetran [Quickstart](https://fivetran.com/docs/transformations/quickstart), which would create separate sets of models for each Mixpanel source rather than one set of unioned models.*
+
+<details><summary>Expand for details</summary>
+<br>
 
 By default, this package defines one single-connection source, called `mixpanel`, which will be disabled if you are unioning multiple connections. This means that your DAG will not include your Mixpanel sources, though the package will run successfully.
 
@@ -146,6 +148,8 @@ vars:
   mixpanel:
     has_defined_sources: true
 ```
+
+</details>
 
 ### (Optional) Step 4: Additional configurations
 <details open><summary>Collapse/expand details</summary>
