@@ -10,7 +10,7 @@ with prod as (
 ),
 
 dev as (
-    select *
+    select * 
     from {{ target.schema }}_mixpanel_dev.mixpanel__daily_events
 ),
 

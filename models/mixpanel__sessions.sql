@@ -8,7 +8,7 @@
             "data_type": "date"
             } if target.type not in ('spark','databricks') 
             else ['session_started_on_day'],
-        cluster_by=['session_started_on_day'],
+        cluster_by=['session_started_on_day', 'source_relation'],
         file_format='delta'
     )
 }}
@@ -17,6 +17,7 @@
 with events as (
 
     select 
+        source_relation,
         event_type,
         occurred_at,
         unique_event_id,
@@ -55,7 +56,7 @@ previous_event as (
     select 
         *,
         -- limiting session-eligibility to same calendar day
-        lag(occurred_at) over(partition by user_id, date_day order by occurred_at asc) as previous_event_at
+        lag(occurred_at) over(partition by user_id, date_day, source_relation order by occurred_at asc) as previous_event_at
 
     from events 
 
@@ -78,7 +79,7 @@ session_numbers as (
 
     -- will cumulatively create session numbers
     sum(is_new_session) over (
-            partition by user_id, date_day
+            partition by user_id, date_day, source_relation
             order by occurred_at asc
             rows between unbounded preceding and current row
             ) as session_number
@@ -90,13 +91,13 @@ session_ids as (
 
     select
         *,
-        min(occurred_at) over (partition by user_id, date_day, session_number) as session_started_at,
-        min(date_day) over (partition by user_id, date_day, session_number) as session_started_on_day,
+        min(occurred_at) over (partition by source_relation, user_id, date_day, session_number) as session_started_at,
+        min(date_day) over (partition by source_relation, user_id, date_day, session_number) as session_started_on_day,
 
-        {{ dbt_utils.generate_surrogate_key(['user_id', 'session_number', 'date_day']) }} as session_id,
+        {{ dbt_utils.generate_surrogate_key(['user_id', 'session_number', 'date_day', 'source_relation']) }} as session_id,
 
-        count(unique_event_id) over (partition by user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
-        count(unique_event_id) over (partition by user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
+        count(unique_event_id) over (partition by source_relation, user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
+        count(unique_event_id) over (partition by source_relation, user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
 
     from session_numbers
 ),
@@ -104,17 +105,19 @@ session_ids as (
 sub as (
 
     select
+        source_relation,
         session_id,
         event_type,
         count(unique_event_id) as number_of_events
 
     from session_ids
-    group by 1, 2
+    group by 1, 2, 3
 ),
 
 agg_event_types as (
 
     select 
+        source_relation,
         session_id,
         -- turn into json
         {% if target.type in ('postgres','redshift') %}
@@ -127,12 +130,13 @@ agg_event_types as (
         {% endif %} as event_frequencies
     
     from sub
-    group by 1
+    group by 1,2
 ), 
 
 session_join as (
 
     select 
+        session_ids.source_relation,
         session_ids.session_id,
         session_ids.people_id,
         session_ids.session_started_at,
@@ -151,6 +155,7 @@ session_join as (
     from session_ids
     join agg_event_types -- join regardless of event type 
         on agg_event_types.session_id = session_ids.session_id
+        and agg_event_types.source_relation = session_ids.source_relation
 
     where session_ids.is_new_session = 1 -- only return fields of first event
 

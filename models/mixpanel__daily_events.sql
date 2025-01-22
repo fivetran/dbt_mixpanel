@@ -16,6 +16,7 @@
 with events as (
 
     select 
+        source_relation,
         event_type,
         occurred_at,
         people_id,
@@ -43,19 +44,21 @@ date_spine as (
 agg_user_events as (
     
     select
+        source_relation,
         date_day,
         people_id,
         event_type,
         count(unique_event_id) as number_of_events
 
     from events
-    group by 1,2,3
+    {{ dbt_utils.group_by(n=4) }}
 ), 
 
 -- join the spine with event metrics
 spine_joined as (
     
     select
+        date_spine.source_relation,
         date_spine.date_day,
         date_spine.people_id,
         date_spine.event_type,
@@ -68,17 +71,18 @@ spine_joined as (
         on agg_user_events.date_day = date_spine.date_day
         and agg_user_events.people_id = date_spine.people_id
         and agg_user_events.event_type = date_spine.event_type
+        and date_spine.source_relation = agg_user_events.source_relation
 ), 
 
 trailing_events as (
     
     select
         *,
-        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 27 preceding and current row) > 0 as has_event_in_last_28_days,
-        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 6 preceding and current row) > 0 as has_event_in_last_7_days,
+        sum(number_of_events) over (partition by people_id, event_type, source_relation order by date_day asc rows between 27 preceding and current row) > 0 as has_event_in_last_28_days,
+        sum(number_of_events) over (partition by people_id, event_type, source_relation order by date_day asc rows between 6 preceding and current row) > 0 as has_event_in_last_7_days,
 
         -- defining a repeat user as someone who performed an action on a given day after previously having done so in the last 28 days
-        sum(number_of_events) over (partition by people_id, event_type order by date_day asc rows between 27 preceding and 1 preceding) > 0 
+        sum(number_of_events) over (partition by people_id, event_type, source_relation order by date_day asc rows between 27 preceding and 1 preceding) > 0 
             and number_of_events > 0 as is_repeat_user
 
     from spine_joined
@@ -87,6 +91,7 @@ trailing_events as (
 agg_event_days as (
     
     select
+        source_relation,
         date_day,
         event_type,
         sum(number_of_events) as number_of_events,
@@ -100,13 +105,13 @@ agg_event_days as (
         sum(case when has_event_in_last_7_days = True then 1 else 0 end) as trailing_users_7d
 
     from trailing_events
-    group by 1,2
+    group by 1,2,3
 ),
 
 final as (
 
     select 
-
+        source_relation,
         date_day,
         event_type,
         number_of_events,
@@ -118,7 +123,7 @@ final as (
         number_of_users - number_of_new_users - number_of_repeat_users as number_of_return_users,
         trailing_users_28d,
         trailing_users_7d,
-        event_type || '-' || date_day as unique_key,
+        event_type || '-' || date_day || '-' || source_relation as unique_key,
         {{ mixpanel.date_today('dbt_run_date')}}
 
     from agg_event_days

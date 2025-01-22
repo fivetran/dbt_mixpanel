@@ -1,26 +1,20 @@
 version: 2
 
-sources: 
-  - name: mixpanel
-    database: "{% if target.type != 'spark' %}{{ var('mixpanel_database', target.database) }}{% endif %}" # add var config to dbt_project.yml
-    schema: "{{ var('mixpanel_schema', 'mixpanel')}}"
-
+sources:
+  - name: source_3 # ex: Should match name in mixpanel_sources
+    schema: mixpanel_integration_tests_3
+    database: '{{ target.database }}'
     loader: fivetran
     loaded_at_field: _fivetran_synced
-
-    config:
-      enabled: "{{ var('mixpanel_sources', []) == [] }}"
-
-    freshness:
+      
+    freshness: # feel free to adjust to your liking
       warn_after: {count: 72, period: hour}
-      error_after: {count: 96, period: hour}
+      error_after: {count: 168, period: hour}
 
     tables:
       - name: event
-        identifier: "{{ var('mixpanel_event_identifier', 'event')}}"
         description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
-
-        columns:
+        columns: &columns
         # default properties regardless of platforms used
           - name: _fivetran_id
             description: Fivetran-generated unique ID of the event record.
@@ -187,3 +181,17 @@ sources:
               Verifies that Google Play services is installed and enabled on this device, 
               and that the version installed on this device is no older than the one required by this client.
                   
+  - name: source_4 # ex: Should match name in mixpanel_sources
+    schema: mixpanel_integration_tests_4
+    database: '{{ target.database }}'
+    loader: fivetran
+    loaded_at_field: _fivetran_synced
+      
+    freshness: # feel free to adjust to your liking
+      warn_after: {count: 72, period: hour}
+      error_after: {count: 168, period: hour}
+
+    tables:
+      - name: event
+        description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
+        columns: *columns
