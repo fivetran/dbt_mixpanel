@@ -1,3 +1,8 @@
+# dbt_mixpanel v0.12.0
+[PR #57](https://github.com/fivetran/dbt_mixpanel/pull/57) includes the following updates:
+
+## Breaking Changes
+
 # dbt_mixpanel v0.11.0
 [PR #53](https://github.com/fivetran/dbt_mixpanel/pull/53) and [PR #55](https://github.com/fivetran/dbt_mixpanel/pull/55) include the following updates:
 
