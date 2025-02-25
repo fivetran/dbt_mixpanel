@@ -124,7 +124,7 @@ final as (
         trailing_users_28d,
         trailing_users_7d,
         event_type || '-' || date_day || '-' || source_relation as unique_key,
-        {{ mixpanel.date_today('dbt_run_date')}}
+        current_date as dbt_run_date
 
     from agg_event_days
 

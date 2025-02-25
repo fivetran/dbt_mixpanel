@@ -106,7 +106,7 @@ final as (
         -- note: churned users refer to users who did something last month and not this month
         coalesce(lag(number_of_users, 1) over(partition by event_type, source_relation order by date_month asc) - number_of_repeat_users, 0) as number_of_churn_users,
         date_month || '-' || event_type || '-' || source_relation as unique_key, -- for incremental model :)
-        {{ mixpanel.date_today('dbt_run_date')}}
+        current_date as dbt_run_date
 
     from monthly_metrics
 )

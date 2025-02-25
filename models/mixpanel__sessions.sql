@@ -145,7 +145,7 @@ session_join as (
         session_ids.device_id,
         session_ids.total_number_of_events,
         agg_event_types.event_frequencies,
-        {{ mixpanel.date_today('dbt_run_date')}}
+        current_date as dbt_run_date
 
         {% if var('session_passthrough_columns', []) != [] %}
         ,
