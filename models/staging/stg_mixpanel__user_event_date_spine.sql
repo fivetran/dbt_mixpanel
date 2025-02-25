@@ -20,39 +20,40 @@ with user_first_events as (
 ),
 
 spine as (
+    {% if execute and flags.WHICH in ('run', 'build') %}
+        {% if is_incremental() %}
+            -- For incremental runs, the first_date is 14 days prior to the max date since we need to
+            -- account for the week that is added to the end_date.
+            {%- set first_date_query %}
+                select 
+                    cast({{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day') }} as date)
+            {% endset -%}
+            {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
 
-    {% if execute and flags.WHICH in ('run', 'build') and not is_incremental() %}
-        {%- set first_date_query %}
-            select 
-                coalesce(
-                    min(cast(first_event_day as date)), 
+        {% else %}
+            -- For full-refresh runs, use either the date from var(date_range_start) or the min date.
+            {%- set first_date_query %}
+                select 
+                    coalesce(
+                        min(cast(first_event_day as date)), 
                         cast({{ dbt.dateadd("month", -1, "current_date") }} as date)
                         ) as min_date
-            from {{ ref('stg_mixpanel__user_first_event') }}
-        {% endset -%}
-        {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
+                from {{ ref('stg_mixpanel__user_first_event') }}
+            {% endset -%}
+            {%- set first_date = var('date_range_start', dbt_utils.get_single_value(first_date_query)) %}
+        {% endif %}
+
     {% else %}
-        {%- set first_date = '2020-01-01' %}
+        {%- set first_date = '2025-01-01' %}
     {% endif %}
 
     -- Every user-event_type shares the same final date.
-    {% if is_incremental() %}
-        -- For incremental runs, generate a date spine that covers only the required period.
-        -- Extend the lookback period by 7 days to account for the week that is added to the end_date.
-        {{ dbt_utils.date_spine(
-            datepart = "day", 
-            start_date =  mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day'),
-            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp()))
-            ) 
-        }}
-    {% else %}
-        {{ dbt_utils.date_spine(
-            datepart = "day", 
-            start_date =  "cast('" ~ var('date_range_start', first_date) ~ "' as date)", 
-            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp())) 
-            ) 
-        }} 
-    {% endif %}
+    {{ dbt_utils.date_spine(
+        datepart = "day", 
+        start_date =  "cast('" ~ first_date ~ "' as date)", 
+        end_date = dbt.dateadd("week", 1, "current_date") 
+        ) 
+    }} 
 ),
 
 user_event_spine as (
