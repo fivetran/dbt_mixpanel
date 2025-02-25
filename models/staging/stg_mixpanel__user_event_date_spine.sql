@@ -21,19 +21,43 @@ with user_first_events as (
 
 spine as (
 
-    select *
+    {% if execute and flags.WHICH in ('run', 'build') and not is_incremental() %}
 
-    from (
+        {%- set first_date_query %}
+            select 
+                coalesce(
+                    min(cast(first_event_day as date)), 
+                        cast({{ dbt.dateadd("month", -1, "current_date") }} as date)
+                        ) as min_date
+            from {{ ref('stg_mixpanel__user_first_event') }}
+        {% endset -%}
+
+        {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
+
+        {% else %}
+            {%- set first_date = '2020-01-01' %}
+
+    {% endif %}
+
+    {% if is_incremental() %}
+        -- For incremental runs, generate a date spine that covers only the required period.
+        -- Extend the lookback period by 7 days to account for the week that is added to the end_date.
+        -- Every user-event_type shares the same final date.
         {{ dbt_utils.date_spine(
             datepart = "day", 
-            start_date =  "cast('" ~ var('date_range_start',  '2010-01-01') ~ "' as date)", 
-            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp_backcompat())) 
+            start_date =  mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day'),
+            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp()))
+            ) 
+        }}
+
+    {% else %}
+        -- Every user-event_type shares the same final date.
+        {{ dbt_utils.date_spine(
+            datepart = "day", 
+            start_date =  "cast('" ~ var('date_range_start', first_date) ~ "' as date)", 
+            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp())) 
             ) 
         }} 
-    ) as spine
-    {% if is_incremental() %} 
-    -- every user-event_type will have the same last day. Add 7 days to the lookback to account for the week added above.
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day') }}
     {% endif %}
 ),
 
