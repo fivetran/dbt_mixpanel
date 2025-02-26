@@ -44,7 +44,11 @@ spine as (
         {% endif %}
 
     {% else %}
-        {%- set first_date = '2025-01-01' %}
+        {%- set first_date_query %}
+            select
+                cast({{ dbt.dateadd("month", -1, "current_date") }} as date)
+        {% endset -%}
+        {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
     {% endif %}
 
     -- Every user-event_type shares the same final date.
@@ -76,4 +80,5 @@ user_event_spine as (
     
 )
 
-select * from user_event_spine
+select *
+from user_event_spine
