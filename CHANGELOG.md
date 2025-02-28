@@ -10,6 +10,9 @@
 - Several variable declarations have been removed from `dbt_project.yml` as they were redundant with the inline defaults in the models. No action is needed from users.
 - Removed the `date_today` macro as it is no longer necessary.
 
+## Documentation
+- Update missing definitions from `src_mixpanel.yml`.
+
 # dbt_mixpanel v0.11.0
 [PR #53](https://github.com/fivetran/dbt_mixpanel/pull/53) and [PR #55](https://github.com/fivetran/dbt_mixpanel/pull/55) include the following updates:
 
