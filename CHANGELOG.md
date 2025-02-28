@@ -2,11 +2,13 @@
 [PR #57](https://github.com/fivetran/dbt_mixpanel/pull/57) includes the following updates:
 
 ## Breaking Changes
-- Shorten date spine default
-- Need full refresh
+> To ensure all updates are applied correctly, you must run `dbt run --full-refresh` after upgrading.  
+- To reduce compute, the default date spine now starts from the earliest `first_event_day` of the `stg_mixpanel__user_first_event` model instead of the fixed date `'2010-01-01'`. 
+  - If you need to override this behavior, you can still set a custom `date_range_start` in your `dbt_project.yml`. See the [README](https://github.com/fivetran/dbt_mixpanel?tab=readme-ov-file#event-date-range) for more details.
 
-## Under the Hood
-- macro removal
+## Under the Hood  
+- Several variable declarations have been removed from `dbt_project.yml` as they were redundant with the inline defaults in the models. No action is needed from users.
+- Removed the `date_today` macro as it is no longer necessary.
 
 # dbt_mixpanel v0.11.0
 [PR #53](https://github.com/fivetran/dbt_mixpanel/pull/53) and [PR #55](https://github.com/fivetran/dbt_mixpanel/pull/55) include the following updates:
