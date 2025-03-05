@@ -186,4 +186,27 @@ sources:
             description: >
               Verifies that Google Play services is installed and enabled on this device, 
               and that the version installed on this device is no older than the one required by this client.
-                  
+
+          - name: app_version
+            description: The version of the application from which the event originated.
+            
+          - name: app_release
+            description: The specific release version or build of the application.
+
+          - name: mp_device_model
+            description: The model of the device on which the event was triggered.
+
+          - name: had_persisted_distinct_id
+            description: Indicates whether the user had a persistent distinct ID before the current session.
+
+          - name: ios_ifa
+            description: The iOS Identifier for Advertisers (IFA), used for advertising tracking.
+
+          - name: insert_id
+            description: A unique identifier for each event to prevent duplication.
+
+          - name: _file
+            description: The filename in the source code where the event was triggered.
+
+          - name: _line
+            description: The line number in the source code where the event was initiated.

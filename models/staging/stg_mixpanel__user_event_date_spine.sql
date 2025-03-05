@@ -20,21 +20,44 @@ with user_first_events as (
 ),
 
 spine as (
+    {% if execute and flags.WHICH in ('run', 'build') %}
+        {% if is_incremental() %}
+            -- For incremental runs, the first_date is 14 days prior to the max date since we need to
+            -- account for the week that is added to the end_date.
+            {%- set first_date_query %}
+                select 
+                    cast({{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day') }} as date)
+            {% endset -%}
+            {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
 
-    select *
+        {% else %}
+            -- For full-refresh runs, use either the date from var(date_range_start) or the min date.
+            {%- set first_date_query %}
+                select 
+                    coalesce(
+                        min(cast(first_event_day as date)), 
+                        cast({{ dbt.dateadd("month", -1, "current_date") }} as date)
+                        ) as min_date
+                from {{ ref('stg_mixpanel__user_first_event') }}
+            {% endset -%}
+            {%- set first_date = var('date_range_start', dbt_utils.get_single_value(first_date_query)) %}
+        {% endif %}
 
-    from (
-        {{ dbt_utils.date_spine(
-            datepart = "day", 
-            start_date =  "cast('" ~ var('date_range_start',  '2010-01-01') ~ "' as date)", 
-            end_date = dbt.dateadd("week", 1, dbt.date_trunc('day', dbt.current_timestamp_backcompat())) 
-            ) 
-        }} 
-    ) as spine
-    {% if is_incremental() %} 
-    -- every user-event_type will have the same last day. Add 7 days to the lookback to account for the week added above.
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day') }}
+    {% else %}
+        {%- set first_date_query %}
+            select
+                cast({{ dbt.dateadd("month", -1, "current_date") }} as date)
+        {% endset -%}
+        {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
     {% endif %}
+
+    -- Every user-event_type shares the same final date.
+    {{ dbt_utils.date_spine(
+        datepart = "day", 
+        start_date =  "cast('" ~ first_date ~ "' as date)", 
+        end_date = dbt.dateadd("week", 1, "current_date") 
+        ) 
+    }} 
 ),
 
 user_event_spine as (
@@ -57,4 +80,5 @@ user_event_spine as (
     
 )
 
-select * from user_event_spine
+select *
+from user_event_spine

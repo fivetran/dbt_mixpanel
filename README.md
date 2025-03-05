@@ -75,7 +75,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.11.0", "<0.12.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.12.0", "<0.13.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 ### Step 3: Define database and schema variables
@@ -206,9 +206,9 @@ vars:
     mixpanel__event_frequency_limit: 500 ## Default is 1000
 ```
 #### Event Date Range
-Because of the typical volume of event data, you may want to limit this package's models to work with a recent date range of your Mixpanel data (however, note that all final models are materialized as [incremental](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/materializations#incremental) tables).
+Because of the typical volume of event data, you may want to limit this package's models to work with a more recent date range. 
 
-By default, the package looks at all events since January 1, 2010. To change this start date, add the following variable to your `dbt_project.yml` file:
+By default, the package processes all events from your first recorded event. To override this and set a custom start date, add the following to your `dbt_project.yml`:
 
 ```yml
 vars:
@@ -216,7 +216,10 @@ vars:
     date_range_start: 'yyyy-mm-dd' 
 ```
 
-**Note:** This date range will not affect the `number_of_new_users` column in the `mixpanel__daily_events` or `mixpanel__monthly_events` models. This metric will be *true* new users.
+> NOTE: 
+> This date range will not affect the `number_of_new_users` column in the `mixpanel__daily_events` or `mixpanel__monthly_events` models. This metric will be *true* new users.
+>
+> Additionally, all final models are materialized as [incremental](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/materializations#incremental). Updating the `date_range_start` in `dbt_project.yml` will only apply to newly ingested data. If you modify the `date_range_start`, we recommend running `dbt run --full-refresh` to ensure consistency across the adjusted date range.
 
 #### Global Event Filters
 In addition to limiting the date range, you may want to employ other filters to remove noise from your event data.
