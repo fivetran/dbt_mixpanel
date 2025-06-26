@@ -1,6 +1,6 @@
 # dbt_mixpanel v0.13.0
 
-[PR #58](https://github.com/fivetran/dbt_mixpanel/pull/58) includes the following updates:
+[PR #59](https://github.com/fivetran/dbt_mixpanel/pull/59) includes the following updates:
 
 ## Breaking Change for dbt Core < 1.9.6
 
