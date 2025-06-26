@@ -1,5 +1,5 @@
 name: 'mixpanel_integration_tests'
-version: '0.12.0'
+version: '0.13.0'
 config-version: 2
 profile: 'integration_tests'
 
@@ -34,3 +34,6 @@ seeds:
 dispatch:
   - macro_namespace: dbt_utils
     search_order: ['spark_utils', 'dbt_utils']
+
+flags:
+  send_anonymous_usage_stats: False
