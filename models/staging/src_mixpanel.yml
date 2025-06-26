@@ -10,10 +10,9 @@ sources:
 
     config:
       enabled: "{{ var('mixpanel_sources', []) == [] }}"
-
-    freshness:
-      warn_after: {count: 72, period: hour}
-      error_after: {count: 96, period: hour}
+      freshness:
+        warn_after: {count: 72, period: hour}
+        error_after: {count: 96, period: hour}
 
     tables:
       - name: event
