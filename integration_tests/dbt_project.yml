@@ -22,6 +22,8 @@ vars:
     # has_defined_sources: true
     
 seeds:
+  +docs:
+    show: False
   mixpanel_integration_tests:
     +column_types:
       _fivetran_synced: timestamp
@@ -37,3 +39,5 @@ dispatch:
 
 flags:
   send_anonymous_usage_stats: False
+
+  use_colors: True
