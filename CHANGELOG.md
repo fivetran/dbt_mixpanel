@@ -8,6 +8,10 @@
   - Removed all accepted_values tests.
   - Moved `loaded_at_field: _fivetran_synced` under the `config:` block in `src_mixpanel.yml`.
 
+### Under the Hood 
+- Updated conditions in `.github/workflows/auto-release.yml`.
+- Added `.github/workflows/generate-docs.yml`.
+
 # dbt_mixpanel v0.13.0
 
 [PR #59](https://github.com/fivetran/dbt_mixpanel/pull/59) includes the following updates:
