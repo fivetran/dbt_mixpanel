@@ -75,7 +75,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.12.0", "<0.13.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.14.0", "<0.15.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 ### Step 3: Define database and schema variables
