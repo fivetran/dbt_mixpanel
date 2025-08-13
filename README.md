@@ -129,11 +129,12 @@ sources:
     schema: <schema_name>
     database: <database_name>
     loader: fivetran
-    loaded_at_field: _fivetran_synced
-
-    freshness: # feel free to adjust to your liking
-      warn_after: {count: 72, period: hour}
-      error_after: {count: 168, period: hour}
+    
+    config:
+      loaded_at_field: _fivetran_synced
+      freshness: # feel free to adjust to your liking
+        warn_after: {count: 72, period: hour}
+        error_after: {count: 168, period: hour}
 
     tables:
       - name: event
