@@ -1,3 +1,10 @@
+# dbt_mixpanel v0.15.0
+
+[PR #63](https://github.com/fivetran/dbt_mixpanel/pull/63) includes the following updates:
+
+## Features
+  - Increases the required dbt version upper limit to v3.0.0
+
 # dbt_mixpanel v0.14.0
 [PR #62](https://github.com/fivetran/dbt_mixpanel/pull/62) includes the following updates:
 
