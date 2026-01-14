@@ -1,4 +1,5 @@
-# Mixpanel dbt Package ([Docs](https://fivetran.github.io/dbt_mixpanel/))
+<!--section="mixpanel_transformation_model"-->
+# Mixpanel dbt Package
 
 <p align="left">
     <a alt="License"
@@ -15,48 +16,50 @@
         <img src="https://img.shields.io/badge/Fivetran_Quickstart_Compatible%3F-yes-green.svg" /></a>
 </p>
 
+This dbt package transforms data from Fivetran's Mixpanel connector into analytics-ready tables.
+
+## Resources
+
+- Number of materialized models¹: 6
+- Connector documentation
+  - [Mixpanel connector documentation](https://fivetran.com/docs/connectors/applications/mixpanel)
+  - [Mixpanel ERD](https://fivetran.com/docs/connectors/applications/mixpanel#schemainformation)
+- dbt package documentation
+  - [GitHub repository](https://github.com/fivetran/dbt_mixpanel)
+  - [dbt Docs](https://fivetran.github.io/dbt_mixpanel/#!/overview)
+  - [DAG](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1)
+  - [Changelog](https://github.com/fivetran/dbt_mixpanel/blob/main/CHANGELOG.md)
+
 ## What does this dbt package do?
+This package enables you to better understand user activity and retention through your event data, create daily and monthly timelines of events with user metrics, and aggregate events into unique user sessions. It creates enriched models with metrics focused on user activity, retention, and event frequency.
 
-- Produces modeled tables that leverage Mixpanel data from [Fivetran's connector](https://fivetran.com/docs/applications/mixpanel). It uses the Mixpanel `event` table in the format described by [this ERD](https://fivetran.com/docs/applications/mixpanel#schemainformation).
+### Output schema
+Final output tables are generated in the following target schema:
 
-- Enables you to better understand user activity and retention through your event data. It:
-  - Creates both a daily and monthly timeline of each type of event, complete with metrics about user activity, retention, resurrection, and churn
-  - Aggregates events into unique user sessions, complete with metrics about event frequency and any relevant fields from the session's first event
-  - Provides a macro to easily create an event funnel
-  - De-duplicates events according to [best practices from Mixpanel](https://developer.mixpanel.com/reference/http#event-deduplication)
-  - Pivots out custom event properties from JSONs into an enriched events table
+```
+<your_database>.<connector/schema_name>_mixpanel
+```
 
-<!--section="mixpanel_transformation_model-->
-- Generates a comprehensive data dictionary of your source and modeled Mixpanel data through the [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview).
-The following table provides a detailed list of all tables materialized within this package by default.
-> TIP: See more details about these tables in the package's [dbt docs site](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1).
+### Final output tables
 
-| **Table**                | **Description**                                                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [mixpanel__event](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__event)             | Each record represents a de-duplicated Mixpanel event. This includes the default event properties collected by Mixpanel, along with any declared custom columns and event-specific properties. |
-| [mixpanel__daily_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__daily_events)             | Each record represents a day's activity for a type of event, as reflected in user metrics. These include the number of new, repeat, and returning/resurrecting users, as well as trailing 7-day and 28-day unique users. |
-| [mixpanel__monthly_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__monthly_events)          | Each record represents a month of activity for a type of event, as reflected in user metrics. These include the number of new, repeat, returning/resurrecting, and churned users, as well as the total active monthly users (regardless of event type). |
-| [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions)          | Each record represents a unique user session, including metrics reflecting the frequency and type of actions taken during the session and any relevant fields from the session's first event. |
+By default, this package materializes the following final tables:
 
-### Materialized Models
-Each Quickstart transformation job run materializes 6 models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
-<!--section-end-->
+| Table | Description |
+| :---- | :---- |
+| [mixpanel__event](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__event) | Tracks de-duplicated user events with default Mixpanel properties and custom event-specific attributes to analyze individual user actions and behavior patterns across your product. <br></br>**Example Analytics Questions:**<ul><li>Which events are most frequently performed by users across different platforms or browsers?</li><li>How do custom event properties correlate with user retention or conversion outcomes?</li><li>What event sequences lead to key conversion or engagement milestones?</li></ul>|
+| [mixpanel__daily_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__daily_events) | Aggregates daily event activity with user segmentation metrics including new, repeat, and returning users, plus trailing 7-day and 28-day active user counts to track engagement trends. <br></br>**Example Analytics Questions:**<ul><li>How are daily active users (DAU) and weekly active users (WAU) trending by event type?</li><li>What is the ratio of new users to repeat users performing key events each day?</li><li>Which events show the strongest user retention based on returning and repeat user metrics?</li></ul>|
+| [mixpanel__monthly_events](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__monthly_events) | Summarizes monthly event activity with cohort metrics including new, repeat, returning, and churned users, plus total monthly active users (MAU) to understand long-term engagement patterns. <br></br>**Example Analytics Questions:**<ul><li>How are monthly active users (MAU) trending overall and by event type?</li><li>What is the monthly user churn rate and how does it vary across different events?</li><li>Which events have the highest proportion of new versus repeat users month-over-month?</li></ul>|
+| [mixpanel__sessions](https://fivetran.github.io/dbt_mixpanel/#!/model/model.mixpanel.mixpanel__sessions) | Groups user events into sessions with metrics on session duration, event frequency, and action types to analyze user engagement quality and session-level behavior patterns. <br></br>**Example Analytics Questions:**<ul><li>What is the average session duration and event count per session by user segment?</li><li>Which sessions lead to conversion events or key user actions?</li><li>How do session metrics differ between mobile and desktop users?</li></ul>|
 
-## How do I use the dbt package?
+¹ Each Quickstart transformation job run materializes these models if all components of this data model are enabled. This count includes all staging, intermediate, and final models materialized as `view`, `table`, or `incremental`.
 
-### Step 1: Prerequisites
+---
+
+## Prerequisites
 To use this dbt package, you must have the following:
 
 - At least one Fivetran Mixpanel connection syncing data into your destination.
 - A **BigQuery**, **Snowflake**, **Redshift**, **PostgreSQL**, or **Databricks** destination.
-
-#### Databricks dispatch configuration
-If you are using a Databricks destination with this package, you must add the following (or a variation of the following) dispatch configuration within your `dbt_project.yml`. This is required in order for the package to accurately search for macros within the `dbt-labs/spark_utils` then the `dbt-labs/dbt_utils` packages respectively.
-```yml
-dispatch:
-  - macro_namespace: dbt_utils
-    search_order: ['spark_utils', 'dbt_utils']
-```
 
 #### Database Incremental Strategies
 Many of the models in this package are materialized incrementally, so we have configured our models to work with the different strategies available to each supported warehouse.
@@ -68,17 +71,33 @@ For **Snowflake**, **Redshift**, and **Postgres** databases, we have chosen `del
 
 > Regardless of strategy, we recommend that users periodically run a `--full-refresh` to ensure a high level of data quality.
 
-### Step 2: Install the package
+## How do I use the dbt package?
+You can either add this dbt package in the Fivetran dashboard or import it into your dbt project:
+
+- To add the package in the Fivetran dashboard, follow our [Quickstart guide](https://fivetran.com/docs/transformations/dbt).
+- To add the package to your dbt project, follow the setup instructions in the dbt package's [README file](https://github.com/fivetran/dbt_mixpanel/blob/main/README.md#how-do-i-use-the-dbt-package) to use this package.
+
+<!--section-end-->
+
+### Install the package
 Include the following mixpanel package version in your `packages.yml` file:
 > TIP: Check [dbt Hub](https://hub.getdbt.com/) for the latest installation instructions or [read the dbt docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
 
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.15.0", "<0.16.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.16.0", "<0.17.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
-### Step 3: Define database and schema variables
+#### Databricks dispatch configuration
+If you are using a Databricks destination with this package, you must add the following (or a variation of the following) dispatch configuration within your `dbt_project.yml`. This is required in order for the package to accurately search for macros within the `dbt-labs/spark_utils` then the `dbt-labs/dbt_utils` packages respectively.
+```yml
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ['spark_utils', 'dbt_utils']
+```
+
+### Define database and schema variables
 #### Option A: Single connection
 By default, this package runs using your destination and the `mixpanel` schema. If this is not where your Mixpanel data is (for example, if your Mixpanel schema is named `mixpanel_fivetran`), add the following configuration to your root `dbt_project.yml` file:
 
@@ -152,7 +171,7 @@ vars:
 
 </details>
 
-### (Optional) Step 4: Additional configurations
+### (Optional) Additional configurations
 <details open><summary>Collapse/expand details</summary>
 
 ### Macros
@@ -314,7 +333,7 @@ Events are considered duplicates and consolidated by the package if they contain
 This is performed in line with Mixpanel's internal de-duplication process, in which events are de-duped at the end of each day. This means that if an event was triggered during an offline session at 11:59 PM and _resent_ when the user came online at 12:01 AM, these records would _not_ be de-duplicated. This is the case in both Mixpanel and the Mixpanel dbt package.
 </details>
 
-### (Optional) Step 5: Orchestrate your models with Fivetran Transformations for dbt Core™
+### (Optional) Orchestrate your models with Fivetran Transformations for dbt Core™
 <details><summary>Expand for details</summary>
 <br>
 
@@ -333,14 +352,19 @@ packages:
     - package: dbt-labs/dbt_utils
       version: [">=1.0.0", "<2.0.0"]
 ```
+
+<!--section="mixpanel_maintenance"-->
 ## How is this package maintained and can I contribute?
+
 ### Package Maintenance
-The Fivetran team maintaining this package _only_ maintains the latest version of the package. We highly recommend you stay consistent with the [latest version](https://hub.getdbt.com/fivetran/mixpanel/latest/) of the package and refer to the [CHANGELOG](https://github.com/fivetran/dbt_mixpanel/blob/main/CHANGELOG.md) and release notes for more information on changes across versions.
+The Fivetran team maintaining this package only maintains the [latest version](https://hub.getdbt.com/fivetran/mixpanel/latest/) of the package. We highly recommend you stay consistent with the latest version of the package and refer to the [CHANGELOG](https://github.com/fivetran/dbt_mixpanel/blob/main/CHANGELOG.md) and release notes for more information on changes across versions.
 
 ### Contributions
 A small team of analytics engineers at Fivetran develops these dbt packages. However, the packages are made better by community contributions.
 
-We highly encourage and welcome contributions to this package. Check out [this dbt Discourse article](https://discourse.getdbt.com/t/contributing-to-a-dbt-package/657) on the best workflow for contributing to a package.
+We highly encourage and welcome contributions to this package. Learn how to contribute to a package in dbt's [Contributing to an external dbt package article](https://discourse.getdbt.com/t/contributing-to-a-dbt-package/657).
+
+<!--section-end-->
 
 ## Are there any resources available?
 - If you have questions or want to reach out for help, see the [GitHub Issue](https://github.com/fivetran/dbt_mixpanel/issues/new/choose) section to find the right avenue of support for you.

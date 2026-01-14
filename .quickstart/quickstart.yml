@@ -15,3 +15,37 @@ public_models: [
   "mixpanel__monthly_events",
   "mixpanel__event"
 ]
+
+supported_vars:
+  event_properties_to_pivot:
+    type: list
+    description: "Additional `EVENT.properties` elements to pivot into columns in `mixpanel__event`"
+    display_name: "Additional Event Properties"
+
+  event_custom_columns:
+    type: dictionary
+    description: "Addtional `EVENT` columns to include in `mixpanel__event`"
+    display_name: "Additional Event Columns"
+
+  date_range_start:
+    type: string
+    description: "Start date for the window of `EVENT` data to transform (YYYY-MM-DD format)"
+    display_name: "Date Range Start"
+
+  sessionization_inactivity:
+    type: integer
+    value: 30
+    description: "Period of inactivity (in minutes) between events that, if surpassed, indicates the end of a session"
+    display_name: "Session Inactivity Timeout (Minutes)"
+
+  session_passthrough_columns:
+    type: list
+    description: "Additional `EVENT` columns to include in `mixpanel__sessions`. Surfaced values will reflect the first event of the session"
+    display_name: "Additional Session Event Columns"
+
+  lookback_window:
+    type: integer
+    value: 7
+    description: "Number of days into the past that the models will look back to capture late-arriving events on incremental runs"
+    display_name: "Incremental Run Lookback Window (Days)"
+
