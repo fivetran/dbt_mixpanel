@@ -24,7 +24,7 @@ supported_vars:
 
   event_custom_columns:
     type: dictionary
-    description: "Addtional `EVENT` columns to include in `mixpanel__event`"
+    description: "Additional `EVENT` columns to include in `mixpanel__event`"
     display_name: "Additional Event Columns"
 
   date_range_start:
