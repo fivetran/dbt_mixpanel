@@ -25,7 +25,7 @@ supported_vars:
   event_custom_columns:
     type: dictionary
     description: "Additional `EVENT` columns to include in `mixpanel__event`"
-    display_name: "Additional Event Columns" d
+    display_name: "Additional Event Columns"
 
   sessionization_inactivity:
     type: integer
