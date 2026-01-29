@@ -1,3 +1,10 @@
+# dbt_mixpanel v0.16.1
+
+[PR #65](https://github.com/fivetran/dbt_mixpanel/pull/65) includes the following updates:
+
+## Under the Hood
+- Removes the `date_range_start` variable from the `quickstart.yml`.
+
 # dbt_mixpanel v0.16.0
 
 [PR #64](https://github.com/fivetran/dbt_mixpanel/pull/64) includes the following updates:

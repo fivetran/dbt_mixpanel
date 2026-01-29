@@ -25,12 +25,7 @@ supported_vars:
   event_custom_columns:
     type: dictionary
     description: "Additional `EVENT` columns to include in `mixpanel__event`"
-    display_name: "Additional Event Columns"
-
-  date_range_start:
-    type: string
-    description: "Start date for the window of `EVENT` data to transform (YYYY-MM-DD format)"
-    display_name: "Date Range Start"
+    display_name: "Additional Event Columns" d
 
   sessionization_inactivity:
     type: integer
