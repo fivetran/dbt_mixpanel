@@ -15,4 +15,4 @@ include_dbt_compile: true
 test_scenarios:
   - name: "Default"
     vars: {}
-    include_incremental: false
+    include_incremental: true
