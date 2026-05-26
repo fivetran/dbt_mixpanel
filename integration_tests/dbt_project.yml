@@ -12,12 +12,12 @@ models:
     # +schema: "mixpanel_{{ var('directed_schema','dev') }}" ## To be used for validation testing
 
 vars:
-  mixpanel_schema: mixpanel_integration_tests_3
+  mixpanel_schema: mixpanel_integration_tests
 
   # mixpanel_sources: 
-  #   - schema: mixpanel_integration_tests_3
+  #   - schema: mixpanel_integration_tests
   #     name: source_3
-  #   - schema: mixpanel_integration_tests_4
+  #   - schema: mixpanel_integration_tests
   #     name: source_4
 
   mixpanel:

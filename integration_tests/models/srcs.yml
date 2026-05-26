@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: source_3 # ex: Should match name in mixpanel_sources
-    schema: mixpanel_integration_tests_3
+    schema: mixpanel_integration_tests
     database: '{{ target.database }}'
     loader: fivetran
     loaded_at_field: _fivetran_synced
@@ -184,7 +184,7 @@ sources:
               and that the version installed on this device is no older than the one required by this client.
                   
   - name: source_4 # ex: Should match name in mixpanel_sources
-    schema: mixpanel_integration_tests_4
+    schema: mixpanel_integration_tests
     database: '{{ target.database }}'
     loader: fivetran
     loaded_at_field: _fivetran_synced
