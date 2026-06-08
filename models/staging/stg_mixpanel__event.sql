@@ -24,7 +24,7 @@ fields as (
             )
         }}
 
-        {{ mixpanel.apply_source_relation() }}
+        {{ fivetran_utils.apply_source_relation(package_name='mixpanel') }}
         
         -- custom properties as specified in your dbt_project.yml
         {{ fivetran_utils.fill_pass_through_columns('event_custom_columns') }}

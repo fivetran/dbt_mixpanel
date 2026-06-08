@@ -129,7 +129,7 @@ sources:
 
           - name: wifi
             description: >
-              Boolean that is true if the event user’s device has an active, available Wifi connection, 
+              Boolean that is true if the event user's device has an active, available Wifi connection, 
               and false if not.
           
           - name: os_version

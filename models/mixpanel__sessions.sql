@@ -56,7 +56,7 @@ previous_event as (
     select 
         *,
         -- limiting session-eligibility to same calendar day
-        lag(occurred_at) over(partition by user_id, date_day, source_relation order by occurred_at asc) as previous_event_at
+        lag(occurred_at) over(partition by user_id, date_day {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by occurred_at asc) as previous_event_at
 
     from events 
 
@@ -79,7 +79,7 @@ session_numbers as (
 
     -- will cumulatively create session numbers
     sum(is_new_session) over (
-            partition by user_id, date_day, source_relation
+            partition by user_id, date_day {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }}
             order by occurred_at asc
             rows between unbounded preceding and current row
             ) as session_number
@@ -91,13 +91,13 @@ session_ids as (
 
     select
         *,
-        min(occurred_at) over (partition by source_relation, user_id, date_day, session_number) as session_started_at,
-        min(date_day) over (partition by source_relation, user_id, date_day, session_number) as session_started_on_day,
+        min(occurred_at) over (partition by user_id, date_day, session_number {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }}) as session_started_at,
+        min(date_day) over (partition by user_id, date_day, session_number {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }}) as session_started_on_day,
 
         {{ dbt_utils.generate_surrogate_key(['user_id', 'session_number', 'date_day', 'source_relation']) }} as session_id,
 
-        count(unique_event_id) over (partition by source_relation, user_id, date_day, session_number, event_type order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
-        count(unique_event_id) over (partition by source_relation, user_id, date_day, session_number order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
+        count(unique_event_id) over (partition by user_id, date_day, session_number, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by occurred_at rows between unbounded preceding and unbounded following) as number_of_this_event_type,
+        count(unique_event_id) over (partition by user_id, date_day, session_number {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by occurred_at rows between unbounded preceding and unbounded following) as total_number_of_events
 
     from session_numbers
 ),

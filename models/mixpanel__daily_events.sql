@@ -78,11 +78,11 @@ trailing_events as (
     
     select
         *,
-        sum(number_of_events) over (partition by people_id, event_type, source_relation order by date_day asc rows between 27 preceding and current row) > 0 as has_event_in_last_28_days,
-        sum(number_of_events) over (partition by people_id, event_type, source_relation order by date_day asc rows between 6 preceding and current row) > 0 as has_event_in_last_7_days,
+        sum(number_of_events) over (partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_day asc rows between 27 preceding and current row) > 0 as has_event_in_last_28_days,
+        sum(number_of_events) over (partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_day asc rows between 6 preceding and current row) > 0 as has_event_in_last_7_days,
 
         -- defining a repeat user as someone who performed an action on a given day after previously having done so in the last 28 days
-        sum(number_of_events) over (partition by people_id, event_type, source_relation order by date_day asc rows between 27 preceding and 1 preceding) > 0 
+        sum(number_of_events) over (partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_day asc rows between 27 preceding and 1 preceding) > 0 
             and number_of_events > 0 as is_repeat_user
 
     from spine_joined

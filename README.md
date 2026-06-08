@@ -63,7 +63,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.16.0", "<0.17.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.17.0", "<0.18.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 #### Databricks dispatch configuration
@@ -90,8 +90,8 @@ By default, this package runs using your destination and the `mixpanel` schema. 
 
 ```yml
 vars:
-    mixpanel_database: your_database_name
-    mixpanel_schema: your_schema_name 
+    mixpanel_database: your_destination_name
+    mixpanel_schema: your_schema_name
 ```
 
 #### Option B: Union multiple connections
@@ -103,60 +103,20 @@ To use this functionality, you will need to set the `mixpanel_sources` variable 
 # dbt_project.yml
 
 vars:
-  mixpanel_sources:
-    - database: connection_1_destination_name # Likely Required. Default value = target.database
-      schema: connection_1_schema_name # Likely Required. Default value = 'mixpanel'
-      name: connection_1_source_name # Required only if following the step in the following subsection
-
-    - database: connection_2_destination_name
-      schema: connection_2_schema_name
-      name: connection_2_source_name
-```
-
-> **Note:** If you choose to make use of this unioning functionality, you will incur an additional model materialized as a `view`, called `stg_mixpanel__event_tmp`. This extra model is necessary for the proper compilation of our connection-unioning macros.
-
-##### Recommended: Incorporate unioned sources into DAG
-> *If you are running the package through [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt#transformationsfordbtcore), the below step is necessary in order to synchronize model runs with your Mixpanel connections. Alternatively, you may choose to run the package through Fivetran [Quickstart](https://fivetran.com/docs/transformations/quickstart), which would create separate sets of models for each Mixpanel source rather than one set of unioned models.*
-
-<details><summary>Expand for details</summary>
-<br>
-
-By default, this package defines one single-connection source, called `mixpanel`, which will be disabled if you are unioning multiple connections. This means that your DAG will not include your Mixpanel sources, though the package will run successfully.
-
-To properly incorporate all of your Mixpanel connections into your project's DAG:
-1. Define each of your sources in a `.yml` file in your project. Utilize the following template for the `source`-level configurations, and, **most importantly**, copy and paste the table and column-level definitions from the package's `src_mixpanel.yml` [file](https://github.com/fivetran/dbt_mixpanel/blob/main/models/staging/src_mixpanel.yml). This package currently only uses the `EVENT` source table.
-
-```yml
-# a .yml file in your root project
-version: 2
-
-sources:
-  - name: <name> # ex: Should match name in mixpanel_sources
-    schema: <schema_name>
-    database: <database_name>
-    loader: fivetran
-    
-    config:
-      loaded_at_field: _fivetran_synced
-      freshness: # feel free to adjust to your liking
-        warn_after: {count: 72, period: hour}
-        error_after: {count: 168, period: hour}
-
-    tables:
-      - name: event
-        description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
-        columns: # copy and paste from mixpanel/models/staging/src_mixpanel.yml - see https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/ for how to use &/* anchors to only do so once
-```
-
-2. Set the `has_defined_sources` variable (scoped to the `mixpanel` package) to `True`, like such:
-```yml
-# dbt_project.yml
-vars:
   mixpanel:
-    has_defined_sources: true
+    mixpanel_sources:
+      - database: connection_1_destination_name # Required
+        schema: connection_1_schema_name # Required
+        name: connection_1_source_name # Required only if following the step in the following subsection
+
+      - database: connection_2_destination_name
+        schema: connection_2_schema_name
+        name: connection_2_source_name
 ```
 
-</details>
+#### Optional: Incorporate unioned sources into DAG
+
+If you use [Fivetran Transformations for dbt Core™](https://fivetran.com/docs/transformations/dbt#transformationsfordbtcore) and are unioning multiple Mixpanel connections, you can define your sources in a property `.yml` file, [using this as a template](https://github.com/fivetran/dbt_mixpanel/blob/main/models/staging/src_mixpanel.yml). Set the variable `has_defined_sources: true` under the Mixpanel namespace in your `dbt_project.yml`. Otherwise, your Mixpanel connections won't appear in your DAG. See the `union_connections` macro [documentation](https://github.com/fivetran/dbt_fivetran_utils/tree/releases/v0.4.latest#optional-union-connections-defined-sources-configuration) for full configuration details.
 
 ### (Optional) Additional configurations
 <details open><summary>Collapse/expand details</summary>
@@ -307,6 +267,14 @@ If an individual source table has a different name than the package expects, add
 ```yml
 vars:
     mixpanel_<default_source_table_name>_identifier: your_table_name 
+```
+
+#### Source casing for case-sensitive destinations
+By default, the package applies case-insensitive comparisons when resolving `source_relation` values. If your destination is case-sensitive and you want downstream transformations to respect the exact casing of your source database and schema names, set the following variable:
+
+```yml
+vars:
+    fivetran_using_source_casing: true
 ```
 
 ### Event De-Duplication Logic
