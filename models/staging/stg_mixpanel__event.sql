@@ -10,9 +10,6 @@ with events as (
 fields as (
 
     select
-        cast( {{ dbt.date_trunc('day', 'time') }} as date) as date_day,
-        lower(name) as event_type,
-        cast(time as {{ dbt.type_timestamp() }} ) as occurred_at,
 
         {{
             fivetran_utils.fill_staging_columns(
@@ -28,7 +25,17 @@ fields as (
     from events
     where {{ var('global_event_filter', 'true') }}
 
+),
+
+final as (
+
+    select
+        fields.*,
+        cast( {{ dbt.date_trunc('day', occurred_at) }} as date) as date_day,
+        lower(name) as event_type
+
+    from fields
 )
 
 select *
-from fields
+from final
