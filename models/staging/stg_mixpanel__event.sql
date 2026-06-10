@@ -31,7 +31,7 @@ final as (
 
     select
         fields.*,
-        cast( {{ dbt.date_trunc('day', occurred_at) }} as date) as date_day,
+        cast( {{ dbt.date_trunc('day', 'occurred_at') }} as date) as date_day,
         lower(name) as event_type
 
     from fields
