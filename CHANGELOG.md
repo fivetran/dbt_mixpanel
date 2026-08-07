@@ -1,3 +1,11 @@
+# dbt_mixpanel v0.17.1
+
+[PR #70](https://github.com/fivetran/dbt_mixpanel/pull/70) includes the following updates:
+
+## Feature Updates
+- Adds DuckDB as a supported destination.
+
+
 # dbt_mixpanel v0.17.0
 
 [PR #68](https://github.com/fivetran/dbt_mixpanel/pull/68) includes the following updates:
