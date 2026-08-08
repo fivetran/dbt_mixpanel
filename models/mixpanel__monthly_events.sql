@@ -6,7 +6,7 @@
         partition_by={
             "field": "date_month", 
             "data_type": "date"
-            } if target.type not in ('spark','databricks') 
+            } target.type not in ['spark','databricks','duckdb'] 
             else ['date_month'],
         cluster_by=['date_month', 'event_type', 'source_relation'],
         file_format='delta'
