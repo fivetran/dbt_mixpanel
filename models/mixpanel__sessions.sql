@@ -6,7 +6,7 @@
         partition_by={
             "field": "session_started_on_day", 
             "data_type": "date"
-            } if target.type not in ('spark','databricks') 
+            } if target.type not in ('spark', 'databricks', 'duckdb') 
             else ['session_started_on_day'],
         cluster_by=['session_started_on_day', 'source_relation'],
         file_format='delta'
