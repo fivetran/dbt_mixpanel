@@ -1,5 +1,5 @@
 # Only set these to override the default version ranges:
-# dbt_core_version: ">=1.3.0,<2.0.0"
+dbt_core_version: ">=1.3.0,<1.13.0"
 # dbt_core_version_v2: ">=2.0.0,<3.0.0"
 # dbt_adapter_versions:
 #   snowflake: ">=1.3.0,<2.0.0"
