@@ -30,6 +30,49 @@ with events as (
     {% endif %}
 ),
 
+{% if is_incremental() %}
+prior_user_months as (
+
+    select
+        source_relation,
+        people_id,
+        event_type,
+        max(cast( {{ dbt.date_trunc('month', 'occurred_at') }} as date)) as last_month_with_event
+
+    from {{ ref('mixpanel__event') }}
+    where date_day < {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=1) }}
+    group by 1,2,3
+),
+
+prior_monthly_users as (
+
+    select
+        source_relation,
+        event_type,
+        number_of_users
+    from (
+        select
+            source_relation,
+            event_type,
+            number_of_users,
+            row_number() over(partition by event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_month desc) as month_rank
+        from {{ this }}
+        where date_month < {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=1) }}
+    ) as ranked_months
+    where month_rank = 1
+),
+{% endif %}
+
+user_first_events as (
+
+    select
+        source_relation,
+        people_id,
+        event_type,
+        cast( {{ dbt.date_trunc('month', 'first_event_day') }} as date) as first_month
+    from {{ ref('stg_mixpanel__user_first_event') }}
+),
+
 month_totals as (
     
     select 
@@ -56,14 +99,31 @@ sub as (
 user_monthly_events as (
 
     select 
-        *, 
+        sub.*,
         -- first time a user did this kind of event
-        min(date_month) over(partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }}) as first_month,
+        user_first_events.first_month,
 
         -- last month that the user performed this kind of event during
-        lag(date_month, 1) over(partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_month asc) previous_month_with_event
+        {% if is_incremental() -%}
+        coalesce(
+            lag(sub.date_month, 1) over(partition by sub.people_id, sub.event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel', alias='sub') }} order by sub.date_month asc),
+            prior_user_months.last_month_with_event
+        ) as previous_month_with_event
+        {%- else -%}
+        lag(sub.date_month, 1) over(partition by sub.people_id, sub.event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel', alias='sub') }} order by sub.date_month asc) as previous_month_with_event
+        {%- endif %}
 
     from sub
+    left join user_first_events
+        on sub.people_id = user_first_events.people_id
+        and sub.event_type = user_first_events.event_type
+        and sub.source_relation = user_first_events.source_relation
+    {% if is_incremental() -%}
+    left join prior_user_months
+        on sub.people_id = prior_user_months.people_id
+        and sub.event_type = prior_user_months.event_type
+        and sub.source_relation = prior_user_months.source_relation
+    {%- endif %}
 ),
 
 monthly_metrics as (
@@ -100,15 +160,24 @@ monthly_metrics as (
 final as (
 
     select
-        *,
+        monthly_metrics.*,
 
         -- subtract the returned users from the previous month's total users to get the # churned
         -- note: churned users refer to users who did something last month and not this month
-        coalesce(lag(number_of_users, 1) over(partition by event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_month asc) - number_of_repeat_users, 0) as number_of_churn_users,
-        date_month || '-' || event_type || '-' || source_relation as unique_key, -- for incremental model :)
+        {% if is_incremental() -%}
+        coalesce(coalesce(lag(monthly_metrics.number_of_users, 1) over(partition by monthly_metrics.event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel', alias='monthly_metrics') }} order by monthly_metrics.date_month asc), prior_monthly_users.number_of_users) - monthly_metrics.number_of_repeat_users, 0) as number_of_churn_users,
+        {%- else -%}
+        coalesce(lag(monthly_metrics.number_of_users, 1) over(partition by monthly_metrics.event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel', alias='monthly_metrics') }} order by monthly_metrics.date_month asc) - monthly_metrics.number_of_repeat_users, 0) as number_of_churn_users,
+        {%- endif %}
+        monthly_metrics.date_month || '-' || monthly_metrics.event_type || '-' || monthly_metrics.source_relation as unique_key, -- for incremental model :)
         current_date as dbt_run_date
 
     from monthly_metrics
+    {% if is_incremental() -%}
+    left join prior_monthly_users
+        on monthly_metrics.event_type = prior_monthly_users.event_type
+        and monthly_metrics.source_relation = prior_monthly_users.source_relation
+    {%- endif %}
 )
 
 select * from final
