@@ -1,12 +1,16 @@
 config-version: 2
 name: 'mixpanel'
-version: '0.17.1'
+version: '0.17.2'
 require-dbt-version: [">=1.3.0", "<3.0.0"]
 models:
   mixpanel:
     +schema: mixpanel
     staging:
       +schema: stg_mixpanel
+      # must be a view or table (not ephemeral) since stg_mixpanel__user_event_date_spine
+      # queries it directly via dbt_utils.get_single_value
+      stg_mixpanel__user_first_event:
+        +materialized: view
 vars:
   mixpanel:
     event_table: "{{ source('mixpanel', 'event') }}"
