@@ -1,3 +1,10 @@
+# dbt_mixpanel v0.17.2
+
+[PR #73](https://github.com/fivetran/dbt_mixpanel/pull/73) includes the following updates:
+
+## Under the Hood
+- Moves the `view` materialization for `stg_mixpanel__user_first_event` from the model file to `dbt_project.yml`. The model still builds as a view, and you can override its materialization from your root `dbt_project.yml`, for example to a table on destinations that don't support views.
+
 # dbt_mixpanel v0.17.1
 
 [PR #70](https://github.com/fivetran/dbt_mixpanel/pull/70) includes the following updates:

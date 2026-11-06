@@ -1,5 +1,3 @@
-{{ config(materialized='view') }}
-
 -- using source to look at ALL-TIME events
 -- mixpanel__event is cut off by the `date_range_start` variable
 with first_events as (
