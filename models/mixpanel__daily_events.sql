@@ -26,7 +26,7 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=27, datepart='day') }}
+    where date_day >= {{ fivetran_utils.lookback(from_date="max(date_day)", interval=27, datepart='day') }}
     {% endif %}
 ),
 
@@ -37,7 +37,7 @@ date_spine as (
     from {{ ref('stg_mixpanel__user_event_date_spine') }}
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=27, datepart='day') }}
+    where date_day >= {{ fivetran_utils.lookback(from_date="max(date_day)", interval=27, datepart='day') }}
     {% endif %}
 ), 
 
@@ -129,7 +129,7 @@ final as (
     from agg_event_days
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7) + 7, datepart='day') }}
+    where date_day >= {{ fivetran_utils.lookback(from_date="max(date_day)", interval=var('lookback_window', 7) + 7, datepart='day') }}
     {% endif %}
 )
 

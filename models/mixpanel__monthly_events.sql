@@ -26,7 +26,7 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=1) }}
+    where date_day >= {{ fivetran_utils.lookback(from_date="max(date_month)", datepart='month', interval=1) }}
     {% endif %}
 ),
 

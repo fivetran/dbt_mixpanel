@@ -21,7 +21,7 @@ with stg_event as (
     where 
 
     {% if is_incremental() %}
-    date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=var('lookback_window', 7), datepart='day') }}
+    date_day >= {{ fivetran_utils.lookback(from_date="max(date_day)", interval=var('lookback_window', 7), datepart='day') }}
 
     {% else %}
     -- limit date range on the first run / refresh

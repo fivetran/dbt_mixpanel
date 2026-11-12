@@ -45,7 +45,7 @@ with events as (
         from {{ ref('mixpanel__event') }}
 
         where cast(occurred_at as date) >= 
-        {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
+        {{ fivetran_utils.lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
     )
 
     {% endif %}
@@ -160,7 +160,7 @@ session_join as (
     where session_ids.is_new_session = 1 -- only return fields of first event
 
     {% if is_incremental() %}
-    and session_started_on_day >= {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
+    and session_started_on_day >= {{ fivetran_utils.lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
     {% endif %}
 )
 
