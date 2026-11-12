@@ -4,6 +4,13 @@ models:
   - name: stg_mixpanel__event
     description: Table of all events tracked by Mixpanel across web, ios, and android platforms.
 
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - source_relation
+              - _fivetran_id
+              - occurred_at
     columns: 
       - name: _fivetran_id
         description: >
@@ -212,6 +219,13 @@ models:
   - name: stg_mixpanel__user_first_event
     description: Table in which each row represents the first day a user performed a type of event.
 
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - source_relation
+              - people_id
+              - event_type
     columns:
       - name: people_id
         description: Foreign key referencing the event's associated user's `people.distinct_id`.
