@@ -26,7 +26,7 @@ spine as (
             -- account for the week that is added to the end_date.
             {%- set first_date_query %}
                 select 
-                    cast({{ mixpanel.mixpanel_lookback(from_date="max(date_day)", interval=14, datepart='day') }} as date)
+                    cast({{ fivetran_utils.lookback(from_date="max(date_day)", interval=14, datepart='day') }} as date)
             {% endset -%}
             {%- set first_date = dbt_utils.get_single_value(first_date_query) %}
 

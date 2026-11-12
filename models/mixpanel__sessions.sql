@@ -45,7 +45,7 @@ with events as (
         from {{ ref('mixpanel__event') }}
 
         where cast(occurred_at as date) >= 
-        {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
+        {{ fivetran_utils.lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
     )
 
     {% endif %}
@@ -122,11 +122,11 @@ agg_event_types as (
         -- turn into json
         {% if target.type in ('postgres','redshift') %}
         case when count(event_type) <= {{ var('mixpanel__event_frequency_limit', 1000) }} 
-            then '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}' 
+            then '{' || {{ dbt.listagg("(event_type || ': ' || number_of_events)", "', '") }} || '}' 
             else 'Too many event types to render' 
         end
         {% else %}
-        '{' || {{ fivetran_utils.string_agg("(event_type || ': ' || number_of_events)", "', '") }} || '}'
+        '{' || {{ dbt.listagg("(event_type || ': ' || number_of_events)", "', '") }} || '}'
         {% endif %} as event_frequencies
     
     from sub
@@ -160,7 +160,7 @@ session_join as (
     where session_ids.is_new_session = 1 -- only return fields of first event
 
     {% if is_incremental() %}
-    and session_started_on_day >= {{ mixpanel.mixpanel_lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
+    and session_started_on_day >= {{ fivetran_utils.lookback(from_date="max(session_started_on_day)", interval=var('lookback_window', 7), datepart='day') }}
     {% endif %}
 )
 
