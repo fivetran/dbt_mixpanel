@@ -63,7 +63,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.19.0", "<0.20.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.18.0", "<0.19.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 #### Databricks dispatch configuration
