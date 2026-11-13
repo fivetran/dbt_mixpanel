@@ -15,7 +15,7 @@ This dbt package transforms data from Fivetran's Mixpanel connector into analyti
   - [DAG](https://fivetran.github.io/dbt_mixpanel/#!/overview?g_v=1)
   - [Changelog](https://github.com/fivetran/dbt_mixpanel/blob/main/CHANGELOG.md)
 - dbt Core™ supported versions
-  - `>=1.3.0, <3.0.0`
+  - `>=1.10.0, <3.0.0`
 
 ## What does this dbt package do?
 This package enables you to better understand user activity and retention through your event data, create daily and monthly timelines of events with user metrics, and aggregate events into unique user sessions. It creates enriched models with metrics focused on user activity, retention, and event frequency.
@@ -63,7 +63,7 @@ Include the following mixpanel package version in your `packages.yml` file:
 ```yaml
 packages:
   - package: fivetran/mixpanel
-    version: [">=0.17.0", "<0.18.0"] # we recommend using ranges to capture non-breaking changes automatically
+    version: [">=0.18.0", "<0.19.0"] # we recommend using ranges to capture non-breaking changes automatically
 ```
 
 #### Databricks dispatch configuration
