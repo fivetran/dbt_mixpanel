@@ -1,3 +1,14 @@
+# dbt_mixpanel v0.18.0
+
+[PR #77](https://github.com/fivetran/dbt_mixpanel/pull/77) includes the following updates:
+
+## Feature Update
+- Raises the minimum dbt version to 1.10.0.
+- Adds `dbt_utils.unique_combination_of_columns` tests to staging and end models. If a test fails, please [open an issue](https://github.com/fivetran/dbt_mixpanel/issues/new/choose).
+
+## Under the Hood
+- Audits the yml column documentation against the columns each model outputs. The documentation already matched, so nothing changed.
+
 # dbt_mixpanel v0.17.2
 
 [PR #73](https://github.com/fivetran/dbt_mixpanel/pull/73) includes the following updates:
