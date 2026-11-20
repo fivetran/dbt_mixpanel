@@ -13,7 +13,7 @@ models:
         description: >
           Unique ID of the event. Events are de-duped according to Mixpanel's [requirements](https://developer.mixpanel.com/reference/http#event-deduplication).
           This is hashed on `insert_id`, `people_id`, `date_day`, `source_relation`, and `event_type` 
-        tests:
+        data_tests:
           - unique
           - not_null 
 
@@ -232,7 +232,7 @@ models:
 
       - name: unique_key
         description: Unique key used for the incremental model configuration. Concats `event_type`, `date_day` and `source_relation`
-        tests:
+        data_tests:
           - unique
           - not_null
         
@@ -279,7 +279,7 @@ models:
 
       - name: unique_key
         description: Unique key used for the incremental model configuration. Concats `event_type`, `date_month` and `source_relation`
-        tests:
+        data_tests:
           - unique
           - not_null
 
@@ -301,7 +301,7 @@ models:
     columns:
       - name: session_id
         description: Unique ID of the user session. Hashed on `user_id`, `session_number`, `date_day`, and `source_relation`
-        tests:
+        data_tests:
           - unique
           - not_null
 

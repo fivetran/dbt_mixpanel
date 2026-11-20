@@ -208,7 +208,7 @@ models:
 
       - name: unique_key
         description: Unique key used for the incremental model configuration. Hashed on `people_id`, `event_type`, `source_relation`, and `date_day`.
-        tests:
+        data_tests:
           - unique
           - not_null
       
