@@ -26,8 +26,18 @@ with events as (
     from {{ ref('mixpanel__event') }}
 
     {% if is_incremental() %}
-    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=1) }}
+    where date_day >= {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=2) }}
     {% endif %}
+),
+
+user_first_events as (
+
+    select
+        source_relation,
+        people_id,
+        event_type,
+        cast( {{ dbt.date_trunc('month', 'first_event_day') }} as date) as first_month
+    from {{ ref('int_mixpanel__user_first_event') }}
 ),
 
 month_totals as (
@@ -56,14 +66,18 @@ sub as (
 user_monthly_events as (
 
     select 
-        *, 
-        -- first time a user did this kind of event
-        min(date_month) over(partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }}) as first_month,
+        sub.*, 
+        -- first time a user did this kind of event (all time)
+        user_first_events.first_month,
 
         -- last month that the user performed this kind of event during
-        lag(date_month, 1) over(partition by people_id, event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel') }} order by date_month asc) previous_month_with_event
+        lag(sub.date_month, 1) over(partition by sub.people_id, sub.event_type {{ fivetran_utils.partition_by_source_relation(package_name='mixpanel', alias='sub') }} order by sub.date_month asc) previous_month_with_event
 
     from sub
+    left join user_first_events
+        on sub.people_id = user_first_events.people_id
+        and sub.event_type = user_first_events.event_type
+        and sub.source_relation = user_first_events.source_relation
 ),
 
 monthly_metrics as (
@@ -83,8 +97,8 @@ monthly_metrics as (
             then user_monthly_events.people_id end) as number_of_repeat_users,
 
         -- defining return user as someone who has performed this action farther in the past
-        count(distinct case when user_monthly_events.previous_month_with_event is not null and
-            {{ dbt.datediff('user_monthly_events.previous_month_with_event', 'user_monthly_events.date_month', 'month') }} > 1
+        count(distinct case when user_monthly_events.first_month < user_monthly_events.date_month
+            and not coalesce({{ dbt.datediff('user_monthly_events.previous_month_with_event', 'user_monthly_events.date_month', 'month') }} = 1, false)
             then user_monthly_events.people_id end) as number_of_return_users,
 
         sum(user_monthly_events.number_of_events) as number_of_events
@@ -112,3 +126,6 @@ final as (
 )
 
 select * from final
+{% if is_incremental() %}
+where date_month >= {{ mixpanel.mixpanel_lookback(from_date="max(date_month)", datepart='month', interval=1) }}
+{% endif %}

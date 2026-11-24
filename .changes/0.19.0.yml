@@ -1,0 +1,28 @@
+version: 0.19.0
+is_breaking: true
+schema_data_changes:
+  entries:
+    - models:
+        - mixpanel__monthly_events
+      change_type: Changed field/model
+      old: Incremental runs only saw events inside the lookback window, so long-time users counted as new, repeat and return users were missed, and churn was 0 for the first month of each run.
+      new: Incremental runs read one extra month of events and take each user's all-time first event from `int_mixpanel__user_first_event`, so results match a full refresh.
+      is_breaking: true
+      notes: Past months stay incorrect until you run `dbt run --full-refresh`.
+    - models:
+        - mixpanel__monthly_events
+      change_type: Changed field/model
+      old: "`number_of_return_users` counted users whose previous active month was more than one month back."
+      new: "`number_of_return_users` counts users who performed the event before this month but not in the previous month."
+      is_breaking: false
+      notes: Same results on a full refresh. With `date_range_start` set, users active before that date now count as returning instead of new, as the `number_of_new_users` description states.
+    - models:
+        - int_mixpanel__user_first_event
+      change_type: New field/model
+      is_breaking: false
+      notes: Incremental table of each user's first and last event day per event type, so incremental runs of `mixpanel__monthly_events` don't re-scan all events.
+contributors:
+  - name: porkedchop
+    github_handle: porkedchop
+    contribution: Reported and diagnosed the incremental bug in issue 74 and opened PR 75.
+    pr_number: 75
