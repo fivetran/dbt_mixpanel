@@ -10,7 +10,6 @@ models:
             combination_of_columns:
               - source_relation
               - _fivetran_id
-              - occurred_at
     columns: 
       - name: _fivetran_id
         description: >
